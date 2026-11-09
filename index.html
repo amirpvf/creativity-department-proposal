@@ -73,7 +73,13 @@ button{font-family:inherit}
 
 .hero p.anote{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;opacity:1;margin:14px 0 0;max-width:520px;line-height:1.9}
 .golisten{flex:none;display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.6);color:#fff;transition:.2s;animation:nudge 2.4s ease-in-out infinite}
-.golisten svg{width:21px;height:21px}.golisten:hover{background:#fff;color:var(--navy)}
+.golisten svg{width:21px;height:21px}
+.pmeta{margin:30px 0 -6px;display:flex;flex-direction:column;gap:6px;color:var(--gray);font-family:var(--ui)}
+.pmeta p{margin:0;display:flex;align-items:center;gap:8px;font-size:13.5px;line-height:1.9}
+.pmeta .rt svg{width:15px;height:15px;color:var(--blue)}
+.pmeta .golisten{width:32px;height:32px;background:var(--sky);border-color:var(--sky2);color:var(--blue)}
+.pmeta .golisten svg{width:18px;height:18px}.pmeta .golisten:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.golisten:hover{background:#fff;color:var(--navy)}
 @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 .listen{margin:10px auto 40px;max-width:640px;border-radius:24px;padding:24px 22px;color:#fff;text-align:center;background:linear-gradient(to left,#5ab6e6 0%,#5ec0de 50%,#69c9cf 80%,#79cfc4 100%);box-shadow:var(--shadow);scroll-margin-top:90px}
 .listen h2{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 4px;font-size:21px}.listen h2 svg{width:22px;height:22px}
@@ -384,8 +390,6 @@ button{font-family:inherit}
       <span class="eyebrow">پروپوزال</span>
       <h1>دپارتمان خلاقیت تایم‌کوچ</h1>
       <p class="sub">پرسشگری و خلاقیت؛ دو بال پرواز انسان آینده</p>
-      <p class="anote">برای صرفه‌جویی در وقت شما، متن کامل پروپوزال به‌صورت صوتی هم آماده شده است.<a class="golisten" href="#listen" aria-label="رفتن به نسخهٔ صوتی در پایین صفحه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><rect x="16.8" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><path d="M12 15.5v6m0 0l-2.3-2.3M12 21.5l2.3-2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
-      <p class="rt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>زمان مطالعهٔ پروپوزال: حدود ۱۵ دقیقه</p>
       <div class="scroll-hint">
         <a class="btn btn-w" href="#s1" data-scroll>خواندن پروپوزال</a>
         <a class="btn btn-o" href="#gallery">گالری خلاقیت</a>
@@ -395,6 +399,10 @@ button{font-family:inherit}
   </section>
 
   <div class="wrap">
+    <div class="pmeta">
+      <p class="rt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>زمان مطالعهٔ پروپوزال: حدود ۱۵ دقیقه</p>
+      <p class="anote">برای صرفه‌جویی در وقت شما، متن کامل پروپوزال به‌صورت صوتی هم آماده شده است.<a class="golisten" href="#listen" aria-label="رفتن به نسخهٔ صوتی در پایین صفحه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><rect x="16.8" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><path d="M12 15.5v6m0 0l-2.3-2.3M12 21.5l2.3-2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
+    </div>
     <section class="sec" id="s1">
       <h2><span class="n">۱</span>خلق، از سر کمال<button type="button" class="hear" data-t="9.3" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p class="lead">در روایت‌های کهن آمده است که خداوند انسان را آفرید تا موجودی دیگر نیز از کمال او بهره‌مند شود و از آن لذت ببرد. از میان همهٔ نیازها، تنها نیازی که نه از نقص و کمبود، بلکه برخاسته از کمال پروردگار بود، خلق کردن و خلاقیت است. از این منظر، والاترین مرتبهٔ رسالت انسانی نیز آفرینش است؛ خلاقیتی که در خدمت بهبود زندگی انسان‌ها و همسو با مسیر خالق خویش است.</p>
