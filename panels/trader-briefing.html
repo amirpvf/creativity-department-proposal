@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script data-demo-inject>
+(function(){var F='trader-briefing.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<title>SD+ Crypto — Pre-Session Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-mute: #8a8a8a;
+    --rule: #e4ddd0;
+    --accent: #c8501a;
+    --accent-soft: #f5e6db;
+    --blue: #2a5b8c;
+    --blue-soft: #dbe7f3;
+    --green: #2d6a4f;
+    --green-soft: #d8eadc;
+    --red: #9d2235;
+    --red-soft: #f3dcdf;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter Tight', sans-serif; font-size: 14px; line-height: 1.55; }
+  body {
+    padding: 48px 56px;
+    max-width: 920px;
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 10% 0%, rgba(200, 80, 26, 0.04) 0%, transparent 40%),
+      var(--bg);
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 44px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .subtitle {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    font-weight: 400;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 32px;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2::before {
+    content: attr(data-num);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  h3 {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 18px;
+    margin-bottom: 6px;
+  }
+
+  p { margin-bottom: 12px; color: var(--ink-soft); }
+  p strong { color: var(--ink); font-weight: 600; }
+  p em { font-style: italic; color: var(--ink); }
+
+  /* Spec box */
+  .spec {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 18px 22px;
+    border-radius: 2px;
+    margin: 16px 0;
+  }
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 10px 20px;
+  }
+  .spec-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding-top: 2px;
+  }
+  .spec-val {
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .spec-val strong { font-weight: 600; }
+  .spec-val code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--bg); padding: 1px 5px; border-radius: 2px; }
+
+  /* Pattern grid */
+  .patterns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .pattern {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 12px 14px;
+    border-radius: 2px;
+  }
+  .pattern-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .pattern-name {
+    font-size: 12px;
+    color: var(--ink);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .pattern-desc {
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Stat row */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .stat {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    border-radius: 2px;
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .stat-num .unit { font-size: 13px; color: var(--ink-mute); font-weight: 400; }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  /* Confidence callout */
+  .confidence {
+    background: linear-gradient(135deg, var(--accent-soft) 0%, var(--paper) 100%);
+    border: 1px solid var(--accent);
+    border-left: 4px solid var(--accent);
+    padding: 18px 22px;
+    border-radius: 2px;
+    margin: 18px 0;
+  }
+  .confidence-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .confidence-body {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .confidence-body em { font-style: italic; }
+
+  /* Panel cards */
+  .panel-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rule);
+    padding: 16px 20px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+  .panel-card.p1 { border-left-color: var(--blue); }
+  .panel-card.p2 { border-left-color: var(--green); }
+  .panel-card.p3 { border-left-color: var(--red); }
+  .panel-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-mute);
+    margin-bottom: 4px;
+  }
+  .panel-card.p1 .panel-name { color: var(--blue); }
+  .panel-card.p2 .panel-name { color: var(--green); }
+  .panel-card.p3 .panel-name { color: var(--red); }
+  .panel-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .panel-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .panel-desc strong { color: var(--ink); }
+
+  /* Honest box */
+  .honest {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin: 24px 0;
+  }
+  .honest-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .honest-body {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .honest-body em { font-style: italic; color: #f5e6db; }
+  .honest-body strong { font-weight: 700; }
+
+  /* List */
+  ul.clean {
+    margin: 8px 0 12px 18px;
+  }
+  ul.clean li {
+    margin-bottom: 6px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  ul.clean li strong { color: var(--ink); }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+    margin-top: 36px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.06em;
+  }
+
+  @media print {
+    body { padding: 24px; }
+    .honest, .confidence { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h2 { page-break-after: avoid; }
+    .panel-card { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">— PRE-SESSION BRIEFING</div>
+  <h1>How we found these <em>zones</em></h1>
+  <div class="subtitle">What the system does, what it claims, and what we want from your eyes.</div>
+</header>
+
+<h2 data-num="01">What you're looking at</h2>
+
+<p>
+The TradingView script you'll load shows <strong>28 supply &amp; demand zones</strong> that an automated detector pulled out of two years of Binance and Bybit perpetual data. Each zone is a price area where the chart showed a tight consolidation (a "base") followed by an impulsive move out of that base. Classic supply/demand logic, programmed and run at scale.
+</p>
+
+<p>
+These aren't random zones. They're a curated selection — the ones the system has the strongest opinions about, both positive and negative. Your job is to tell me whether the system's opinions match what you'd actually trade.
+</p>
+
+<h2 data-num="02">The exact spec — how zones were found</h2>
+
+<div class="spec">
+<div class="spec-grid">
+  <div class="spec-key">Timeframe</div>
+  <div class="spec-val">
+    <strong>H1 (1-hour candles)</strong>. Zones are detected on the hourly chart. You can flip to any timeframe in TradingView once a zone is on screen — the rectangles stay anchored to the H1 detection time.
+  </div>
+
+  <div class="spec-key">Forward window</div>
+  <div class="spec-val">
+    The system measures what happened in the <strong>24 hours after the zone formed</strong> (24 × H1 bars). Each zone is then classified as a win, loss, no_touch, or chop based on whether price hit a placeholder target or stop within that window.
+  </div>
+
+  <div class="spec-key">Base detection</div>
+  <div class="spec-val">
+    A "base" is <strong>2–8 consecutive H1 candles</strong> where the total range stays within 1.5× ATR(14). Tight, but lenient by design — we want the proposer to surface candidates, not pre-filter them.
+  </div>
+
+  <div class="spec-key">Leg-out detection</div>
+  <div class="spec-val">
+    The candle immediately after the base must have a body bigger than <strong>0.8× ATR(14)</strong> and close beyond the base bounds. That's the impulsive move that gives the zone its directional bias.
+  </div>
+
+  <div class="spec-key">Pattern types</div>
+  <div class="spec-val">All four classical S&amp;D variants — see panel below.</div>
+
+  <div class="spec-key">Asset universe</div>
+  <div class="spec-val">
+    <code>BTCUSDT.P</code>, <code>ETHUSDT.P</code>, <code>SOLUSDT.P</code> on both Binance and Bybit. Funding rate, multiple EMAs, RSI, ATR percentile, and time-of-day all logged at zone formation.
+  </div>
+
+  <div class="spec-key">Detection window</div>
+  <div class="spec-val">
+    Trained the scoring models on <strong>2024-01 → 2025-06</strong>. The zones you'll see in the script are from <strong>2025-07 onwards</strong> — out-of-sample, the model never trained on them.
+  </div>
+</div>
+</div>
+
+<h3>The four pattern types</h3>
+
+<div class="patterns">
+  <div class="pattern">
+    <div class="pattern-code">RBR</div>
+    <div class="pattern-name">Rally → Base → Rally</div>
+    <div class="pattern-desc">Continuation demand. Up move pauses, continues up.</div>
+  </div>
+  <div class="pattern">
+    <div class="pattern-code">DBR</div>
+    <div class="pattern-name">Drop → Base → Rally</div>
+    <div class="pattern-desc">Reversal demand. Down move pauses, reverses up.</div>
+  </div>
+  <div class="pattern">
+    <div class="pattern-code">RBD</div>
+    <div class="pattern-name">Rally → Base → Drop</div>
+    <div class="pattern-desc">Reversal supply. Up move pauses, reverses down.</div>
+  </div>
+  <div class="pattern">
+    <div class="pattern-code">DBD</div>
+    <div class="pattern-name">Drop → Base → Drop</div>
+    <div class="pattern-desc">Continuation supply. Down move pauses, continues down.</div>
+  </div>
+</div>
+
+<h2 data-num="03">The dataset behind the selection</h2>
+
+<div class="stat-row">
+  <div class="stat">
+    <div class="stat-num">3,934</div>
+    <div class="stat-label">Total zones detected, 2 years</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Pair × exchange combinations</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">~720<span class="unit">k</span></div>
+    <div class="stat-label">H1 candles analyzed</div>
+  </div>
+</div>
+
+<h2 data-num="04">How confident we are</h2>
+
+<div class="confidence">
+  <div class="confidence-label">— THE HONEST ANSWER</div>
+  <div class="confidence-body">
+    The system works in a <em>two-stage</em> way, and we have different confidence in each stage.
+  </div>
+</div>
+
+<h3>Stage 1 — Predicting which zones resolve cleanly within 4 hours</h3>
+<p>
+This is the system's <strong>strongest signal</strong>. Across BTC, ETH, and SOL, it correctly predicts which zones will hit a clean win or loss within 4 hours about <strong>71% of the time</strong> on out-of-sample data. The top decile of "will resolve" zones actually resolves <strong>52.5%</strong> of the time; the bottom decile only <strong>3.0%</strong>. That's a real, calibrated separation.
+</p>
+
+<h3>Stage 2 — Among zones that resolve, predicting win vs loss</h3>
+<p>
+Weaker, and asset-dependent. On <strong>ETH specifically</strong>, when we filter to zones the resolution model flagged as "will resolve" and look at the top decile of "this will win" predictions, the model is right about <strong>76% of the time</strong> on out-of-sample data. On BTC the equivalent number is roughly <strong>67% but with wide error bars</strong>. On <strong>SOL it doesn't work at all</strong> — basically random.
+</p>
+
+<h3>What this means in plain terms</h3>
+<ul class="clean">
+  <li><strong>The system can identify "easy call" zones</strong> across all three assets (Stage 1 works).</li>
+  <li><strong>Among those easy calls, it picks winners well on ETH, somewhat on BTC, poorly on SOL.</strong></li>
+  <li>The signal only holds at <strong>short horizons (4h forward, sometimes 8h)</strong>. At 24h, signal vanishes.</li>
+  <li>None of this accounts for fees, slippage, or real execution. These are correlations on historical data, not P&amp;L.</li>
+</ul>
+
+<h2 data-num="05">What we want from this session</h2>
+
+<p>
+The TradingView script will show you 28 zones grouped into three panels, color-coded:
+</p>
+
+<div class="panel-card p1">
+  <div class="panel-name">PANEL 1 — BLUE</div>
+  <div class="panel-title">Does the "easy call" filter match your eye?</div>
+  <div class="panel-desc">
+    <strong>12 zones</strong> — 6 the system flags as "will resolve cleanly within 4h," 6 it flags as "won't resolve." Outcomes are <strong>hidden</strong> from you. Just tell us whether each one looks like a setup <strong>you would trade</strong>, regardless of how it played out. We're testing whether the system's "easy" matches your "I'd take that."
+  </div>
+</div>
+
+<div class="panel-card p2">
+  <div class="panel-name">PANEL 2 — GREEN</div>
+  <div class="panel-title">Can you rank ETH zones by likelihood of winning?</div>
+  <div class="panel-desc">
+    <strong>8 ETH zones</strong>, all from the "will resolve" pool, presented in <strong>scrambled order</strong>. Your task: rank them 1 (most likely winner) to 8 (least likely). Outcomes hidden until you submit. We'll compare your ranking to the model's and to what actually happened. This tests whether the model's strongest signal lines up with your judgment.
+  </div>
+</div>
+
+<div class="panel-card p3">
+  <div class="panel-name">PANEL 3 — RED</div>
+  <div class="panel-title">Why did the model fail here?</div>
+  <div class="panel-desc">
+    <strong>8 zones (4 BTC, 4 SOL)</strong> where the model predicted a win but the trade <strong>actually lost</strong>. Outcomes shown from the start. Free-text question: what did the model miss? Real setup that failed for an external reason? Or did the model misjudge the setup itself?
+  </div>
+</div>
+
+<h2 data-num="06">Important — please don't do these</h2>
+
+<ul class="clean">
+  <li><strong>Don't try to back-figure the model's prediction</strong> from the score we show you. The number on each zone in panels 1 and 2 is the resolution probability — it's a property of the zone, not a "we think this will win" claim. Treat it as background.</li>
+  <li><strong>Don't look up the outcome elsewhere</strong> before you submit your panel 1 and 2 answers. The redaction is the point. Once you've submitted, the script will reveal everything.</li>
+  <li><strong>Don't optimize your answers for what you think we want to hear.</strong> If a zone looks bad to you, mark it bad. If panel 2's ranking feels random because all 8 zones look similar, say so — that's a valid signal too.</li>
+</ul>
+
+<h2 data-num="07">What we'll do with your answers</h2>
+
+<p>
+After the session, we'll know one of three things:
+</p>
+
+<ul class="clean">
+  <li><strong>Your judgment lines up with the model</strong> on the strong-confidence zones → we have a candidate signal worth validating with real money on paper trades first.</li>
+  <li><strong>Your judgment disagrees with the model</strong> in specific ways → the disagreement tells us what features the model is missing. We'd add those features and retrain.</li>
+  <li><strong>Your judgment is mixed</strong> — agreement on some zones, disagreement on others, no clear pattern → we'd narrow the scope (maybe only ETH, maybe only certain pattern types) and try again.</li>
+</ul>
+
+<p>
+All three outcomes are useful. None of them require the session to "go well" in any particular direction.
+</p>
+
+<div class="honest">
+  <div class="honest-label">— ONE LAST THING</div>
+  <div class="honest-body">
+    The system has run <strong>three rounds of validation</strong> on its own findings, and <strong>three different headline claims have been retired</strong> when they didn't survive testing. What's in the script is what's left after that process. The point of bringing it to you isn't to validate that we're right. It's to find out what we're missing.
+  </div>
+</div>
+
+<footer>
+  <div>SD+ Crypto · Pre-session briefing · v1</div>
+  <div>Read before opening the TradingView scripts</div>
+</footer>
+
+</body>
+</html>

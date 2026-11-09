@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پنل ارگانیک پلنینگ</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+:root{
+  --bg:#F6F4EE; --card:#FFFFFF; --ink:#12211C; --body:#3A4A43; --muted:#7C8A83;
+  --green:#2C6B52; --green-d:#1B4536; --green-l:#EAF2ED;
+  --amber:#B87A22; --amber-l:#FBF3E4; --red:#B5462F; --red-l:#FBEDE9;
+  --line:#E3DDD0; --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--bg);color:var(--body);
+  font-family:Vazirmatn,system-ui,sans-serif;font-size:15px;line-height:1.9;
+}
+.wrap{max-width:820px;margin:0 auto;padding:0 14px 90px}
+
+/* header */
+header{background:linear-gradient(160deg,#1B4536,#2C6B52);color:#fff;padding:22px 0 60px;margin-bottom:-45px}
+header .wrap{padding-bottom:0}
+h1{font-size:20px;font-weight:800;margin:0}
+.sub{font-size:12.5px;color:#BFDCCB;margin-top:2px}
+.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.rel{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 12px;text-align:center;min-width:112px}
+.rel b{display:block;font-size:20px;color:#fff;line-height:1.4}
+.rel span{font-size:10.5px;color:#BFDCCB}
+
+/* tabs */
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 0 10px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  flex:0 0 auto;background:#fff;border:1px solid var(--line);color:var(--body);
+  font-family:inherit;font-size:13px;padding:8px 14px;border-radius:20px;cursor:pointer;font-weight:500;
+}
+nav button.on{background:var(--green-d);color:#fff;border-color:var(--green-d)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.card h2{font-size:15.5px;color:var(--green-d);margin:0 0 4px;font-weight:800}
+.card p.lead{font-size:12.5px;color:var(--muted);margin:0 0 12px;line-height:1.8}
+h3{font-size:13.5px;color:var(--ink);margin:14px 0 6px;font-weight:700}
+.hide{display:none!important}
+
+/* sliders */
+.slider-row{margin-bottom:10px}
+.slider-row label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:2px}
+.slider-row label b{color:var(--green);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--green);height:22px}
+
+/* capacity */
+.cap{display:flex;align-items:center;gap:14px;background:var(--green-l);border-radius:12px;padding:12px 14px;margin-top:6px}
+.ring{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-weight:800;color:var(--green-d);font-size:15px;background:conic-gradient(var(--green) 0deg,#D7E5DC 0deg)}
+.ring i{background:var(--green-l);width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-style:normal}
+.cap .txt{font-size:13px;line-height:1.8}
+.cap .txt b{color:var(--green-d)}
+
+/* inputs */
+input[type=text],textarea,select{
+  width:100%;font-family:inherit;font-size:14px;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#FDFCF9;
+}
+input:focus,textarea:focus{outline:2px solid #CFE0D6;border-color:var(--green)}
+textarea{resize:vertical;line-height:1.9}
+label.fl{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
+
+.btn{
+  font-family:inherit;font-size:13.5px;font-weight:600;border-radius:10px;padding:9px 16px;
+  border:1px solid var(--green-d);background:var(--green-d);color:#fff;cursor:pointer
+}
+.btn.ghost{background:#fff;color:var(--green-d)}
+.btn.sm{font-size:12px;padding:6px 11px;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.amber{background:var(--amber);border-color:var(--amber)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-size:12px;background:#F3F0E8;border:1px solid var(--line);border-radius:16px;padding:5px 11px;cursor:pointer}
+.chip:hover{background:var(--green-l);border-color:var(--green)}
+
+.alert{border-radius:10px;padding:10px 13px;font-size:12.5px;line-height:1.85;margin-top:8px}
+.alert.warn{background:var(--red-l);border-right:3px solid var(--red);color:#8C3A26}
+.alert.ok{background:var(--green-l);border-right:3px solid var(--green);color:var(--green-d)}
+.alert.info{background:var(--amber-l);border-right:3px solid var(--amber);color:#7A5214}
+
+/* task */
+.task{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#FDFCF9}
+.task.done{border-color:#BFD9CB;background:var(--green-l)}
+.task.planb{border-color:#E7CFA0;background:var(--amber-l)}
+.task.miss{border-color:#E8C7BC;background:var(--red-l)}
+.task .t-title{font-weight:700;color:var(--ink);font-size:14.5px}
+.task .t-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+.task .t-b{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line)}
+.task .t-b span{color:var(--amber);font-weight:700}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.badge{display:inline-block;font-size:11px;border-radius:6px;padding:2px 8px;font-weight:600}
+.badge.g{background:#DCEBE2;color:var(--green-d)} .badge.a{background:#F6E7CB;color:#7A5214} .badge.r{background:#F5DCD4;color:#8C3A26}
+
+/* two col */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.cols{grid-template-columns:1fr}}
+.col-box{border:1px solid var(--line);border-radius:12px;padding:11px;background:#FDFCF9}
+.col-box h4{margin:0 0 7px;font-size:13px;font-weight:700}
+.col-box.ctrl h4{color:var(--green)} .col-box.nctrl h4{color:var(--red)}
+.mini{list-style:none;padding:0;margin:0;font-size:13px}
+.mini li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.mini li:last-child{border:none}
+.mini .x{color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
+
+/* checklist */
+.chk{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;padding:7px 0;cursor:pointer;border-bottom:1px dashed var(--line)}
+.chk:last-child{border:none}
+.chk input{accent-color:var(--green);width:17px;height:17px;margin-top:4px;flex:0 0 auto}
+
+/* wizard */
+.wz-q{font-size:15px;font-weight:700;color:var(--green-d);margin-bottom:8px;line-height:1.8}
+.wz-steps{display:flex;gap:4px;margin-bottom:12px}
+.wz-steps i{height:4px;flex:1;background:#E3DDD0;border-radius:3px}
+.wz-steps i.on{background:var(--green)}
+.trail{font-size:12.5px;color:var(--muted);margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.trail div{margin-bottom:3px}
+.trail b{color:var(--body)}
+
+.stat{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.stat div{flex:1;min-width:88px;background:#FDFCF9;border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center}
+.stat b{display:block;font-size:19px;color:var(--green-d);font-weight:800}
+.stat span{font-size:11px;color:var(--muted)}
+.quote{background:var(--green-l);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--green-d);line-height:1.85;margin-top:10px}
+.foot{text-align:center;font-size:11.5px;color:var(--muted);padding:16px 0}
+.saving{position:fixed;bottom:14px;right:14px;background:var(--green-d);color:#fff;font-size:12px;padding:6px 13px;border-radius:20px;opacity:0;transition:.3s}
+.saving.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hdr-row">
+    <div>
+      <h1>پنل ارگانیک پلنینگ</h1>
+      <div class="sub" id="today"></div>
+    </div>
+    <div class="rel">
+      <b id="relScore">—</b>
+      <span>رابطه با خودم<br>(۷ روز اخیر)</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav id="tabs">
+    <button data-t="today" class="on">امروز</button>
+    <button data-t="energy">انرژی و نشتی</button>
+    <button data-t="ask">چی کم بود؟</button>
+    <button data-t="mirror">آینه</button>
+    <button data-t="week">آخر هفته</button>
+  </nav>
+
+  <!-- ============ TAB: TODAY ============ -->
+  <section id="tab-today">
+    <div class="card">
+      <h2>۱ · بستر الان و اینجا</h2>
+      <p class="lead">قبل از هر برنامه‌ای، شرایط واقعی «منِ امروز» را ببین — بدون قضاوت، فقط مثل یک دوربین.</p>
+      <div class="slider-row"><label>خواب دیشب <b id="v-sleep">۳</b></label><input type="range" id="s-sleep" min="1" max="5" value="3"></div>
+      <div class="slider-row"><label>انرژی جسمی <b id="v-body">۳</b></label><input type="range" id="s-body" min="1" max="5" value="3"></div>
+      <div class="slider-row"><label>آرامش ذهنی <b id="v-mind">۳</b></label><input type="range" id="s-mind" min="1" max="5" value="3"></div>
+      <div class="slider-row"><label>زمان آزاد امروز <b id="v-time">۳</b></label><input type="range" id="s-time" min="1" max="5" value="3"></div>
+      <div class="cap">
+        <div class="ring" id="ring"><i id="capNum">۶۰٪</i></div>
+        <div class="txt" id="capTxt"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>۲ · تعهد امروز + پلن بی</h2>
+      <p class="lead">هر پلن ای بدون پلن بی، یک قمار است. تعهدی ثبت کن که مطمئنی «منِ آینده» انجامش می‌دهد.</p>
+
+      <label class="fl">پلن ای — دقیق و کوچک بنویس</label>
+      <input type="text" id="i-title" placeholder="مثلاً: ۱۵ دقیقه پیاده‌روی تند بعد از ناهار">
+
+      <label class="fl">چقدر مطمئنی که انجامش می‌دهی؟ <b id="v-conf" style="color:var(--green)">۸۰٪</b></label>
+      <input type="range" id="s-conf" min="10" max="100" step="5" value="80">
+      <div id="confMsg"></div>
+
+      <label class="fl">پلن بی — اگر انجام نشد، آگاهانه چه می‌کنی؟</label>
+      <input type="text" id="i-planb" placeholder="جذاب، کم‌فایده، اما غیرمخرب">
+      <div class="chips" id="planbChips"></div>
+      <label class="chk" style="margin-top:8px"><input type="checkbox" id="c-nondest"><span>این پلن بی مخرب نیست و بعدش حالم بد نمی‌شود.</span></label>
+
+      <div style="margin-top:12px"><button class="btn" id="addBtn">ثبت تعهد امروز</button></div>
+    </div>
+
+    <div class="card">
+      <h2>۳ · ثبت صادقانهٔ نتیجه</h2>
+      <p class="lead">سرنوشت را پلن ای نمی‌سازد؛ پلن بی می‌سازد. ثبت کن واقعاً چه اتفاقی افتاد.</p>
+      <div id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: ENERGY ============ -->
+  <section id="tab-energy" class="hide">
+    <div class="card">
+      <h2>ورودی‌های انرژی امروز</h2>
+      <p class="lead">اگر «منِ آینده» همیشه بی‌حال است، مسئله انگیزه نیست؛ ورودی‌ها کم است.</p>
+      <div id="inputsList"></div>
+      <div class="alert ok" id="inputScore"></div>
+    </div>
+
+    <div class="card">
+      <h2>تمرکز: قابل کنترل / غیرقابل کنترل</h2>
+      <p class="lead">بزرگ‌ترین نشتی انرژی روی کرهٔ زمین، تمرکز روی غیرقابل‌کنترل‌هاست.</p>
+      <input type="text" id="i-worry" placeholder="یک دغدغهٔ امروزت را بنویس…">
+      <div class="acts">
+        <button class="btn sm" data-ctrl="1">قابل کنترل است ← وارد برنامه</button>
+        <button class="btn sm ghost" data-ctrl="0">غیرقابل کنترل ← رهایش کن</button>
+      </div>
+      <div class="cols" style="margin-top:12px">
+        <div class="col-box ctrl"><h4>برایش برنامه می‌ریزم</h4><ul class="mini" id="ctrlList"></ul></div>
+        <div class="col-box nctrl"><h4>از برنامه خارج می‌شود</h4><ul class="mini" id="nctrlList"></ul></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>مهارت این شش ماه</h2>
+      <p class="lead">هر شش ماه یک مهارت، به‌عنوان پلن بی.</p>
+      <input type="text" id="i-skill" placeholder="مثلاً: مکالمهٔ انگلیسی با سریال">
+      <button class="btn sm" id="saveSkill" style="margin-top:8px">ثبت</button>
+      <div id="skillNow"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: ASK ============ -->
+  <section id="tab-ask" class="hide">
+    <div class="card">
+      <h2>پرسشگری به‌جای سرزنش</h2>
+      <p class="lead">نقد را به ارزیابی تبدیل کن. یکی از دو مسیر را انتخاب کن.</p>
+      <div class="acts">
+        <button class="btn" id="startWhat">«چی کم بود؟» — هفت لایه</button>
+        <button class="btn ghost" id="startCmp">دام مقایسه — هشت پرسش</button>
+      </div>
+    </div>
+
+    <div class="card hide" id="wzCard">
+      <div class="wz-steps" id="wzSteps"></div>
+      <div class="wz-q" id="wzQ"></div>
+      <textarea id="wzA" rows="2" placeholder="صادقانه بنویس…"></textarea>
+      <div class="acts">
+        <button class="btn" id="wzNext">پرسش بعدی</button>
+        <button class="btn ghost sm" id="wzStop">پایان و ذخیره</button>
+      </div>
+      <div class="trail" id="wzTrail"></div>
+    </div>
+
+    <div class="card" id="wzLogCard">
+      <h2>آنچه از خودت فهمیدی</h2>
+      <div id="wzLog"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: MIRROR ============ -->
+  <section id="tab-mirror" class="hide">
+    <div class="card">
+      <h2>«ولی»‌یاب</h2>
+      <p class="lead">مغز فقط بعدِ «ولی» را می‌شنود. جمله‌ات را دربارهٔ خودت بنویس تا ببینی کجا خودت را حذف می‌کنی.</p>
+      <textarea id="i-vali" rows="3" placeholder="مثلاً: همیشه شاگرد خوبی بودم، ولی یک جایی کم آوردم."></textarea>
+      <div id="valiOut"></div>
+    </div>
+
+    <div class="card">
+      <h2>سه موهبت امروز</h2>
+      <p class="lead">نه نگاه مثبت، نه منفی — نگاه منصفانه. دیدن داشته‌ها خلاقیت می‌آورد.</p>
+      <input type="text" id="i-gift" placeholder="یک داشته یا یک کار انجام‌شده…">
+      <button class="btn sm" id="addGift" style="margin-top:8px">افزودن</button>
+      <ul class="mini" id="giftList" style="margin-top:10px"></ul>
+    </div>
+
+    <div class="card">
+      <h2>آمار هفتهٔ من</h2>
+      <div class="stat" id="stats"></div>
+      <div class="quote" id="statMsg"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB: WEEK ============ -->
+  <section id="tab-week" class="hide">
+    <div class="card">
+      <h2>برنامهٔ آخر هفته</h2>
+      <p class="lead">گاهی مهم‌تر از برنامهٔ طول هفته. اگر آدم منظمی هستی، عمداً یک بازهٔ بی‌برنامه بگذار.</p>
+      <label class="fl">تفریح و استراحتِ آخر هفته (این‌ها پلن ای هستند، نه پلن بی)</label>
+      <textarea id="i-weekend" rows="3" placeholder="مثلاً: جمعه صبح بدون برنامه، عصر کافه و کتاب…"></textarea>
+      <label class="fl">یک بازهٔ عمداً بی‌برنامه</label>
+      <input type="text" id="i-free" placeholder="مثلاً: جمعه ۱۰ تا ۱۳">
+      <button class="btn sm" id="saveWeek" style="margin-top:10px">ذخیره</button>
+    </div>
+
+    <div class="card">
+      <h2>برنامهٔ خواب</h2>
+      <p class="lead">تنها پلن ای‌ای که صددرصد انجامش می‌دهیم و هیچ برنامه‌ای برایش نداریم.</p>
+      <div class="cols">
+        <div><label class="fl">ساعت خواب هدف</label><input type="text" id="i-sleepT" placeholder="۲۳:۰۰"></div>
+        <div><label class="fl">ساعت بیداری هدف</label><input type="text" id="i-wakeT" placeholder="۰۷:۰۰"></div>
+      </div>
+      <div id="sleepRules" style="margin-top:10px"></div>
+      <button class="btn sm" id="saveSleep" style="margin-top:10px">ذخیره</button>
+    </div>
+  </section>
+
+  <div class="foot">پنل نمونه بر اساس سمینار «ارگانیک پلنینگ» — داده‌ها روی همین دستگاه ذخیره می‌شوند.</div>
+</div>
+
+<div class="saving" id="toast">ذخیره شد</div>
+
+<script>
+/* ---------- helpers ---------- */
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const $ = s => document.querySelector(s);
+const todayKey = () => new Date().toISOString().slice(0,10);
+const KEY = 'op:data:v1';
+
+let D = { days:{}, ctrl:[], nctrl:[], gifts:{}, wz:[], week:{}, skill:'' };
+let memoryOnly = false;
+
+async function load(){
+  try{
+    const r = await window.storage.get(KEY);
+    if(r && r.value) D = Object.assign(D, JSON.parse(r.value));
+  }catch(e){ /* کلید هنوز وجود ندارد یا storage در دسترس نیست */ }
+  render();
+}
+let saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      await window.storage.set(KEY, JSON.stringify(D));
+      toast('ذخیره شد');
+    }catch(e){ memoryOnly = true; toast('ذخیرهٔ موقت'); }
+  }, 300);
+}
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),1200); }
+function day(k){
+  k = k || todayKey();
+  if(!D.days[k]) D.days[k] = { bed:{sleep:3,body:3,mind:3,time:3}, tasks:[], inputs:{} };
+  return D.days[k];
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    ['today','energy','ask','mirror','week'].forEach(t=>$('#tab-'+t).classList.toggle('hide', t!==b.dataset.t));
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+
+/* ---------- 1. بستر ---------- */
+const beds = ['sleep','body','mind','time'];
+beds.forEach(k=>{
+  $('#s-'+k).oninput = e=>{
+    $('#v-'+k).textContent = fa(e.target.value);
+    day().bed[k] = +e.target.value;
+    renderCap(); save();
+  };
+});
+function capacity(){
+  const b = day().bed;
+  return Math.round((b.sleep+b.body+b.mind+b.time)/20*100);
+}
+function renderCap(){
+  const c = capacity();
+  $('#capNum').textContent = fa(c)+'٪';
+  $('#ring').style.background = `conic-gradient(var(--green) ${c*3.6}deg,#D7E5DC 0deg)`;
+  let n, msg;
+  if(c<40){ n=1; msg='بستر امروز سبک است. <b>فقط یک تعهد کوچک</b> — و امروز روز فشار آوردن به خودت نیست.'; }
+  else if(c<70){ n=2; msg='بستر متوسط. <b>حداکثر دو تعهد</b>؛ یکی‌شان را کوچک نگه دار.'; }
+  else { n=3; msg='بستر خوبی داری. <b>تا سه تعهد</b> منطقی است — ولی باز هم پلن بی لازم است.'; }
+  day().maxTasks = n;
+  $('#capTxt').innerHTML = msg;
+}
+
+/* ---------- 2. تعهد ---------- */
+const PLANB = ['۱۰ دقیقه پیاده‌روی','تماس با پدر/مادر','۵ صفحه کتاب','یک قسمت پادکست','مرتب کردن یک کشو','۲۰ دقیقه سریال با زیرنویس انگلیسی','۱۵ دقیقه چرت','نوشتن سه خط از امروز'];
+$('#planbChips').innerHTML = PLANB.map(p=>`<span class="chip">${p}</span>`).join('');
+$('#planbChips').onclick = e=>{ if(e.target.classList.contains('chip')) $('#i-planb').value = e.target.textContent; };
+
+$('#s-conf').oninput = e=>{
+  const v = +e.target.value;
+  $('#v-conf').textContent = fa(v)+'٪';
+  const m = $('#confMsg');
+  if(v < 70){
+    m.className='alert warn';
+    m.innerHTML = 'این یک <b>تعهد قماری</b> است. کوچکش کن تا مطمئن شوی انجامش می‌دهی — تعهدی که انجام نمی‌شود، رابطه‌ات را با خودت خراب می‌کند.';
+    $('#v-conf').style.color = 'var(--red)';
+  } else if(v < 85){
+    m.className='alert info';
+    m.innerHTML = 'قابل قبول است، ولی می‌توانی همین را کمی کوچک‌تر کنی تا به صددرصد نزدیک شود.';
+    $('#v-conf').style.color = 'var(--amber)';
+  } else {
+    m.className='alert ok';
+    m.innerHTML = 'خوب است. این تعهد با بستر امروزت هم‌خانه است.';
+    $('#v-conf').style.color = 'var(--green)';
+  }
+};
+$('#s-conf').dispatchEvent(new Event('input'));
+
+$('#addBtn').onclick = ()=>{
+  const t = $('#i-title').value.trim(), b = $('#i-planb').value.trim(), c = +$('#s-conf').value;
+  const d = day();
+  if(!t) return toast('پلن ای را بنویس');
+  if(!b) return toast('بدون پلن بی ثبت نمی‌شود');
+  if(!$('#c-nondest').checked) return toast('غیرمخرب بودن پلن بی را تأیید کن');
+  if(c < 70) return toast('اول تعهد را کوچک کن');
+  if(d.tasks.length >= (d.maxTasks||3)) return toast('بستر امروز بیشتر از این ظرفیت ندارد');
+  d.tasks.push({t, b, c, status:null});
+  $('#i-title').value=''; $('#i-planb').value=''; $('#c-nondest').checked=false;
+  renderTasks(); save();
+};
+
+function renderTasks(){
+  const d = day(), el = $('#taskList');
+  if(!d.tasks.length){ el.innerHTML = '<p class="lead" style="margin:0">هنوز تعهدی برای امروز ثبت نشده است.</p>'; return; }
+  el.innerHTML = d.tasks.map((x,i)=>{
+    const cls = x.status==='a'?'done':x.status==='b'?'planb':x.status==='n'?'miss':'';
+    const bdg = x.status==='a'?'<span class="badge g">پلن ای انجام شد</span>'
+              : x.status==='b'?'<span class="badge a">آگاهانه رفتم روی پلن بی</span>'
+              : x.status==='n'?'<span class="badge r">هیچ‌کدام</span>':'';
+    return `<div class="task ${cls}">
+      <div class="t-title">${x.t}</div>
+      <div class="t-meta">اطمینان ثبت‌شده: ${fa(x.c)}٪ ${bdg}</div>
+      <div class="t-b"><span>پلن بی:</span> ${x.b}</div>
+      ${x.status?'':`<div class="acts">
+        <button class="btn sm" data-s="a" data-i="${i}">پلن ای انجام شد</button>
+        <button class="btn sm amber" data-s="b" data-i="${i}">پلن بی را انجام دادم</button>
+        <button class="btn sm ghost" data-s="n" data-i="${i}">هیچ‌کدام</button>
+      </div>`}
+    </div>`;
+  }).join('');
+}
+$('#taskList').onclick = e=>{
+  const b = e.target.closest('button[data-s]'); if(!b) return;
+  day().tasks[+b.dataset.i].status = b.dataset.s;
+  renderTasks(); renderRel(); renderStats(); save();
+  if(b.dataset.s==='n'){
+    toast('بیا به‌جای سرزنش، بپرسیم چی کم بود');
+    document.querySelector('[data-t="ask"]').click();
+    setTimeout(()=>$('#startWhat').click(), 300);
+  }
+};
+
+/* ---------- رابطه با خودم ---------- */
+function last7(){
+  const out=[];
+  for(let i=0;i<7;i++){
+    const dt=new Date(); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10);
+    if(D.days[k]) out.push(D.days[k]);
+  }
+  return out;
+}
+function renderRel(){
+  let tot=0, kept=0;
+  last7().forEach(d=>d.tasks.forEach(t=>{ if(t.status){ tot++; if(t.status!=='n') kept++; } }));
+  $('#relScore').textContent = tot? fa(Math.round(kept/tot*100))+'٪' : '—';
+}
+
+/* ---------- انرژی ---------- */
+const INPUTS = [
+  ['water','آب کافی نوشیدم'],
+  ['breakfast','صبحانه خوردم'],
+  ['breath','سه نفس عمیق آگاهانه'],
+  ['sweat','فعالیتی که به عرق ختم شد (استراحت ذهن)'],
+  ['steps','بین ۸ تا ۱۲ هزار قدم'],
+  ['screen','دو ساعت قبل خواب بدون اسکرین'],
+  ['morning','ساعت اول بیداری بدون گوشی'],
+  ['fun','تفریح/استراحت را به‌عنوان پلن ای گذاشتم']
+];
+function renderInputs(){
+  const d = day();
+  $('#inputsList').innerHTML = INPUTS.map(([k,l])=>
+    `<label class="chk"><input type="checkbox" data-k="${k}" ${d.inputs[k]?'checked':''}><span>${l}</span></label>`).join('');
+  const n = INPUTS.filter(([k])=>d.inputs[k]).length;
+  $('#inputScore').innerHTML = `<b>${fa(n)} از ${fa(INPUTS.length)}</b> ورودی امروز تأمین شده است.` +
+    (n<4? ' اگر «منِ آینده» بی‌حال است، احتمالاً جواب همین‌جاست.' : ' بستر انرژی‌ات امروز قابل اتکاست.');
+}
+$('#inputsList').onchange = e=>{
+  day().inputs[e.target.dataset.k] = e.target.checked;
+  renderInputs(); save();
+};
+document.querySelectorAll('[data-ctrl]').forEach(b=>b.onclick=()=>{
+  const v = $('#i-worry').value.trim(); if(!v) return toast('اول دغدغه را بنویس');
+  (b.dataset.ctrl==='1'? D.ctrl : D.nctrl).push(v);
+  $('#i-worry').value=''; renderCtrl(); save();
+  toast(b.dataset.ctrl==='1' ? 'وارد برنامه شد' : 'رهایش کن');
+});
+function renderCtrl(){
+  const f = (arr,id,key)=> $(id).innerHTML = arr.length? arr.map((x,i)=>
+    `<li><span>${x}</span><span class="x" data-k="${key}" data-i="${i}">×</span></li>`).join('')
+    : '<li style="color:var(--muted);font-size:12px">خالی</li>';
+  f(D.ctrl,'#ctrlList','ctrl'); f(D.nctrl,'#nctrlList','nctrl');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.classList.contains('x')) return;
+  const k = e.target.dataset.k;
+  if(k==='gift'){ (D.gifts[todayKey()]||[]).splice(+e.target.dataset.i,1); renderGifts(); }
+  else { D[k].splice(+e.target.dataset.i,1); renderCtrl(); }
+  save();
+});
+$('#saveSkill').onclick = ()=>{ D.skill = $('#i-skill').value.trim(); renderSkill(); save(); };
+function renderSkill(){
+  $('#skillNow').innerHTML = D.skill? `<div class="alert ok" style="margin-top:10px">مهارت جاری: <b>${D.skill}</b> — این را به‌عنوان پلن بی در روزهای بی‌حوصلگی استفاده کن.</div>`:'';
+  $('#i-skill').value = D.skill||'';
+}
+
+/* ---------- ویزارد پرسش ---------- */
+const Q_WHAT = ['چه اتفاقی افتاد که می‌خواهی خودت را نقد کنی؟','چه چیزی کم بود؟','و چه چیزی کم بود که آن هم کم شد؟','و پشت آن چه چیزی کم بود؟','این کمبود از کجا می‌آید؟','اگر همین یک چیز تأمین می‌شد، چه فرقی می‌کرد؟','حالا با چه کار کوچکی می‌توانی همان را تأمین کنی؟'];
+const Q_CMP = ['اصلاً چرا دارم مقایسه می‌کنم؟','چه چیزی کم است که مقایسه می‌کنم؟','چه نیازی از من برآورده نشده؟','چه موهبتی در زندگی‌ام هست که نمی‌بینمش؟','چه چیزی می‌خواهم؟','تا الان برای این خواسته چه کرده‌ام؟','آیا آن کار مرا نزدیک کرده است؟','اگر نکرده، چه کار دیگری می‌توانم بکنم؟'];
+let wz = null;
+function startWz(qs, title){
+  wz = { qs, i:0, ans:[], title };
+  $('#wzCard').classList.remove('hide');
+  drawWz();
+  $('#wzCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function drawWz(){
+  $('#wzSteps').innerHTML = wz.qs.map((_,i)=>`<i class="${i<=wz.i?'on':''}"></i>`).join('');
+  $('#wzQ').textContent = wz.qs[wz.i];
+  $('#wzA').value = wz.ans[wz.i]||'';
+  $('#wzTrail').innerHTML = wz.ans.map((a,i)=>a?`<div><b>${wz.qs[i]}</b> ← ${a}</div>`:'').join('');
+  $('#wzNext').textContent = wz.i===wz.qs.length-1 ? 'پایان و ذخیره' : 'پرسش بعدی';
+}
+$('#startWhat').onclick = ()=>startWz(Q_WHAT,'چی کم بود؟');
+$('#startCmp').onclick  = ()=>startWz(Q_CMP,'دام مقایسه');
+$('#wzNext').onclick = ()=>{
+  wz.ans[wz.i] = $('#wzA').value.trim();
+  if(wz.i===wz.qs.length-1) return finishWz();
+  wz.i++; drawWz();
+};
+$('#wzStop').onclick = finishWz;
+function finishWz(){
+  if(wz.ans.some(a=>a)){
+    D.wz.unshift({date:todayKey(), title:wz.title, qs:wz.qs, ans:wz.ans});
+    D.wz = D.wz.slice(0,20); save();
+  }
+  wz = null; $('#wzCard').classList.add('hide'); renderWzLog();
+}
+function renderWzLog(){
+  $('#wzLog').innerHTML = D.wz.length ? D.wz.map(w=>{
+    const last = [...w.ans].reverse().find(a=>a) || '—';
+    return `<div class="task"><div class="t-title">${w.title}</div>
+      <div class="t-meta">${fa(w.date)}</div>
+      <div class="t-b"><span>آخرین لایه:</span> ${last}</div></div>`;
+  }).join('') : '<p class="lead" style="margin:0">هنوز چیزی ثبت نشده. هر بار به‌جای سرزنش، یک بار این مسیر را برو.</p>';
+}
+
+/* ---------- آینه ---------- */
+$('#i-vali').oninput = e=>{
+  const v = e.target.value;
+  const out = $('#valiOut');
+  if(!v.trim()){ out.innerHTML=''; return; }
+  if(/\bولی\b|ولی /.test(v)){
+    const parts = v.split(/ولی/);
+    out.className='alert warn';
+    out.innerHTML = `مغز فقط این بخش را می‌شنود: «<b>${parts.slice(1).join('ولی').trim()}</b>» — و این را حذف می‌کند: «${parts[0].trim()}».<br>یک بار دیگر بنویس، این بار بدون «ولی».`;
+  } else {
+    out.className='alert ok';
+    out.innerHTML = 'بدون «ولی» نوشتی. این همان نگاه منصفانه است — نه مثبت، نه منفی.';
+  }
+};
+$('#addGift').onclick = ()=>{
+  const v = $('#i-gift').value.trim(); if(!v) return;
+  const k = todayKey(); D.gifts[k] = D.gifts[k]||[]; D.gifts[k].push(v);
+  $('#i-gift').value=''; renderGifts(); save();
+};
+function renderGifts(){
+  const g = D.gifts[todayKey()]||[];
+  $('#giftList').innerHTML = g.length? g.map((x,i)=>`<li><span>${x}</span><span class="x" data-k="gift" data-i="${i}">×</span></li>`).join('')
+    : '<li style="color:var(--muted);font-size:12px">هنوز چیزی ثبت نشده</li>';
+}
+function renderStats(){
+  const d7 = last7();
+  let a=0,b=0,n=0;
+  d7.forEach(d=>d.tasks.forEach(t=>{ if(t.status==='a')a++; else if(t.status==='b')b++; else if(t.status==='n')n++; }));
+  const gifts = Object.keys(D.gifts).reduce((s,k)=>s+D.gifts[k].length,0);
+  $('#stats').innerHTML = `
+    <div><b>${fa(a)}</b><span>پلن ای اجرا شد</span></div>
+    <div><b>${fa(b)}</b><span>پلن بی آگاهانه</span></div>
+    <div><b>${fa(n)}</b><span>سقوط ناآگاهانه</span></div>
+    <div><b>${fa(gifts)}</b><span>موهبت ثبت‌شده</span></div>`;
+  $('#statMsg').textContent = (a+b)===0
+    ? 'هنوز داده‌ای نداریم. یک هفته ادامه بده تا الگوی خودت را ببینی.'
+    : (b>=a ? 'بیشتر روزها روی پلن بی بوده‌ای — و این شکست نیست؛ یعنی به‌جای تخریب، آگاهانه انتخاب کرده‌ای.'
+            : 'پلن ای‌هایت با بستر زندگی‌ات هم‌خانه‌اند. همین اندازه را نگه دار، بزرگش نکن.');
+}
+
+/* ---------- آخر هفته و خواب ---------- */
+$('#saveWeek').onclick = ()=>{
+  D.week.weekend = $('#i-weekend').value; D.week.free = $('#i-free').value; save();
+};
+$('#saveSleep').onclick = ()=>{
+  D.week.sleepT = $('#i-sleepT').value; D.week.wakeT = $('#i-wakeT').value; save(); renderWeek();
+};
+function renderWeek(){
+  $('#i-weekend').value = D.week.weekend||'';
+  $('#i-free').value = D.week.free||'';
+  $('#i-sleepT').value = D.week.sleepT||'';
+  $('#i-wakeT').value = D.week.wakeT||'';
+  const rules = ['اتاق تاریک','دمای پایین‌تر از بدن','تخت فقط برای خواب','شام سه ساعت قبل','بدون اسکرین در اتاق'];
+  $('#sleepRules').innerHTML = `<div class="chips">${rules.map(r=>`<span class="chip" style="cursor:default">${r}</span>`).join('')}</div>`;
+}
+
+/* ---------- render all ---------- */
+function render(){
+  const d = day();
+  beds.forEach(k=>{ $('#s-'+k).value = d.bed[k]; $('#v-'+k).textContent = fa(d.bed[k]); });
+  const now = new Date();
+  $('#today').textContent = now.toLocaleDateString('fa-IR',{weekday:'long',day:'numeric',month:'long'});
+  renderCap(); renderTasks(); renderRel(); renderInputs(); renderCtrl();
+  renderSkill(); renderWzLog(); renderGifts(); renderStats(); renderWeek();
+}
+load();
+</script>
+</body>
+</html>

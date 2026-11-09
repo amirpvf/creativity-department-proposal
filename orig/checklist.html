@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>چک‌لیست ارتقای جلسه‌ی کوچینگ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<style>
+:root{
+  --bg:#EDF0ED;--surface:#FFFFFF;--surface-2:#F5F7F5;--ink:#1C2426;--muted:#5D6A6C;--line:#D3DAD6;
+  --accent:#24605A;--accent-ink:#FFFFFF;--accent-soft:#DAE9E5;
+  --gold:#7E6118;--gold-soft:#F2E9D2;--fail:#9E3747;--fail-soft:#F5E0E3;--pass:#2C7447;--pass-soft:#DDEFE2;
+  --floor:#85650F;--floor-soft:#F3EACF;
+  --shadow:0 1px 2px rgba(20,32,30,.06),0 6px 18px rgba(20,32,30,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131A1B;--surface:#1B2426;--surface-2:#202B2D;--ink:#E4EBE9;--muted:#98A6A4;--line:#2D3A3C;
+    --accent:#72B7AC;--accent-ink:#0F1A19;--accent-soft:#1E3633;
+    --gold:#D9B45E;--gold-soft:#332B17;--fail:#E3899A;--fail-soft:#3A2127;--pass:#7FC99A;--pass-soft:#1C3325;
+    --floor:#D8B557;--floor-soft:#332C16;--shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131A1B;--surface:#1B2426;--surface-2:#202B2D;--ink:#E4EBE9;--muted:#98A6A4;--line:#2D3A3C;
+  --accent:#72B7AC;--accent-ink:#0F1A19;--accent-soft:#1E3633;
+  --gold:#D9B45E;--gold-soft:#332B17;--fail:#E3899A;--fail-soft:#3A2127;--pass:#7FC99A;--pass-soft:#1C3325;
+  --floor:#D8B557;--floor-soft:#332C16;--shadow:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;font-size:15.5px;line-height:1.85;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+.wrap{max-width:880px;margin:0 auto;padding:28px 18px 80px}
+
+/* header */
+.top h1{font-size:1.75rem;line-height:1.4;margin:0 0 4px;font-weight:800;letter-spacing:-.2px}
+.title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.save{font-size:.8rem;color:var(--muted);padding:3px 10px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;margin-top:8px}
+.save.ok{color:var(--pass);border-color:color-mix(in srgb,var(--pass) 40%,transparent)}
+.sub{color:var(--muted);margin:0 0 18px;max-width:62ch}
+.summary{display:grid;grid-template-columns:1.1fr 1fr;gap:12px;margin-bottom:22px}
+.sum-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.sum-box h2{font-size:.95rem;margin:0 0 6px;font-weight:700}
+.verdict{display:inline-block;background:var(--fail-soft);color:var(--fail);font-weight:700;border-radius:8px;padding:1px 10px;font-size:.88rem;margin-bottom:8px}
+.sum-box ol{margin:0;padding-inline-start:20px}
+.sum-box ol li{margin:2px 0}
+.sum-box ol li b{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--gold-soft);color:var(--gold);border-radius:999px;padding:2px 12px;font-size:.86rem;font-weight:600}
+@media (max-width:640px){.summary{grid-template-columns:1fr}}
+
+/* tabs */
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0 10px;margin:0 -2px}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px}
+.tab{flex:1;border:0;background:transparent;border-radius:10px;padding:8px 6px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:0;line-height:1.5}
+.tab small{font-weight:500;font-size:.78rem}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.progress{height:5px;background:var(--line);border-radius:9px;margin-top:8px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:9px;transition:width .25s}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+.tools .sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:5px 12px;font-size:.87rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.quiet{color:var(--muted)}
+.switch{display:inline-flex;align-items:center;gap:7px;font-size:.87rem;color:var(--muted);cursor:pointer}
+.intro{color:var(--muted);font-size:.9rem;margin:4px 0 10px}
+
+/* groups */
+.group{margin:22px 0 8px}
+.g-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.g-head h3{margin:0;font-size:1.08rem;font-weight:700}
+.g-count{font-size:.8rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 9px}
+.g-head .sp{flex:1}
+.list{list-style:none;margin:0;padding:0;min-height:14px;position:relative}
+.list.num-list{padding-inline-start:0}
+.list.num-list::before{content:"";position:absolute;top:6px;bottom:6px;inset-inline-start:15px;width:2px;background:var(--line)}
+.item{display:grid;grid-template-columns:1fr;margin:0 0 8px;position:relative}
+.list.num-list .item{grid-template-columns:32px 1fr;gap:10px}
+.num{width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:700;color:var(--muted);margin-top:10px;position:relative;z-index:1}
+.item.done .num{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.row{display:grid;grid-template-columns:auto auto 1fr auto;gap:8px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 10px 10px 8px;box-shadow:var(--shadow)}
+.item.strong .row{border-inline-start:4px solid var(--gold)}
+.item.editing .row{border-color:var(--accent)}
+.item.done .body{opacity:.6}
+.hide-done .item.done{display:none}
+.handle{border:0;background:transparent;color:var(--muted);padding:4px 2px;cursor:grab;touch-action:none;margin-top:1px;border-radius:6px}
+.handle:active{cursor:grabbing}
+.handle svg{width:16px;height:20px;fill:currentColor}
+input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:22px;height:22px;border:2px solid var(--line);border-radius:7px;background:var(--surface);display:grid;place-content:center;margin:4px 0 0;cursor:pointer;flex:none}
+input[type="checkbox"]::before{content:"";width:11px;height:11px;clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0,43% 62%);background:var(--accent-ink);transform:scale(0);transition:transform .12s}
+input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+input[type="checkbox"]:checked::before{transform:scale(1)}
+.body{min-width:0}
+.text{font-weight:600;line-height:1.75}
+.text.has-d{cursor:pointer}
+.meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.badge{font-size:.74rem;border-radius:6px;padding:0 7px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.badge.gold{background:var(--gold-soft);color:var(--gold);border-color:transparent;font-weight:600}
+.code{font-size:.74rem;border-radius:6px;padding:0 7px;background:var(--accent-soft);color:var(--accent);border:0;font-weight:600}
+.detail{margin-top:8px;padding:8px 12px;background:var(--surface-2);border-radius:9px;color:var(--ink);font-size:.92rem;white-space:pre-wrap}
+.acts{display:flex;gap:2px;align-items:center}
+.ib{border:0;background:transparent;color:var(--muted);width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+.ib:hover{background:var(--surface-2);color:var(--accent)}
+.ib.del:hover{color:var(--fail)}
+.ib svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ib[aria-expanded="true"] svg{transform:rotate(180deg)}
+.mv{display:none}
+.no-drag .handle{display:none}
+.no-drag .mv{display:grid}
+.add-end{border:1.5px dashed var(--line);background:transparent;border-radius:11px;width:100%;padding:7px;color:var(--muted);font-size:.87rem}
+.list.num-list + .add-end{width:calc(100% - 42px);margin-inline-start:42px}
+.add-end:hover{border-color:var(--accent);color:var(--accent)}
+.ghost .row{background:var(--accent-soft);border-style:dashed}
+.chosen .row{box-shadow:0 8px 24px rgba(0,0,0,.15)}
+@media (max-width:560px){
+  .row{grid-template-columns:auto auto 1fr}
+  .acts{grid-column:1 / -1;justify-content:flex-end;border-top:1px solid var(--line);padding-top:4px;margin-top:2px}
+}
+
+/* editor */
+.editor{list-style:none;background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:12px;margin:0 0 10px;display:grid;gap:8px}
+.list.num-list .editor{margin-inline-start:42px}
+.editor input.ed-t,.editor textarea{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);padding:7px 10px}
+.editor textarea{resize:vertical;min-height:60px}
+.editor .bad{border-color:var(--fail)!important}
+.ed-codes{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:.84rem;color:var(--muted)}
+.code-tog{border:1px solid var(--line);background:transparent;border-radius:6px;padding:0 7px;font-size:.76rem;color:var(--muted)}
+.code-tog.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.ed-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ed-foot .sp{flex:1}
+.ed-s{display:inline-flex;gap:6px;align-items:center;font-size:.87rem;color:var(--muted)}
+
+.mover .mv-title{font-weight:600}
+.mv-opts{display:flex;flex-wrap:wrap;gap:6px}
+.mv-hint{font-size:.82rem;color:var(--muted)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:10px;font-size:.9rem;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:90vw;text-align:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:3px 12px;font-size:.86rem;color:var(--muted);font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.badge.src{background:transparent}
+.ed-g{border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:3px 8px}
+.hdr-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.hdr-acts .save{margin-top:0}
+.star{border:0;background:transparent;color:var(--muted);width:40px;height:40px;border-radius:8px;display:grid;place-items:center;flex:none}
+.star:hover{background:var(--surface-2);color:var(--gold)}
+.star svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linejoin:round}
+.star.on{color:var(--gold)}
+.star.on svg{fill:currentColor}
+.star.sm{width:34px;height:34px}
+.star.sm svg{width:20px;height:20px}
+.detail{white-space:normal}
+.dline{display:flex;gap:6px;align-items:flex-start;justify-content:space-between}
+.dline>span{white-space:pre-wrap;padding-top:2px}
+.dline+.dline{border-top:1px dashed var(--line);margin-top:4px;padding-top:4px}
+.item.flash .row{animation:fl 1.4s ease}
+.fav-kind{font-size:.74rem;color:var(--muted)}
+.quote{color:var(--gold);font-weight:800;font-size:1.2rem;line-height:1;margin-top:6px;width:22px;text-align:center}
+.empty{background:var(--surface);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
+.backup{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 18px;box-shadow:var(--shadow)}
+.backup h2{font-size:1rem;margin:0 0 4px}
+.backup h3{font-size:.92rem;margin:0 0 8px}
+.backup p{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+.bk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bk-col{background:var(--surface-2);border-radius:11px;padding:12px;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.bk-col textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:6px 10px;font-size:.8rem;direction:ltr;text-align:left;resize:vertical}
+.file-btn{position:relative;text-align:center;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.bk-msg{margin:10px 0 0!important;font-weight:600;color:var(--accent)!important}
+@media (max-width:640px){.bk-grid{grid-template-columns:1fr}}
+@media (max-width:520px){.tab{font-size:.8rem;padding:6px 2px}.tab small{font-size:.7rem}}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.modal-bg{position:fixed;inset:0;background:rgba(10,16,16,.45);z-index:60;display:grid;place-items:center;padding:18px}
+.modal{background:var(--surface);color:var(--ink);border-radius:14px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal p{margin:0 0 14px;font-weight:600}
+.modal .ed-foot{justify-content:flex-end}
+/* markers */
+.mk-stats{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+.st{font-size:.8rem;border-radius:7px;padding:1px 9px;font-weight:600}
+.st.pass{background:var(--pass-soft);color:var(--pass)}
+.st.above{background:var(--pass-soft);color:var(--pass)}
+.st.floor{background:var(--floor-soft);color:var(--floor)}
+.st.fail{background:var(--fail-soft);color:var(--fail)}
+.comp{margin:24px 0 8px}
+.comp h3{margin:0;font-size:1.08rem}
+.comp .en{margin:0;color:var(--muted);font-size:.84rem;text-align:left;direction:ltr}
+.marker{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;box-shadow:var(--shadow);scroll-margin-top:120px}
+.marker.fail{border-inline-start:4px solid var(--fail)}
+.marker.floor{border-inline-start:4px solid var(--floor)}
+.marker.pass,.marker.above{border-inline-start:4px solid var(--pass)}
+.marker.flash{animation:fl 1.4s ease}
+@keyframes fl{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:var(--shadow)}}
+.mk-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mk-code{font-weight:800;font-size:.95rem}
+.mk-head .sp{flex:1}
+.mk-done{display:inline-flex;align-items:center;gap:6px;font-size:.86rem;color:var(--muted);cursor:pointer}
+.mk-fa{margin:6px 0 0;font-weight:600}
+.mk-en{margin:2px 0 0;color:var(--muted);font-size:.84rem;text-align:left}
+.rel{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.rel summary{cursor:pointer;font-size:.86rem;color:var(--accent);font-weight:600}
+.rel ul{list-style:none;margin:6px 0 0;padding:0}
+.rel li{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;padding:3px 0}
+.rel li input{margin-top:5px;width:18px;height:18px;border-radius:5px}
+.rel li input::before{width:9px;height:9px}
+.rel .where{color:var(--muted);font-size:.78rem;white-space:nowrap}
+.mk-note{width:100%;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);padding:6px 10px;resize:vertical;min-height:40px;font-size:.9rem}
+.foot{color:var(--muted);font-size:.8rem;margin-top:36px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title-row">
+      <h1>چک‌لیست ارتقای جلسه‌ی کوچینگ</h1>
+      <div class="hdr-acts"><button class="btn" data-act="bkToggle" aria-expanded="false" aria-controls="backup">پشتیبان‌گیری و انتقال</button><span class="save" id="save">در حال آماده‌سازی…</span></div>
+    </div>
+    <p class="sub">برگرفته از بازخورد ارزیابی جلسه در سطح ACC و حداقل مهارت‌های لازم آن. قبل یا بعد از هر جلسه‌ی تمرینی، مواردی را که رعایت کردی تیک بزن.</p>
+    <div class="summary">
+      <div class="sum-box">
+        
+        <h2>چهار اولویت ارتقا</h2>
+        <ol>
+          <li><b>مالکیت مسیر:</b> پیوند هر استعاره یا مسیر تازه با موضوع بررسی و انتخابش به مراجع سپرده شود.</li>
+          <li><b>تصدیق:</b> کار مراجع در جلسه دیده و تصدیق شود.</li>
+          <li><b>سادگی پرسش:</b> یک مفهوم، یک پرسش ساده، در خدمت دستورکار مراجع.</li>
+          <li><b>توافق و پایبندی:</b> چک کردن مسیر در میانه‌ی جلسه و پیش‌برد جلسه بر مسیر مراجع.</li>
+        </ol>
+      </div>
+      <div class="sum-box">
+        <h2>نقاط قوت؛ حفظشان کن</h2>
+        <div class="chips">
+          <span class="chip">سکوت و مکث مناسب</span>
+          <span class="chip">احترام و اجازه‌گرفتن</span>
+          <span class="chip">خلاقیت در پرسشگری</span>
+          <span class="chip">حفظ محرمانگی</span>
+          <span class="chip">استفاده از واژه‌های مراجع</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="backup" id="backup" hidden>
+    <h2>پشتیبان‌گیری و انتقال به دستگاه دیگر</h2>
+    <p>تیک‌ها، موارد افزوده، ترتیب‌ها، انتقال‌ها، علاقه‌مندی‌ها و یادداشت‌ها همه در یک پشتیبان ذخیره می‌شوند. روی دستگاه دیگر همین پنل را باز کن و پشتیبان را بارگذاری کن.</p>
+    <div class="bk-grid">
+      <div class="bk-col">
+        <h3>گرفتن پشتیبان</h3>
+        <button class="btn primary" data-act="bkDownload">دریافت فایل پشتیبان</button>
+        <button class="btn" data-act="bkShowText">نمایش متن پشتیبان برای کپی</button>
+        <textarea class="bk-out" readonly hidden aria-label="متن پشتیبان"></textarea>
+        <button class="btn" data-act="bkCopy" hidden>کپی متن</button>
+      </div>
+      <div class="bk-col">
+        <h3>بارگذاری پشتیبان</h3>
+        <button class="btn primary" data-act="bkPick">انتخاب فایل پشتیبان</button>
+        <input type="file" id="bkFile" class="vh" data-bk-file tabindex="-1" aria-hidden="true">
+        <textarea class="bk-in" placeholder="یا متن پشتیبان را اینجا بچسبان" aria-label="چسباندن متن پشتیبان"></textarea>
+        <div class="ed-foot"><button class="btn" data-act="bkClip">چسباندن از کلیپ‌بورد</button><span class="sp"></span><button class="btn" data-act="bkPaste">بازگردانی از متن</button></div>
+      </div>
+    </div>
+    <p class="bk-msg" role="status"></p>
+  </section>
+
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="seq">موارد ترتیبی<small id="c-seq"></small></button>
+      <button class="tab" role="tab" data-tab="gen">موارد کلی<small id="c-gen"></small></button>
+      <button class="tab" role="tab" data-tab="mk">مارکرهای ACC<small id="c-mk"></small></button>
+      <button class="tab" role="tab" data-tab="fav">علاقه‌مندی‌ها<small id="c-fav"></small></button>
+    </div>
+    <div class="progress"><i id="prog"></i></div>
+  </div>
+
+  <main id="panel"></main>
+  <p class="foot">مبنای ارزیابی: حداقل مهارت‌های لازم سطح ACC فدراسیون بین‌المللی کوچینگ (بازنگری ۲۰۲۵).</p>
+</div>
+
+<script>
+const ICON={
+  grip:'<svg viewBox="0 0 10 20"><circle cx="2.5" cy="4" r="1.6"/><circle cx="7.5" cy="4" r="1.6"/><circle cx="2.5" cy="10" r="1.6"/><circle cx="7.5" cy="10" r="1.6"/><circle cx="2.5" cy="16" r="1.6"/><circle cx="7.5" cy="16" r="1.6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
+  del:'<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/></svg>',
+  chev:'<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  move:'<svg viewBox="0 0 24 24"><path d="M7 4v14M3.5 14.5L7 18l3.5-3.5M17 20V6M13.5 9.5L17 6l3.5 3.5"/></svg>',
+  star:'<svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+  link:'<svg viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v5H5V7h5"/></svg>',
+  up:'<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
+  down:'<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>'
+};
+
+const CODES=["Q1","Q2","3.1","3.2","3.3","3.4","4.1","4.2","4.3","5.1","5.2","5.3","5.4","6.1","6.2","6.3","7.1","7.2","7.3","8.1","8.2","8.3"];
+
+const MARKERS={
+ "Q1":{fa:"کوچ با منشور اخلاقی ICF همسو است.",en:"Coach demonstrates alignment with the ICF Code of Ethics.",st:"pass"},
+ "Q2":{fa:"همسویی پیوسته با نقش کوچ.",en:"Consistent alignment with role as Coach.",st:"fail"},
+ "3.1":{fa:"کوچ موضوع مراجع را همراه با خود مراجع کاوش می‌کند.",en:"Coach explores the client's topic with the client.",st:"pass"},
+ "3.2":{fa:"کوچ و مراجع درباره‌ی آنچه مراجع می‌خواهد در این جلسه به دست آورد به توافق می‌رسند.",en:"Coach and client reach agreement on what the client wants to accomplish as a session outcome.",st:"floor"},
+ "3.3":{fa:"کوچ اهمیت خروجی جلسه را برای مراجع کاوش می‌کند.",en:"Coach explores the significance of the coaching outcome to the client.",st:"pass"},
+ "3.4":{fa:"کوچ در سراسر جلسه به دستورکار توافق‌شده توجه دارد.",en:"Coach attends to the agreed upon agenda throughout the session.",st:"fail"},
+ "4.1":{fa:"کوچ کار مراجع در جلسه را تصدیق می‌کند.",en:"Coach acknowledges the client's work in the session.",st:"fail"},
+ "4.2":{fa:"کوچ احترام، حمایت یا توجه خود را به مراجع ابراز می‌کند.",en:"Coach expresses respect, support, or concern for the client.",st:"fail"},
+ "4.3":{fa:"کوچ از بیان احساسات، ادراک‌ها، نگرانی‌ها یا باورهای مراجع حمایت می‌کند.",en:"Coach supports the client's expression of feelings, perceptions, concerns, or beliefs.",st:"fail"},
+ "5.1":{fa:"کوچ نسبت به مراجع مشاهده‌گر و پاسخگوست.",en:"Coach is observant and responsive to the client.",st:"fail"},
+ "5.2":{fa:"کوچ درباره‌ی مراجع، دستورکار او یا هر دو کنجکاوی نشان می‌دهد.",en:"Coach demonstrates curiosity about the client, or their agenda, or both.",st:"fail"},
+ "5.3":{fa:"کوچ فضا می‌دهد تا مراجع جلسه را هدایت کند.",en:"Coach provides space for the client to lead during the session.",st:"fail"},
+ "5.4":{fa:"کوچ سکوت می‌کند تا مراجع زمان تأمل داشته باشد.",en:"Coach is silent to allow time for the client to reflect.",st:"above"},
+ "6.1":{fa:"کوچ با شناختن احساسات، ادراک‌ها، چالش‌ها یا باورهای مراجع گوش می‌دهد.",en:"Coach listens by recognizing feelings, perceptions, challenges, or beliefs.",st:"floor"},
+ "6.2":{fa:"کوچ درباره‌ی زبان و واژه‌های مراجع می‌پرسد، آن را کاوش می‌کند یا به کار می‌گیرد.",en:"Coach inquires about, explores, or includes the client's use of language.",st:"above"},
+ "6.3":{fa:"کوچ گفته‌های مراجع را خلاصه یا بازگویی می‌کند تا از درست فهمیدن خود مطمئن شود.",en:"Coach summarizes or paraphrases what the client communicates to confirm the coach's understanding.",st:"floor"},
+ "7.1":{fa:"کوچ به مراجع کمک می‌کند موقعیت را از دیدگاه‌های مختلف ببیند.",en:"Coach supports the client in viewing the situation from different perspectives.",st:"pass"},
+ "7.2":{fa:"کوچ درباره‌ی احساسات، ادراک‌ها، رفتارها یا باورهای مراجع می‌پرسد.",en:"Coach inquires about the client's feelings, perceptions, behaviors, or beliefs.",st:"pass"},
+ "7.3":{fa:"کوچ پرسش‌های روشن و باز، یکی‌یکی می‌پرسد.",en:"Coach asks clear, open-ended questions, one at a time.",st:"fail"},
+ "8.1":{fa:"کوچ درباره‌ی آنچه مراجع در جلسه آموخته می‌پرسد.",en:"Coach asks questions about what the client has learned during the session.",st:"pass"},
+ "8.2":{fa:"کوچ از مراجع حمایت می‌کند تا با آموخته‌هایش گام‌های بعدی را برنامه‌ریزی کند.",en:"Coach supports the client to use their learning to plan next steps.",st:"floor"},
+ "8.3":{fa:"کوچ از مراجع حمایت می‌کند تا جلسه را ببندد.",en:"Coach supports the client to close the session.",st:"pass"}
+};
+const MARKER_GROUPS=[
+ {title:"پیش‌شرط‌ها",en:"Qualifiers",codes:["Q1","Q2"]},
+ {title:"صلاحیت ۳: ایجاد و حفظ توافق‌ها",en:"Competency 3: Establishes and Maintains Agreements",codes:["3.1","3.2","3.3","3.4"]},
+ {title:"صلاحیت ۴: پرورش اعتماد و امنیت",en:"Competency 4: Cultivates Trust and Safety",codes:["4.1","4.2","4.3"]},
+ {title:"صلاحیت ۵: حفظ حضور",en:"Competency 5: Maintains Presence",codes:["5.1","5.2","5.3","5.4"]},
+ {title:"صلاحیت ۶: گوش دادن فعال",en:"Competency 6: Listens Actively",codes:["6.1","6.2","6.3"]},
+ {title:"صلاحیت ۷: برانگیختن آگاهی",en:"Competency 7: Evokes Awareness",codes:["7.1","7.2","7.3"]},
+ {title:"صلاحیت ۸: تسهیل رشد مراجع",en:"Competency 8: Facilitates Client Growth",codes:["8.1","8.2","8.3"]}
+];
+const ST_LABEL={pass:"مشاهده شد",above:"مشاهده شد، فراتر از کف",floor:"مشاهده شد، در حد کف",fail:"مشاهده نشد"};
+
+function I(id,t,d,m,s){return {id,t,d:d||"",m:m||[],s:!!s,done:false};}
+
+const DEFAULT={v:1,updatedAt:0,
+seq:[
+ {id:"p1",title:"شروع جلسه و قرارداد",items:[
+  I("s1","پیش از ورود به محتوا، اجازه‌ی ضبط بگیر","«اگر مشکلی نداری، جلسه را ضبط کنم؟»",["Q1"],1),
+  I("s2","پایبندی به منشور اخلاقی و صلاحیت‌های ICF را اعلام کن","نمونه: «من دانشجوی سطح یک آکادمی تایم‌کوچ هستم و به صلاحیت‌ها و منشور اخلاقی فدراسیون جهانی کوچینگ پایبندم.»",["Q1"]),
+  I("s3","تعریف کوچینگ و تفاوتش با مشاوره، درمان و سایر حرفه‌ها را با مراجع چک کن","",["Q1"]),
+  I("s4","نقش و مسئولیت کوچ و مراجع را روشن کن","توافق اولیه نباید فقط به رضایت ضبط محدود بماند.",["Q1"]),
+  I("s5","بپرس مراجع ترجیح می‌دهد چطور خطاب شود و رابطه چه جنسی داشته باشد","رابطه‌ی خیلی رسمی می‌تواند روی فضای امن برای ابراز آزاد مراجع اثر بگذارد.",["4.2"])
+ ]},
+ {id:"p2",title:"موضوع، اهمیت و توافق",items:[
+  I("s6","با یک دعوت باز، نام‌گذاری موضوع را به خود مراجع بسپار","«راجع به چه موضوع و دغدغه‌ای می‌خواهیم با هم صحبت کنیم؟»",["3.1"],1),
+  I("s7","وقتی مراجع موضوع یا نظرش را می‌گوید، تأیید و تشویق نکن","جمله‌ای مثل «بسیار عالی» حالت تأیید و جهت‌دهی دارد.",["3.1","4.1"]),
+  I("s8","با یک پرسش زمینه‌ای، موضوع را از سطح مفهوم به سطح تجربه بیاور","«چه چیزی باعث شد امروز این موضوع را مطرح کنی؟»\n«آخرین باری که دلت می‌خواست بهتر گوش داده باشی کجا بود؟»",["3.1"]),
+  I("s9","ابهامی را که خود مراجع درباره‌ی موضوع اعلام می‌کند شفاف کن","در جلسه مراجع گفته بود نمی‌داند این مهارت قرار است چطور افزایش پیدا کند و این ابهام هیچ‌وقت روشن نشد.",["3.2"]),
+  I("s10","اهمیت موضوع را عمیق کاوش کن و نیازها را به خودِ موضوع وصل کن","«آرامش، همدلی و احترام چه رابطه‌ای با گوش دادن فعال دارند؟»\n«چرا برای رفع این نیازها سراغ گوش دادن آمده‌ای؟»",["3.3"]),
+  I("s11","استعاره را فقط وقتی به کار ببر که به درک عمیق‌تر اهمیت موضوع کمک کند","استعاره‌ی صندلی چهارپایه کاوش عمیقی روی اهمیت موضوع نشان نداد.",["3.3","7.1"]),
+  I("s12","درباره‌ی خروجی جلسه توافق کن، بدون واژه‌ی «موفقیت»","«آخر جلسه به چی برسیم که این جلسه برات مفید باشد؟»\nواژه‌ی موفقیت ممکن است در مراجع واکنش متفاوت یا استرس ایجاد کند.",["3.2"]),
+  I("s13","بلافاصله بعد از پاسخ مراجع، معیار سنجش خروجی را بپرس","«از کجا می‌فهمی که پیدایش کرده‌ای؟»",["3.2"]),
+  I("s14","پیش از تغییر مسیر، توافق را به‌صورت کلامی و دوطرفه تأیید کن","«پس توافقمان این است که…؟»\nبازگویی خروجی و رفتن فوری به مسیر دیگر کافی نیست.",["3.2","6.3"]),
+  I("s15","اهمیت «خروجی توافق‌شده» را کاوش کن، نه فقط اهمیت موضوع","«چی شد که الان رسیدن به این برات مهم است؟»\n«اگر امروز به آن نرسی چه می‌شود؟»",["3.3"])
+ ]},
+ {id:"p3",title:"میانه‌ی جلسه",items:[
+  I("s16","پیش از باز کردن هر مسیر یا استعاره‌ی تازه، پیوندش با موضوع را صریحاً با مراجع بسنج","انتخاب مسیر با خود مراجع باشد.",["3.4","5.3"]),
+  I("s17","بعد از معرفی هر استعاره، مالکیتش را به مراجع بسپار","«این تصویر چقدر برایت مؤثر است؟ دوست داری با آن پیش برویم یا چیز دیگری ترجیح می‌دهی؟»",["5.3"]),
+  I("s18","قیاس‌ها و مثال‌های مراجع را پیش از ساختن پرسش روی آن‌ها اعتبارسنجی کن","مثال‌های مراجع تک‌نفره بودند (مطالعه، آشپزی، غذا خوردن، کار) اما گوش دادن بین‌فردی است.\n«این تمرکز در آشپزی چقدر شبیه تمرکز در گوش دادن به یک انسان است؟»",["3.4"]),
+  I("s19","حوالی دقیقه‌ی ۳۰ یک چک‌این میانی انجام بده","«این مسیر پرسشگری چقدر به آن چیزی که می‌خواستی نزدیک است؟»\n«آیا سؤال‌ها در مسیر مناسبی پیش می‌روند؟»",["3.4"]),
+  I("s20","اگر مسیر از موضوع دور شد، با خود مراجع برگرد یا توافق را بازتنظیم کن","در جلسه حدود ۱۵ دقیقه (۳۰:۴۰ تا ۴۵:۳۹) واژه‌ی «گوش دادن» حتی یک بار هم برنگشت.",["3.4"]),
+  I("s21","پیش از اجرای تکنیک یا نقش‌آفرینی اجازه بگیر","«اجازه هست من چند کلمه‌ای با … صحبت کنم؟»",["4.2"],1),
+  I("s22","مطمئن شو تکنیک یا نقش‌آفرینی مبنا دارد","نقش‌آفرینی با «آگاهی» مبنا نداشت؛ تضاد درونی نبود، مفهومی بود که مراجع در یک توضیح علمی ساخته بود.",["7.1"]),
+  I("s23","بینش‌هایی که پیدا می‌شود را به موضوع جلسه وصل کن","بینش‌های جلسه درباره‌ی تمرکز و انرژی بود، نه گوش دادن فعال.\n«این بینش چه ارتباطی با گوش دادنت دارد؟»",["5.2","7.1"])
+ ]},
+ {id:"p4",title:"پایان جلسه",items:[
+  I("s24","درباره‌ی یادگیری مراجع بپرس","«با چی آمدی و با چی داری می‌روی؟»",["8.1"],1),
+  I("s25","آنچه مراجع با خود می‌برد را با توافق ابتدای جلسه مقایسه کن","خروجی پایانی مراجع با توافق دقیقه‌ی ۸ متفاوت بود؛ این تفاوت را با خودش بسنج.",["3.4","8.1"]),
+  I("s26","پرسش اقدام را مستقیم مطرح کن","«اولین قدمت چیست؟»\n«کی شروع می‌کنی؟»",["8.2"]),
+  I("s27","اقدام‌ها یا نشانه‌هایی که مراجع می‌سازد را بازگو و تثبیت کن","«این دو نشانه را گفتی؛ از کی شروعشان می‌کنی و چه چیزی ممکن است جلوی انجامشان را بگیرد؟»",["8.1","8.2"]),
+  I("s28","زمان شروع، تعداد دفعات و شیوه‌ی رهگیری اقدام را مشخص کن","",["8.2"]),
+  I("s29","درباره‌ی برنامه‌ی مراجع بعد از جلسه بپرس","«برنامه‌ات بعد از این جلسه چیست؟»",["8.2"]),
+  I("s30","مراجع را در بستن جلسه مشارکت بده","«اگر جای من بودی الان از خودت چه سؤالی می‌پرسیدی؟»",["8.3","5.3"],1),
+  I("s31","پیشنهاد حمایت را با حفظ مرز نقش مطرح کن","«از یادگیرنده‌ی کوچینگ در این مسیر کمکی برمی‌آید؟»",["8.3"],1),
+  I("s32","رضایت ضبط را دوباره بپرس و راه تغییر نظر را باز بگذار","«اگر با توجه به گفته‌ها نظرت عوض شده، راحت باش.»",["Q1","4.2"],1)
+ ]}
+],
+gen:[
+ {id:"q1",title:"نقش کوچ و اخلاق",items:[
+  I("g1","هیچ توصیه، تجویز، تشخیص یا راه‌حلی از طرف کوچ","",["Q1","Q2"],1),
+  I("g2","هیچ نظر شخصی و هیچ جمله‌ی تأیید، تشویق یا ارزش‌دهی","مثل «بسیار عالی»؛ این جمله‌ها جهت‌دهی و ارزش‌دهی دارند.",["4.1"]),
+  I("g3","محرمانگی را حفظ کن","",["Q1"],1),
+  I("g4","نقش کوچ فقط پرسشگری نیست","طبق ارزیاب، پذیرش «نقش کوچ» به مارکرهای ۴.۱، ۴.۳، ۴.۴، ۵.۱ تا ۵.۴، ۶.۱، ۶.۵ و ۷.۱ وابسته است؛ یعنی تصدیق، حمایت، حضور، شنیدن و دیدگاه تازه.",["Q2"])
+ ]},
+ {id:"q2",title:"اعتماد و فضای امن",items:[
+  I("g5","کار مراجع در جلسه را تصدیق کن؛ تصدیق یعنی دیدن، نه تأیید یا تشویق","نمونه: «خودت این اسم را خلق کردی؟»\nفرصت‌های تصدیق: وقتی مراجع نامی خلق می‌کند، تمایز مهمی می‌سازد (مثلاً «مسئولیت با خودم است، نه طرف مقابل») یا نشانه‌ی عملی می‌سازد.",["4.1"]),
+  I("g6","بعد از کار مهم مراجع، بلافاصله سراغ پرسش بعدی نرو","شنیدن با تصدیق کردن یکی نیست.",["4.1"]),
+  I("g7","دغدغه و نگرانی مراجع را کاوش کن و در همان مسیر حمایت و همدلی ابراز کن","",["4.2"]),
+  I("g8","مسیر جلسه در خدمت دغدغه‌های مراجع باشد، نه در خدمت پرسش‌های کوچ","",["4.2"]),
+  I("g9","در سراسر جلسه فضای بیان احساس، ادراک، دغدغه و باور بده","نه فقط درون استعاره‌ها و نه فقط در ۲۰ دقیقه‌ی اول؛ تجربه‌ی زیسته‌ی مراجع را عمیق‌تر کاوش کن.",["4.3"]),
+  I("g10","باورهای قطعی و بالقوه محدودکننده را کاوش کن","نمونه (۱۰:۵۰): «اگه این تفکر از همون ابتدا رشد نکنه، انگار دیگه هیچ‌وقت نمیشه به وجودش آورد» که بدون کاوش رها شد.",["4.3","6.1"]),
+  I("g11","به بافت گفت‌وگو توجه کن؛ هر «باید» باور سرزنشگر نیست","«باید»ی که مراجع در ۴۱:۴۱ به کار برد منطقی و علمی بود و پرسش «این باید را کی گفت؟» با بافت گفت‌وگو تناسب نداشت.",["4.3"]),
+  I("g12","الگوی پیوسته‌ی احترام و اجازه‌گرفتن را حفظ کن","",["4.2"],1)
+ ]},
+ {id:"q3",title:"حضور و کنجکاوی",items:[
+  I("g13","به لحن، مکث، انرژی و تغییرات کلامی مراجع در لحظه توجه و واکنش نشان بده","در ۲۱:۴۰ صدای مراجع بلندتر شد و این تغییر کاوش نشد.",["5.1"]),
+  I("g14","نیاز لحظه‌ای مراجع را در خدمت دستورکار و خودِ مراجع کاوش کن","",["5.1"]),
+  I("g15","کنجکاوی را به سمت خودِ مراجع هم ببر، نه فقط موضوع","پرسش‌هایی درباره‌ی اینکه این موضوع برای او چه اهمیتی دارد و او در این موقعیت کیست.",["5.2"]),
+  I("g16","استعاره کم باشد و در خدمت آگاهی درباره‌ی موضوع مراجع","در جلسه پنج استعاره از ذهن کوچ آمد (صندلی، رنگ، میز گرد حواس، تابلوی نقاشی، پروژکتور) و مراجع باید ذهنش را با آن‌ها همسو می‌کرد.",["5.2","5.3","7.1"]),
+  I("g17","از استعاره‌ها و واژه‌های خود مراجع استفاده کن","نمونه‌ی خوب (۲۶:۲۰): «این قلمی که چیزی رو جا نمی‌اندازه، اگه بخواد یه جمله بنویسه، چی می‌نویسه؟»",["5.3","6.2"],1),
+  I("g18","پیش از رفتن به تصویر بعدی، به بینش فرصت تثبیت بده","نمونه: عبور سریع از ۲۷:۱۵ به ۲۷:۵۰.",["7.1"]),
+  I("g19","هدایت جلسه با مراجع باشد","",["5.3"]),
+  I("g20","سکوت و مکث کافی برای تأمل مراجع","",["5.4"],1),
+  I("g21","خلاقیت در پرسشگری را حفظ کن و کارکردش را به سمت موضوع و خود مراجع ببر","",["5.2","7.1"],1)
+ ]},
+ {id:"q4",title:"شنیدن فعال",items:[
+  I("g22","بازتاب گزینشی نکن","در ۴۸:۰۳ سه واژه از میان واژه‌های مراجع انتخاب شد و «شعف» کنار رفت؛ بازتاب گزینشی جهت‌دهی پنهان دارد.",["6.1"]),
+  I("g23","وقتی مراجع چند مورد نام می‌برد، انتخاب را به خودش بسپار","«روی کدام‌یک از این‌ها بایستیم؟» (نمونه‌ی ۱۷:۲۵)",["6.2","5.3"]),
+  I("g24","پیش‌فرض‌ها و باورهای ناگفته‌ی مراجع را شناسایی کن","",["6.1"]),
+  I("g25","علاوه بر خود کلمات، به بافت و معنای آن‌ها توجه کن","",["6.2"]),
+  I("g26","معنای واژه‌های کلیدی مراجع و اثرشان بر موضوع را کاوش کن","«شاهد کامل، چیزی از قلم نیفته، چیزی از چشمم پنهان نمی‌مونه… این کلمات چه تأثیری روی مهارت گوش دادنت دارند؟»\n«معنای این کلمات برایت چیست؟»",["7.2","6.2"]),
+  I("g27","درستیِ درک خودت را صریح بسنج","«درست فهمیدم؟» در کل ۵۹ دقیقه حتی یک بار ثبت نشد.",["6.3"]),
+  I("g28","جملات مراجع را پیش از هر سؤال تکرار نکن","گاهی تکرار یک کلمه و پرسش روی همان برای چک کردن درک کافی است.",["6.3"])
+ ]},
+ {id:"q5",title:"پرسشگری",items:[
+  I("g29","پرسش‌ها ساده، کوتاه، باز و تک‌بخشی باشند","یک مفهوم، یک پرسش، در خدمت دستورکار مراجع.",["7.3"]),
+  I("g30","دو پرسش پشت سر هم نپرس","نمونه‌ها: «چه برداشتی داشتن؟ چی می‌گفتن راجع بهش؟» و «شامل چه چیزهایی میشه؟ چه کلیتی یا چه جزئیاتی؟»",["7.3"]),
+  I("g31","پرسش چندبخشی و پیچیده نپرس","نمونه: پرسش ۴۸:۰۳ با پنج مؤلفه در یک جمله، و ۵۴:۰۳ با ساختار پیچیده و مبهم.",["7.3"]),
+  I("g32","پیش از پرسش مقدمه‌ی طولانی نچین","در ۴۰:۲۷ مقدمه‌ی استعاری طولانی پیش از پرسش، ذهن مراجع را مشغول کرد.",["7.3"]),
+  I("g33","پرسش‌های جابه‌جایی نقش و دیدگاه را ادامه بده","«اگر خودت روبه‌روی خودت نشسته بودی، چه رفتاری و چطور شنیدنی کمکت می‌کرد؟»",["7.1"],1)
+ ]}
+],
+markers:{}
+};
+
+const GEN_FILE_ORDER=["g1","g4","g2","g5","g6","g12","g7","g8","g9","g10","g11","g13","g14","g16","g15","g21","g19","g17","g20","g22","g24","g23","g25","g27","g28","g33","g18","g26","g31","g30","g32","g29","g3"];
+const SRC={g1:"Q1",g4:"Q2",g2:"3.1",g5:"4.1",g6:"4.1",g12:"4.2",g7:"4.2",g8:"4.2",g9:"4.3",g10:"4.3",g11:"4.3",g13:"5.1",g14:"5.1",g16:"5.2",g15:"5.2",g21:"5.2",g19:"5.3",g17:"5.3",g20:"5.4",g22:"6.1",g24:"6.1",g23:"6.2",g25:"6.2",g27:"6.3",g28:"6.3",g33:"7.1",g18:"7.1",g26:"7.2",g31:"7.3",g30:"7.3",g32:"7.3",g29:"7.3",g3:"sum"};
+DEFAULT.genOrder=GEN_FILE_ORDER.slice();
+DEFAULT.favs=[];
+const LS_KEY="acc-checklist-amir-v1";
+const $=s=>document.querySelector(s);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fa=s=>String(s).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
+const codeLabel=c=>c.startsWith("Q")?"پیش‌شرط "+fa(c.slice(1)):"مارکر "+fa(c);
+const uid=()=>"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const valid=o=>o&&Array.isArray(o.seq)&&Array.isArray(o.gen);
+
+let state;
+const UI_KEY="acc-checklist-amir-ui";
+let uiPref={};try{uiPref=JSON.parse(localStorage.getItem(UI_KEY))||{};}catch(e){}
+const ui={tab:"seq",open:new Set(),editing:null,hideDone:false,mkFail:false,moving:null,showAll:!!uiPref.showAll,genView:uiPref.genView==="group"?"group":"file"};
+function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({showAll:ui.showAll,genView:ui.genView}));}catch(e){}}
+let sortables=[];
+
+function allItems(key){return state[key].flatMap(g=>g.items);}
+function findItem(id){
+  for(const key of ["seq","gen"])for(const g of state[key]){
+    const idx=g.items.findIndex(i=>i.id===id);
+    if(idx>-1)return {key,g,idx,item:g.items[idx]};
+  }
+  return null;
+}
+function orderedGen(){
+  const items=allItems("gen");const map=new Map(items.map(i=>[i.id,i]));
+  const out=[];const seen=new Set();
+  (state.genOrder||[]).forEach(id=>{if(map.has(id)&&!seen.has(id)){out.push(map.get(id));seen.add(id);}});
+  items.forEach(i=>{if(!seen.has(i.id))out.push(i);});
+  return out;
+}
+function isFav(k){return state.favs.includes(k);}
+function starBtn(k,sm){const on=isFav(k);return `<button class="star${sm?" sm":""}${on?" on":""}" data-act="fav" data-fk="${esc(k)}" aria-pressed="${on}" title="${on?"حذف از علاقه‌مندی‌ها":"افزودن به علاقه‌مندی‌ها"}">${ICON.star}</button>`;}
+function parseFav(k){
+  const t=k.slice(0,1);
+  if(t==="l"){const j=k.indexOf("|",2);return {t,id:k.slice(2,j),text:k.slice(j+1)};}
+  return t==="m"?{t,code:k.slice(2)}:{t,id:k.slice(2)};
+}
+function detailHTML(it){
+  return `<div class="detail">${it.d.split("\n").filter(x=>x.trim()).map(line=>`<div class="dline"><span>${esc(line)}</span>${starBtn("l|"+it.id+"|"+line,true)}</div>`).join("")}</div>`;
+}
+function mk(code){return state.markers[code]||(state.markers[code]={done:false,note:""});}
+
+/* ---------- saving ---------- */
+let artifactNS=null,saveTimer=null,filesOK=true,retried=false;
+function setSave(s){
+  const el=$("#save");
+  const map={ready:"ذخیره‌ی خودکار فعال",pending:"در حال ذخیره…",saved:"ذخیره شد",local:"در همین مرورگر ذخیره شد"};
+  el.textContent=map[s]||s;
+  el.classList.toggle("ok",s==="saved"||s==="ready");
+}
+function touch(){
+  state.updatedAt=Date.now();
+  try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}
+  setSave("pending");
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(pushRemote,2500);
+}
+async function pushRemote(){
+  if(!artifactNS||!filesOK){setSave("local");return;}
+  try{
+    await artifactNS.publish({"state.json":{content:JSON.stringify(state),contentType:"application/json"}});
+    retried=false;setSave("saved");
+  }catch(e){
+    const c=e&&e.code;
+    if(c==="conflict"){return;}
+    if(c==="rate_limited"){saveTimer=setTimeout(pushRemote,10000);return;}
+    if((c==="upstream_error"||!c)&&!retried){retried=true;setTimeout(pushRemote,1200+Math.random()*1500);return;}
+    filesOK=false;setSave("local");
+  }
+}
+
+/* ---------- rendering ---------- */
+function counts(key){const a=allItems(key);return {done:a.filter(i=>i.done).length,total:a.length};}
+function mkCounts(){return {done:CODES.filter(c=>mk(c).done).length,total:CODES.length};}
+
+function itemHTML(it,num,flat){
+  const open=ui.showAll||ui.open.has(it.id);
+  const editing=(ui.editing&&ui.editing.mode==="edit"&&ui.editing.itemId===it.id)||ui.moving===it.id;
+  return `<li class="item${it.done?" done":""}${it.s?" strong":""}${editing?" editing":""}" data-id="${it.id}">
+    ${num!=null?`<span class="num" aria-hidden="true">${fa(num)}</span>`:""}
+    <div class="row">
+      <button class="handle" aria-label="جابه‌جا کردن" title="بکش و جابه‌جا کن">${ICON.grip}</button>
+      <input type="checkbox" data-act="toggle" ${it.done?"checked":""} aria-label="انجام شد">
+      <div class="body">
+        <div class="text${it.d&&!ui.showAll?" has-d":""}" ${it.d&&!ui.showAll?'data-act="open"':""}>${esc(it.t)}</div>
+        <div class="meta">
+          ${it.s?'<span class="badge gold">نقطه قوت؛ حفظ کن</span>':""}
+          ${it.custom?'<span class="badge">افزوده‌ی خودم</span>':""}
+          ${flat?`<span class="badge">${esc(findItem(it.id).g.title)}</span>${SRC[it.id]?`<span class="badge src">منبع: ${SRC[it.id]==="sum"?"جمع‌بندی ارزیاب":codeLabel(SRC[it.id])}</span>`:""}`:""}
+          ${(it.m||[]).map(c=>`<button class="code" data-act="goto" data-code="${c}" title="رفتن به این مارکر">${codeLabel(c)}</button>`).join("")}
+        </div>
+        ${it.d&&open?detailHTML(it):""}
+      </div>
+      <div class="acts">
+        ${starBtn("i|"+it.id)}
+        <button class="ib mv" data-act="up" title="بالا">${ICON.up}</button>
+        <button class="ib mv" data-act="down" title="پایین">${ICON.down}</button>
+        ${it.d&&!ui.showAll?`<button class="ib" data-act="open" aria-expanded="${open}" title="جزئیات">${ICON.chev}</button>`:""}
+        <button class="ib" data-act="move" title="انتقال به ${findItem(it.id).key==="seq"?"موارد کلی":"موارد ترتیبی"}">${ICON.move}</button>
+        <button class="ib" data-act="addAfter" title="افزودن مورد بعد از این">${ICON.plus}</button>
+        <button class="ib" data-act="edit" title="ویرایش">${ICON.edit}</button>
+        <button class="ib del" data-act="del" title="حذف">${ICON.del}</button>
+      </div>
+    </div>
+  </li>`;
+}
+
+function editorHTML(){
+  const e=ui.editing;
+  const it=e.mode==="edit"?findItem(e.itemId).item:{t:"",d:"",m:[],s:false};
+  return `<li class="editor" data-editor>
+    <input class="ed-t" placeholder="عنوان مورد" value="${esc(it.t)}">
+    ${e.mode==="add"&&e.key==="gen"&&ui.genView==="file"?`<label class="ed-s">بخش در نمای بخش‌بندی: <select class="ed-g">${state.gen.map(g=>`<option value="${g.id}"${g.id===e.gid?" selected":""}>${esc(g.title)}</option>`).join("")}</select></label>`:""}
+    <textarea class="ed-d" rows="2" placeholder="توضیح یا نمونه‌ی پرسش (اختیاری)">${esc(it.d)}</textarea>
+    <div class="ed-codes"><span>مارکرهای مرتبط:</span>
+      ${CODES.map(c=>`<button type="button" class="code-tog${it.m.includes(c)?" on":""}" data-act="codeTog" aria-pressed="${it.m.includes(c)}" data-code="${c}">${fa(c.replace("Q","پ"))}</button>`).join("")}
+    </div>
+    <div class="ed-foot">
+      <label class="ed-s"><input type="checkbox" class="ed-strong" ${it.s?"checked":""}> نقطه قوت است</label>
+      <span class="sp"></span>
+      <button class="btn quiet" data-act="edCancel">انصراف</button>
+      <button class="btn primary" data-act="edSave">${e.mode==="edit"?"ذخیره‌ی تغییرات":"افزودن"}</button>
+    </div>
+  </li>`;
+}
+
+function moverHTML(it){
+  const f=findItem(it.id);const other=f.key==="seq"?"gen":"seq";
+  return `<li class="editor mover" data-mover>
+    <div class="mv-title">انتقال «${esc(it.t)}» به ${other==="gen"?"موارد کلی":"موارد ترتیبی"}؛ بخش مقصد را انتخاب کن:</div>
+    <div class="mv-opts">${state[other].map(g=>`<button class="btn" data-act="moveTo" data-key="${other}" data-gid="${g.id}">${esc(g.title)}</button>`).join("")}</div>
+    <div class="ed-foot"><span class="mv-hint">مورد به انتهای بخش مقصد می‌رود؛ بعد می‌توانی با درگ جایش را عوض کنی.</span><span class="sp"></span><button class="btn quiet" data-act="moveCancel">انصراف</button></div>
+  </li>`;
+}
+
+function groupHTML(key,g,counter){
+  const e=ui.editing;
+  const here=pos=>e&&e.mode==="add"&&e.key===key&&e.gid===g.id&&e.pos===pos;
+  let inner="";
+  if(here("start"))inner+=editorHTML();
+  g.items.forEach(it=>{
+    inner+=itemHTML(it,key==="seq"?++counter.n:null);
+    if(ui.moving===it.id)inner+=moverHTML(it);
+    if(e&&((e.mode==="add"&&e.pos==="after"&&e.afterId===it.id)||(e.mode==="edit"&&e.itemId===it.id)))inner+=editorHTML();
+  });
+  if(here("end"))inner+=editorHTML();
+  const d=g.items.filter(i=>i.done).length;
+  const tag=key==="seq"?"ol":"ul";const numCls=key==="seq"?" num-list":"";
+  return `<section class="group">
+    <div class="g-head"><h3>${esc(g.title)}</h3><span class="g-count">${fa(d)} از ${fa(g.items.length)}</span><span class="sp"></span>
+      <button class="btn quiet" data-act="addStart" data-key="${key}" data-gid="${g.id}">افزودن در ابتدای بخش</button></div>
+    <${tag} class="list ${key}${numCls}" data-list="${key}" data-gid="${g.id}">${inner}</${tag}>
+    <button class="add-end" data-act="addEnd" data-key="${key}" data-gid="${g.id}">＋ افزودن مورد به انتهای این بخش</button>
+  </section>`;
+}
+
+function flatGenHTML(){
+  const e=ui.editing;let inner="";let n=0;
+  orderedGen().forEach(it=>{
+    inner+=itemHTML(it,++n,true);
+    if(ui.moving===it.id)inner+=moverHTML(it);
+    if(e&&((e.mode==="add"&&e.pos==="after"&&e.afterId===it.id)||(e.mode==="edit"&&e.itemId===it.id)))inner+=editorHTML();
+  });
+  if(e&&e.mode==="add"&&e.pos==="flatEnd")inner+=editorHTML();
+  return `<section class="group"><ol class="list gen num-list" data-list="gen" data-flat="1">${inner}</ol>
+    <button class="add-end" data-act="addFlatEnd">＋ افزودن مورد به انتهای فهرست</button></section>`;
+}
+
+function favEntryHTML(k,n){
+  const p=parseFav(k);
+  const num=`<span class="num" aria-hidden="true">${fa(n)}</span>`;
+  const handle=`<button class="handle" aria-label="جابه‌جا کردن" title="بکش و جابه‌جا کن">${ICON.grip}</button>`;
+  const star=starBtn(k);
+  const missing=(txt)=>`<li class="item" data-fk="${esc(k)}">${num}<div class="row">${handle}<span></span><div class="body"><div class="text">${txt}</div><div class="meta"><span class="badge">این مورد دیگر در فهرست نیست</span></div></div><div class="acts">${star}</div></div></li>`;
+  if(p.t==="m"){
+    const M=MARKERS[p.code];if(!M)return missing(esc(p.code));
+    const s=mk(p.code);
+    return `<li class="item${s.done?" done":""}" data-fk="${esc(k)}">${num}<div class="row">${handle}
+      <input type="checkbox" data-act="mkToggle" data-code="${p.code}" ${s.done?"checked":""} aria-label="مسلط شدم">
+      <div class="body"><div class="text">${codeLabel(p.code)}: ${M.fa}</div>
+        <div class="meta"><span class="fav-kind">مارکر ACC</span><span class="st ${M.st}">${ST_LABEL[M.st]}</span></div></div>
+      <div class="acts"><button class="ib" data-act="goto" data-code="${p.code}" title="رفتن به محل">${ICON.link}</button>${star}</div></div></li>`;
+  }
+  const f=findItem(p.id);
+  if(p.t==="i"){
+    if(!f)return missing("مورد حذف شده");
+    const it=f.item;
+    return `<li class="item${it.done?" done":""}${it.s?" strong":""}" data-fk="${esc(k)}" data-id="${it.id}">${num}<div class="row">${handle}
+      <input type="checkbox" data-act="toggle" ${it.done?"checked":""} aria-label="انجام شد">
+      <div class="body"><div class="text">${esc(it.t)}</div>
+        <div class="meta"><span class="fav-kind">${f.key==="seq"?"موارد ترتیبی":"موارد کلی"}، ${esc(f.g.title)}</span>${(it.m||[]).map(c=>`<button class="code" data-act="goto" data-code="${c}">${codeLabel(c)}</button>`).join("")}</div>
+        ${it.d&&ui.showAll?detailHTML(it):""}</div>
+      <div class="acts"><button class="ib" data-act="gotoItem" data-id="${it.id}" title="رفتن به محل">${ICON.link}</button>${star}</div></div></li>`;
+  }
+  const still=f&&f.item.d.split("\n").includes(p.text);
+  return `<li class="item" data-fk="${esc(k)}">${num}<div class="row">${handle}<span class="quote" aria-hidden="true">«</span>
+    <div class="body"><div class="text">${esc(p.text)}</div>
+      <div class="meta"><span class="fav-kind">زیرمجموعه‌ی: ${f?esc(f.item.t):"مورد حذف شده"}</span>${f&&!still?'<span class="badge">این متن در مورد اصلی ویرایش شده</span>':""}</div></div>
+    <div class="acts">${f?`<button class="ib" data-act="gotoItem" data-id="${f.item.id}" data-open="1" title="رفتن به محل">${ICON.link}</button>`:""}${star}</div></div></li>`;
+}
+function favsHTML(){
+  if(!state.favs.length)return `<p class="intro">علاقه‌مندی‌ها به ترتیب اضافه شدن اینجا جمع می‌شوند.</p><div class="empty">هنوز چیزی اضافه نشده. روی ستاره‌ی کنار هر مورد، هر خط از جزئیات یا هر مارکر بزن.</div>`;
+  return `<div class="tools">
+      <label class="switch"><input type="checkbox" data-act="hideDone" ${ui.hideDone?"checked":""}> پنهان کردن تیک‌خورده‌ها</label>
+      <label class="switch"><input type="checkbox" data-act="showAll" ${ui.showAll?"checked":""}> نمایش همه‌ی جزئیات</label>
+      <span class="sp"></span><button class="btn quiet" data-act="favClear">پاک کردن همه</button></div>
+    <p class="intro">به ترتیب اضافه شدن. با دستگیره می‌توانی ترتیب را عوض کنی و با دکمه‌ی پیکان به محل اصلی هر مورد بروی.</p>
+    <section class="group"><ol class="list fav num-list" data-list="fav">${state.favs.map((k,i)=>favEntryHTML(k,i+1)).join("")}</ol></section>`;
+}
+function gotoItem(id,openIt){
+  const f=findItem(id);if(!f)return;
+  ui.tab=f.key;ui.editing=null;ui.moving=null;
+  if(openIt)ui.open.add(id);
+  if(ui.hideDone&&f.item.done)ui.hideDone=false;
+  render();
+  const t=document.querySelector(`#panel .item[data-id="${id}"]`);
+  if(t){t.scrollIntoView({behavior:"smooth",block:"center"});t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1500);}
+}
+
+function toolsHTML(){
+  return `<div class="tools">
+    <label class="switch"><input type="checkbox" data-act="hideDone" ${ui.hideDone?"checked":""}> پنهان کردن تیک‌خورده‌ها</label>
+    <label class="switch"><input type="checkbox" data-act="showAll" ${ui.showAll?"checked":""}> نمایش همه‌ی جزئیات</label>
+    <span class="sp"></span>
+    <button class="btn" data-act="newRound">جلسه‌ی تمرینی تازه</button>
+    <button class="btn quiet" data-act="restore">بازگردانی فهرست اولیه</button>
+  </div>`;
+}
+
+function markersHTML(){
+  const st={pass:0,above:0,floor:0,fail:0};CODES.forEach(c=>st[MARKERS[c].st]++);
+  const related={};
+  ["seq","gen"].forEach(key=>state[key].forEach(g=>g.items.forEach(it=>(it.m||[]).forEach(c=>{(related[c]=related[c]||[]).push({it,key});}))));
+  let h=`<div class="tools">
+    <label class="switch"><input type="checkbox" data-act="mkFail" ${ui.mkFail?"checked":""}> فقط مشاهده‌نشده‌ها</label>
+    <label class="switch"><input type="checkbox" data-act="showAll" ${ui.showAll?"checked":""}> نمایش همه‌ی جزئیات</label>
+    <span class="sp"></span>
+    <div class="mk-stats">
+      <span class="st pass">${fa(st.pass+st.above)} مشاهده شد</span>
+      <span class="st floor">${fa(st.floor)} در حد کف</span>
+      <span class="st fail">${fa(st.fail)} مشاهده نشد</span>
+    </div></div>
+    <p class="intro">هر مارکر را وقتی در جلسه‌های تمرینی به آن مسلط شدی تیک بزن. برچسب رنگی نتیجه‌ی همین ارزیابی است.</p>`;
+  MARKER_GROUPS.forEach(grp=>{
+    const codes=grp.codes.filter(c=>!ui.mkFail||MARKERS[c].st==="fail");
+    if(!codes.length)return;
+    h+=`<div class="comp"><h3>${grp.title}</h3><p class="en" lang="en">${grp.en}</p></div>`;
+    codes.forEach(c=>{
+      const M=MARKERS[c],s=mk(c),rel=related[c]||[];
+      h+=`<article class="marker ${M.st}" id="mk-${c.replace(".","-")}">
+        <div class="mk-head">
+          <span class="mk-code">${codeLabel(c)}</span>
+          <span class="st ${M.st}">${ST_LABEL[M.st]}</span>
+          <span class="sp"></span>
+          ${starBtn("m|"+c)}
+          <label class="mk-done"><input type="checkbox" data-act="mkToggle" data-code="${c}" ${s.done?"checked":""}> مسلط شدم</label>
+        </div>
+        <p class="mk-fa">${M.fa}</p>
+        <p class="mk-en" dir="ltr" lang="en">${M.en}</p>
+        ${rel.length?`<details class="rel"${ui.showAll?" open":""}><summary>موارد مرتبط در چک‌لیست (${fa(rel.filter(r=>r.it.done).length)} از ${fa(rel.length)})</summary><ul>
+          ${rel.map(r=>`<li><input type="checkbox" data-act="relToggle" data-id="${r.it.id}" ${r.it.done?"checked":""} aria-label="انجام شد"><span style="flex:1">${esc(r.it.t)}</span><span class="where">${r.key==="seq"?"ترتیبی":"کلی"}</span>${starBtn("i|"+r.it.id,true)}</li>`).join("")}
+        </ul></details>`:""}
+        <textarea class="mk-note" data-code="${c}" rows="1" placeholder="یادداشت خودم برای این مارکر">${esc(s.note)}</textarea>
+      </article>`;
+    });
+  });
+  return h;
+}
+
+function render(){
+  const openRel=[...document.querySelectorAll("details.rel[open]")].map(d=>d.closest(".marker").id);
+  document.body.classList.toggle("hide-done",ui.hideDone);
+  const cs=counts("seq"),cg=counts("gen"),cm=mkCounts();
+  $("#c-seq").textContent=`${fa(cs.done)} از ${fa(cs.total)}`;
+  $("#c-gen").textContent=`${fa(cg.done)} از ${fa(cg.total)}`;
+  $("#c-mk").textContent=`${fa(cm.done)} از ${fa(cm.total)}`;
+  $("#c-fav").textContent=`${fa(state.favs.length)} مورد`;
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===ui.tab));
+  let cf={done:0,total:0};
+  state.favs.forEach(k=>{const q=parseFav(k);if(q.t==="i"){const f=findItem(q.id);if(f){cf.total++;if(f.item.done)cf.done++;}}else if(q.t==="m"&&MARKERS[q.code]){cf.total++;if(mk(q.code).done)cf.done++;}});
+  const cur=ui.tab==="seq"?cs:ui.tab==="gen"?cg:ui.tab==="mk"?cm:cf;
+  $("#prog").style.width=(cur.total?cur.done/cur.total*100:0)+"%";
+  const p=$("#panel");
+  if(ui.tab==="fav"){
+    p.innerHTML=favsHTML();
+  }else if(ui.tab==="mk"){
+    p.innerHTML=markersHTML();
+    openRel.forEach(id=>{const d=document.querySelector("#"+id+" details.rel");if(d)d.open=true;});
+  }else{
+    const counter={n:0};
+    if(ui.tab==="seq"){
+      p.innerHTML=toolsHTML()+`<p class="intro">به ترتیب جریان جلسه، از شروع تا پایان. با دستگیره‌ی کنار هر مورد می‌توانی ترتیب را عوض کنی یا مورد را به فاز دیگری بکشی.</p>`+state.seq.map(g=>groupHTML("seq",g,counter)).join("");
+    }else{
+      const seg=`<div class="tools"><div class="seg" role="group" aria-label="نحوه‌ی نمایش">
+        <button data-act="genView" data-v="file" aria-pressed="${ui.genView==="file"}">به ترتیب فایل ارزیابی</button>
+        <button data-act="genView" data-v="group" aria-pressed="${ui.genView==="group"}">بر اساس بخش‌بندی</button></div></div>`;
+      if(ui.genView==="file"){
+        p.innerHTML=seg+toolsHTML()+`<p class="intro">رفتارهایی که در سراسر جلسه باید رعایت شوند، به همان ترتیبی که در فایل ارزیابی آمده‌اند. ترتیب این نما جدا از نمای بخش‌بندی ذخیره می‌شود.</p>`+flatGenHTML();
+      }else{
+        p.innerHTML=seg+toolsHTML()+`<p class="intro">رفتارهایی که در سراسر جلسه باید رعایت شوند، دسته‌بندی‌شده بر اساس موضوع.</p>`+state.gen.map(g=>groupHTML("gen",g,counter)).join("");
+      }
+    }
+  }
+  initSortables();
+  const ed=document.querySelector("[data-editor] .ed-t");
+  if(ed&&document.activeElement!==ed){ed.focus({preventScroll:false});}
+}
+
+function initSortables(){
+  sortables.forEach(s=>s.destroy());sortables=[];
+  if(!window.Sortable){document.body.classList.add("no-drag");return;}
+  document.querySelectorAll(".list[data-list]").forEach(el=>{
+    sortables.push(Sortable.create(el,{
+      group:el.dataset.list,handle:".handle",draggable:".item",animation:160,
+      ghostClass:"ghost",chosenClass:"chosen",disabled:!!(ui.editing||ui.moving),
+      onEnd:()=>syncFromDOM(el.dataset.list)
+    }));
+  });
+}
+function syncFromDOM(key){
+  if(key==="fav"){
+    state.favs=[...document.querySelectorAll('.list[data-list="fav"] > .item')].map(li=>li.dataset.fk);
+    touch();render();return;
+  }
+  const flat=document.querySelector('.list[data-flat="1"]');
+  if(key==="gen"&&flat){
+    state.genOrder=[...flat.children].filter(li=>li.classList.contains("item")).map(li=>li.dataset.id);
+    touch();render();return;
+  }
+  const map=new Map(allItems(key).map(i=>[i.id,i]));
+  document.querySelectorAll(`.list[data-list="${key}"]`).forEach(list=>{
+    const g=state[key].find(x=>x.id===list.dataset.gid);
+    g.items=[...list.children].filter(li=>li.classList.contains("item")).map(li=>map.get(li.dataset.id)).filter(Boolean);
+  });
+  touch();render();
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",ev=>{
+  const tab=ev.target.closest(".tab");
+  if(tab){ui.tab=tab.dataset.tab;ui.editing=null;ui.moving=null;render();window.scrollTo({top:$(".bar").offsetTop-4});return;}
+  const el=ev.target.closest("[data-act]");if(!el)return;
+  const act=el.dataset.act;
+  const li=el.closest(".item");const f=li?findItem(li.dataset.id):null;
+  switch(act){
+    case "toggle": f.item.done=el.checked;touch();render();break;
+    case "open": ui.open.has(f.item.id)?ui.open.delete(f.item.id):ui.open.add(f.item.id);render();break;
+    case "addAfter": ui.moving=null;ui.editing={mode:"add",key:f.key,gid:f.g.id,pos:"after",afterId:f.item.id};render();break;
+    case "addStart": ui.moving=null;ui.editing={mode:"add",key:el.dataset.key,gid:el.dataset.gid,pos:"start"};render();break;
+    case "addEnd": ui.moving=null;ui.editing={mode:"add",key:el.dataset.key,gid:el.dataset.gid,pos:"end"};render();break;
+    case "edit": ui.moving=null;ui.editing={mode:"edit",itemId:f.item.id};render();break;
+    case "move": ui.editing=null;ui.moving=ui.moving===f.item.id?null:f.item.id;render();break;
+    case "moveCancel": ui.moving=null;render();break;
+    case "fav":{
+      const k=el.dataset.fk;
+      if(isFav(k)){state.favs=state.favs.filter(x=>x!==k);toast("از علاقه‌مندی‌ها حذف شد");}
+      else{state.favs.push(k);toast("به علاقه‌مندی‌ها اضافه شد");}
+      touch();render();break;}
+    case "gotoItem": gotoItem(el.dataset.id,!!el.dataset.open);break;
+    case "favClear": ask("همه‌ی علاقه‌مندی‌ها پاک شود؟","پاک کن").then(ok=>{if(ok){state.favs=[];touch();render();}});break;
+    case "bkToggle":{const b=$("#backup");b.hidden=!b.hidden;el.setAttribute("aria-expanded",!b.hidden);if(!b.hidden)b.scrollIntoView({behavior:"smooth",block:"start"});break;}
+    case "bkDownload": bkDownload();break;
+    case "bkShowText": bkShowText();break;
+    case "bkCopy": bkCopy();break;
+    case "bkPaste": applyBackup($(".bk-in").value);break;
+    case "bkPick": {const inp=$("#bkFile");inp.value="";bkMsg("");inp.click();break;}
+    case "bkClip":
+      if(navigator.clipboard&&navigator.clipboard.readText){
+        navigator.clipboard.readText().then(t=>{$(".bk-in").value=t;if(t.trim())applyBackup(t);else bkMsg("کلیپ‌بورد خالی است.");})
+          .catch(()=>{$(".bk-in").focus();bkMsg("دسترسی به کلیپ‌بورد داده نشد؛ داخل کادر انگشتت را نگه دار و «Paste» را بزن، بعد «بازگردانی از متن».");});
+      }else{$(".bk-in").focus();bkMsg("داخل کادر انگشتت را نگه دار و «Paste» را بزن، بعد «بازگردانی از متن».");}
+      break;
+    case "genView": ui.genView=el.dataset.v;ui.editing=null;ui.moving=null;saveUI();render();break;
+    case "addFlatEnd": ui.moving=null;ui.editing={mode:"add",key:"gen",gid:state.gen[state.gen.length-1].id,pos:"flatEnd"};render();break;
+    case "moveTo":{
+      const src=findItem(ui.moving);if(!src){ui.moving=null;render();break;}
+      const g=state[el.dataset.key].find(x=>x.id===el.dataset.gid);
+      src.g.items.splice(src.idx,1);g.items.push(src.item);
+      ui.moving=null;touch();render();
+      toast(`منتقل شد به ${el.dataset.key==="gen"?"موارد کلی":"موارد ترتیبی"}، بخش «${g.title}»`);
+      break;}
+    case "del":
+      ask("این مورد حذف شود؟","حذف").then(ok=>{if(!ok)return;const g=findItem(f.item.id);if(!g)return;g.g.items.splice(g.idx,1);state.favs=state.favs.filter(k=>!(k==="i|"+f.item.id||k.startsWith("l|"+f.item.id+"|")));if(ui.editing&&(ui.editing.itemId===f.item.id||ui.editing.afterId===f.item.id))ui.editing=null;touch();render();});
+      break;
+    case "up": case "down":{
+      if(f.key==="gen"&&ui.genView==="file"){
+        const ids=orderedGen().map(i=>i.id);const a=ids.indexOf(f.item.id);const b=a+(act==="up"?-1:1);
+        if(b>=0&&b<ids.length){[ids[a],ids[b]]=[ids[b],ids[a]];state.genOrder=ids;touch();render();}
+        break;
+      }
+      const j=f.idx+(act==="up"?-1:1);
+      if(j>=0&&j<f.g.items.length){const [x]=f.g.items.splice(f.idx,1);f.g.items.splice(j,0,x);touch();render();}
+      break;}
+    case "codeTog": el.classList.toggle("on");el.setAttribute("aria-pressed",el.classList.contains("on"));break;
+    case "edCancel": ui.editing=null;render();break;
+    case "edSave": saveEditor();break;
+    case "goto": ui.tab="mk";ui.mkFail=false;ui.editing=null;render();{
+      const t=document.getElementById("mk-"+el.dataset.code.replace(".","-"));
+      if(t){t.scrollIntoView({behavior:"smooth",block:"center"});t.classList.add("flash");setTimeout(()=>t.classList.remove("flash"),1500);}
+    }break;
+    case "hideDone": ui.hideDone=el.checked;render();break;
+    case "mkFail": ui.mkFail=el.checked;render();break;
+    case "showAll": ui.showAll=el.checked;saveUI();render();break;
+    case "mkToggle": mk(el.dataset.code).done=el.checked;touch();render();break;
+    case "relToggle":{const r=findItem(el.dataset.id);if(r){r.item.done=el.checked;touch();render();}break;}
+    case "newRound":
+      ask("همه‌ی تیک‌های موارد ترتیبی و کلی برداشته شود؟ فهرست و ترتیب خودت حفظ می‌شود.","بردار").then(ok=>{if(ok){
+        ["seq","gen"].forEach(k=>allItems(k).forEach(i=>i.done=false));touch();render();
+      }});break;
+    case "restore":
+      ask("فهرست به حالت اولیه‌ی ارزیابی برمی‌گردد و موارد افزوده، ترتیب‌ها و تیک‌ها پاک می‌شوند. ادامه می‌دهی؟","بازگردانی").then(ok=>{if(ok){
+        const markers=state.markers,favs=state.favs||[];state=clone(DEFAULT);state.markers=markers;state.favs=favs;ui.editing=null;touch();render();
+      }});break;
+  }
+});
+
+function saveEditor(){
+  const ed=document.querySelector("[data-editor]");if(!ed)return;
+  const tIn=ed.querySelector(".ed-t");const t=tIn.value.trim();
+  if(!t){tIn.classList.add("bad");tIn.focus();return;}
+  const d=ed.querySelector(".ed-d").value.trim();
+  const m=[...ed.querySelectorAll(".code-tog.on")].map(b=>b.dataset.code);
+  const s=ed.querySelector(".ed-strong").checked;
+  const e=ui.editing;
+  if(e.mode==="edit"){Object.assign(findItem(e.itemId).item,{t,d,m,s});}
+  else{
+    const sel=ed.querySelector(".ed-g");if(sel)e.gid=sel.value;
+    const g=state[e.key].find(x=>x.id===e.gid);
+    const it={id:uid(),t,d,m,s,done:false,custom:true};
+    if(e.pos==="start")g.items.unshift(it);
+    else if(e.pos==="end"||e.pos==="flatEnd")g.items.push(it);
+    else{const i=g.items.findIndex(x=>x.id===e.afterId);if(i>-1)g.items.splice(i+1,0,it);else g.items.push(it);}
+    if(e.key==="gen"){
+      const ids=orderedGen().map(x=>x.id).filter(id=>id!==it.id);
+      const a=e.pos==="after"?ids.indexOf(e.afterId):-1;
+      if(a>-1)ids.splice(a+1,0,it.id);else ids.push(it.id);
+      state.genOrder=ids;
+    }
+  }
+  ui.editing=null;touch();render();
+}
+
+let dlNS=null,dlPromise=null;
+function bkMsg(t){$(".bk-msg").textContent=t;}
+function backupText(){return JSON.stringify({app:"acc-checklist",version:1,exportedAt:new Date().toISOString(),state,ui:{showAll:ui.showAll,genView:ui.genView}},null,1);}
+function bkShowText(){
+  const out=$(".bk-out");out.value=backupText();out.hidden=false;
+  document.querySelector('[data-act="bkCopy"]').hidden=false;out.focus();out.select();
+}
+async function bkCopy(){
+  const out=$(".bk-out");
+  try{await navigator.clipboard.writeText(out.value);bkMsg("متن پشتیبان کپی شد.");}
+  catch(e){out.focus();out.select();let ok=false;try{ok=document.execCommand("copy");}catch(_){}
+    bkMsg(ok?"متن پشتیبان کپی شد.":"متن انتخاب شد؛ آن را کپی کن.");}
+}
+async function bkDownload(){
+  const name=`acc-checklist-backup-${new Date().toISOString().slice(0,10)}.json`;
+  const data=backupText();
+  if(window.claude&&typeof window.claude.use==="function"){
+    if(!dlNS&&dlPromise)await dlPromise;
+    if(dlNS){
+      try{await dlNS.save({filename:name,data});bkMsg("فایل پشتیبان ذخیره شد.");}
+      catch(e){
+        const c=e&&e.code;
+        if(c==="declined")bkMsg("ذخیره لغو شد.");
+        else if(c==="rate_limited")bkMsg("یک پنجره‌ی ذخیره باز است؛ کمی بعد دوباره امتحان کن.");
+        else{bkShowText();bkMsg("دانلود در این نما در دسترس نیست؛ متن پشتیبان را کپی کن.");}
+      }
+      return;
+    }
+    bkShowText();bkMsg("دانلود در این نما در دسترس نیست؛ متن پشتیبان را کپی کن.");return;
+  }
+  const url=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  bkMsg("فایل پشتیبان دانلود شد.");
+}
+async function applyBackup(text){
+  let raw=String(text||"").replace(/^\uFEFF/,"").trim();
+  const a=raw.indexOf("{"),b=raw.lastIndexOf("}");
+  if(a>-1&&b>a)raw=raw.slice(a,b+1);
+  let obj=null;try{obj=JSON.parse(raw);}catch(e){}
+  const st=obj&&obj.app==="acc-checklist"?obj.state:obj;
+  if(!valid(st)){bkMsg("این فایل یا متن، پشتیبان معتبر این پنل نیست.");return;}
+  if(!(await ask("اطلاعات فعلی این پنل با پشتیبان جایگزین شود؟","جایگزین کن")))return;
+  if(!st.markers)st.markers={};
+  if(!Array.isArray(st.genOrder))st.genOrder=GEN_FILE_ORDER.slice();
+  if(!Array.isArray(st.favs))st.favs=[];
+  state=st;
+  if(obj.ui){ui.showAll=!!obj.ui.showAll;ui.genView=obj.ui.genView==="group"?"group":"file";saveUI();}
+  ui.editing=null;ui.moving=null;ui.open.clear();
+  touch();render();$(".bk-in").value="";
+  bkMsg("پشتیبان با موفقیت بارگذاری شد.");toast("پشتیبان بارگذاری شد");
+}
+function readPicked(inp){
+  const file=inp.files&&inp.files[0];if(!file)return;
+  if(inp._reading===file)return;inp._reading=file;
+  bkMsg("در حال خواندن فایل…");
+  const fail=()=>{inp._reading=null;bkMsg("خواندن فایل ممکن نشد؛ فایل را در برنامه‌ی Files باز کن، متنش را کپی کن و اینجا بچسبان.");};
+  const done=t=>{inp._reading=null;applyBackup(t);};
+  if(file.text){file.text().then(done).catch(()=>{
+    const r=new FileReader();r.onload=()=>done(r.result);r.onerror=fail;r.readAsText(file);
+  });}
+  else{const r=new FileReader();r.onload=()=>done(r.result);r.onerror=fail;r.readAsText(file);}
+}
+["change","input"].forEach(t=>document.addEventListener(t,ev=>{
+  if(ev.target&&ev.target.matches&&ev.target.matches("[data-bk-file]"))readPicked(ev.target);
+}));
+function ask(msg,okLabel){
+  return new Promise(res=>{
+    const bg=document.createElement("div");bg.className="modal-bg";
+    bg.innerHTML=`<div class="modal" role="alertdialog" aria-modal="true"><p></p><div class="ed-foot"><button class="btn quiet" data-no>انصراف</button><button class="btn primary" data-yes></button></div></div>`;
+    bg.querySelector("p").textContent=msg;
+    const yes=bg.querySelector("[data-yes]");yes.textContent=okLabel||"تأیید";
+    const done=v=>{bg.remove();document.removeEventListener("keydown",key,true);res(v);};
+    const key=e=>{if(e.key==="Escape"){e.stopPropagation();done(false);}};
+    bg.addEventListener("click",e=>{e.stopPropagation();if(e.target===bg||e.target.hasAttribute("data-no"))done(false);else if(e.target.hasAttribute("data-yes"))done(true);});
+    document.addEventListener("keydown",key,true);
+    document.body.appendChild(bg);yes.focus();
+  });
+}
+function toast(msg){
+  const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2600);
+}
+document.addEventListener("keydown",ev=>{
+  if(ui.moving&&ev.key==="Escape"){ui.moving=null;render();return;}
+  if(!ui.editing)return;
+  if(ev.key==="Escape"){ui.editing=null;render();}
+  else if(ev.key==="Enter"&&ev.target.classList.contains("ed-t")){ev.preventDefault();saveEditor();}
+});
+let noteTimer=null;
+document.addEventListener("input",ev=>{
+  if(ev.target.classList.contains("mk-note")){
+    mk(ev.target.dataset.code).note=ev.target.value;
+    clearTimeout(noteTimer);noteTimer=setTimeout(touch,900);
+  }
+  if(ev.target.classList.contains("ed-t"))ev.target.classList.remove("bad");
+});
+
+/* ---------- load ---------- */
+(function load(){
+  let local=null;
+  try{local=JSON.parse(localStorage.getItem(LS_KEY));}catch(e){}
+  state=valid(local)?local:clone(DEFAULT);
+  if(!state.markers)state.markers={};
+  if(!Array.isArray(state.genOrder))state.genOrder=GEN_FILE_ORDER.slice();if(!Array.isArray(state.favs))state.favs=[];
+  render();
+  fetch("state.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(remote=>{
+    if(valid(remote)&&(remote.updatedAt||0)>(state.updatedAt||0)){
+      state=remote;if(!state.markers)state.markers={};
+      if(!Array.isArray(state.genOrder))state.genOrder=GEN_FILE_ORDER.slice();if(!Array.isArray(state.favs))state.favs=[];
+      try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}
+      render();
+    }
+  }).catch(()=>{});
+  if(window.claude&&typeof window.claude.use==="function"){
+    dlPromise=window.claude.use("downloads").then(ns=>{dlNS=ns;}).catch(()=>{});
+    window.claude.use("artifact").then(ns=>{artifactNS=ns;setSave(ns?"ready":"local");}).catch(()=>setSave("local"));
+  }else setSave("local");
+})();
+</script>
+</body>
+</html>

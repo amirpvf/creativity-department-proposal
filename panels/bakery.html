@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head><script data-demo-inject>
+(function(){var F='bakery.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A single-page order and pricing panel for bakeries and cake makers: recipe-based pricing, decoration costing, deposits, customers and a delivery calendar.">
+<title>Bakery Order &amp; Pricing Panel — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --icing:#F4F6FA;
+  --sugar:#FFFFFF;
+  --blush:#E8EEF6;
+  --blush-deep:#C9D6E6;
+  --raspberry:#1B4B82;
+  --raspberry-soft:#3D74AC;
+  --plum:#16202E;
+  --cocoa:#5E7188;
+  --line:#DDE4ED;
+  --pistachio:#3C7D5B;
+  --caramel:#B98524;
+  --lav:#6C7A9C;
+  --box:#7590AC;
+  --shadow:0 6px 20px rgba(22,32,46,.08);
+  --shadow-sm:0 2px 8px rgba(22,32,46,.06);
+  --r:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  background:var(--icing);
+  color:var(--plum);
+  font-size:15px;
+  line-height:1.75;
+  min-height:100vh;
+  padding:0 0 104px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 14px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2.5px solid var(--raspberry);outline-offset:2px;border-radius:8px}
+
+/* header */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 4px 16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo svg{width:44px;height:44px;filter:drop-shadow(0 6px 10px rgba(27,107,201,.22))}
+.brand{font-family:'IBM Plex Serif',Georgia,serif;font-weight:700;font-size:24px;letter-spacing:-.2px;line-height:1.1}
+.brand{color:var(--raspberry)}
+.brand span{color:var(--cocoa);font-weight:600}
+.brand small{display:block;font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;font-weight:600;color:var(--cocoa);letter-spacing:1.6px;margin-top:5px}
+.demo-badge{align-self:center;background:var(--blush);color:var(--raspberry);border:1px solid var(--blush-deep);border-radius:3px;padding:3px 9px;font-size:10.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;cursor:help}
+.today{margin-inline-start:auto;text-align:end;font-size:12.5px;color:var(--cocoa);line-height:1.6}
+.today b{display:block;color:var(--plum);font-size:14.5px;font-weight:700}
+.saved{display:inline-flex;align-items:center;gap:6px;background:#EAF6E2;color:#41682A;border-radius:4px;padding:4px 12px;font-size:12px;font-weight:600;opacity:0;transition:opacity .3s}
+.saved.on{opacity:1}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--sugar);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow-sm);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:9px 15px;border-radius:4px;font-weight:500;font-size:13.5px;color:var(--cocoa);transition:.15s}
+.tab:hover{background:var(--icing);color:var(--raspberry)}
+.tab.on{background:var(--raspberry);color:#fff;box-shadow:none}
+
+/* cards */
+.card{background:var(--sugar);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);margin-top:16px}
+.card h2{margin:0 0 4px;font-family:'IBM Plex Serif',Georgia,serif;font-size:17px;font-weight:600;letter-spacing:-.1px}
+.card p.hint{margin:0 0 14px;color:var(--cocoa);font-size:12.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--cocoa);margin-bottom:5px}
+input[type=text],input[type=tel],input[type=number],input[type=time],select,textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;background:#F8FBFF;transition:.15s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--raspberry-soft);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(90,155,230,.15)}
+textarea{resize:vertical;min-height:64px}
+.fldhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--cocoa);margin-bottom:5px}
+.steps{display:flex;gap:8px;margin-top:16px}
+.step{flex:1;display:flex;align-items:center;gap:9px;padding:11px 14px;border:1.5px solid var(--line);border-radius:6px;background:var(--sugar);font-weight:700;font-size:13.5px;color:var(--cocoa);transition:.16s;text-align:start}
+.step:hover{border-color:var(--blush-deep)}
+.step.on{border-color:var(--raspberry);background:#fff;color:var(--plum);box-shadow:inset 0 -2px 0 var(--raspberry)}
+.step .n{width:26px;height:26px;border-radius:50%;background:var(--blush);color:var(--raspberry);display:grid;place-items:center;font-size:12.5px;flex:none}
+.step.on .n{background:var(--raspberry);color:#fff}
+.step.done .n{background:#EAF6E2;color:#41682A}
+.step small{display:block;font-weight:500;font-size:11px;opacity:.75;margin-top:1px}
+@media(max-width:720px){.steps{flex-direction:column;gap:6px}.step small{display:none}}
+.mini-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:5px;background:var(--blush);border:1px solid var(--blush-deep);margin-top:14px;font-size:13px}
+.mini-summary b{color:var(--raspberry)}
+.optbox{margin-top:14px;border:1.5px dashed var(--line);border-radius:6px;padding:12px}
+.optbox.on{border-style:solid;border-color:var(--blush-deep);background:#F8FBFF}
+.ihelp{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
+ background:var(--blush);color:var(--raspberry);font-size:11px;font-weight:800;margin-inline-start:6px;
+ cursor:help;position:relative;flex:none;font-family:inherit;border:none;vertical-align:middle}
+.ihelp:hover,.ihelp:focus-visible{background:var(--raspberry);color:#fff}
+.ihelp .tip{display:none;position:absolute;z-index:70;bottom:calc(100% + 8px);inset-inline-start:50%;
+ transform:translateX(-50%);width:250px;max-width:70vw;background:var(--plum);color:#fff;font-weight:500;
+ font-size:12.5px;line-height:1.75;padding:9px 12px;border-radius:6px;box-shadow:0 10px 28px rgba(15,39,66,.3);
+ text-align:start;cursor:default;pointer-events:none}
+.ihelp .tip:after{content:'';position:absolute;top:100%;inset-inline-start:50%;transform:translateX(-50%);
+ border:6px solid transparent;border-top-color:var(--plum)}
+.ihelp:hover .tip,.ihelp:focus-visible .tip{display:block}
+h2 .ihelp{vertical-align:2px}
+.faq{border:1.5px solid var(--line);border-radius:6px;margin-top:10px;overflow:hidden;background:#FAFCFF}
+.faq>summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.faq>summary::-webkit-details-marker{display:none}
+.faq>summary:before{content:'▾';color:var(--raspberry);font-size:12px;transition:.15s}
+.faq[open]>summary:before{transform:rotate(180deg)}
+.faq>summary:hover{background:var(--icing)}
+.faq .inner{padding:0 16px 14px;font-size:13.5px;line-height:1.95;color:var(--plum)}
+.faq .inner p{margin:0 0 8px}
+.faq .inner ol,.faq .inner ul{margin:0 0 8px;padding-inline-start:20px}
+.faq .inner li{margin-bottom:5px}
+.faq .inner b{color:var(--raspberry)}
+.kbd{display:inline-block;background:var(--blush);color:var(--raspberry);border-radius:4px;padding:1px 7px;font-size:12px;font-weight:700}
+.navrow{display:flex;gap:10px;margin-top:16px}
+.locked{border:1px solid var(--blush-deep);background:#FAFCFF}
+.locked h2{color:var(--raspberry)}
+.lineno{width:24px;height:24px;border-radius:50%;background:var(--raspberry);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.tstar{margin-inline-start:7px;font-size:12px;opacity:.7;cursor:pointer}
+.tstar.on{color:var(--caramel);opacity:1}
+.tab.on .tstar{color:#fff}
+.tab.on .tstar.on{color:#FFE08A}
+.dd{position:relative}
+.dd-btn{width:100%;text-align:start;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;background:#F8FBFF;font-weight:600;display:flex;align-items:center;gap:8px}
+.dd-btn i{margin-inline-start:auto;font-style:normal;color:var(--cocoa);font-size:11px}
+.dd.open .dd-btn{border-color:var(--raspberry-soft);box-shadow:0 0 0 3px rgba(90,155,230,.15)}
+.dd-list{display:none;position:absolute;z-index:60;top:calc(100% + 4px);inset-inline:0;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}
+.dd.open .dd-list{display:block}
+.dd-row{display:flex;align-items:center;border-radius:5px}
+.dd-row:hover{background:var(--icing)}
+.dd-row.on{background:var(--blush)}
+.dd-opt{flex:1;text-align:start;padding:8px;font-size:14px}
+.dd-star{width:30px;padding:7px 0;font-size:15px;color:#B4C6DC;line-height:1}
+.dd-star.on{color:var(--caramel)}
+.dd-star.ph{display:inline-block}
+.starbtn{background:none;border:none;color:var(--raspberry);font-size:16px;line-height:1;padding:0 4px;cursor:pointer}
+.starbtn.off{color:#B4C6DC}
+.starbtn:hover{color:var(--caramel)}
+.mini-sw{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11.5px;font-weight:700;color:var(--raspberry);white-space:nowrap}
+.mini-sw input{width:15px;height:15px;accent-color:var(--raspberry);cursor:pointer}
+.mini-sw.off{color:var(--cocoa)}
+.fld.offbox input{opacity:.5}
+.sw{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1.5px solid var(--line);border-radius:6px;background:#F8FBFF;cursor:pointer;font-weight:600;font-size:13.5px}
+.sw input{width:18px;height:18px;accent-color:var(--raspberry);cursor:pointer}
+.sw.off{color:var(--cocoa);background:#F4F9FF}
+.dayhead{display:flex;align-items:center;gap:10px;margin:16px 0 8px;font-weight:800;font-size:13.5px;color:var(--raspberry)}
+.dayhead:after{content:'';flex:1;height:1px;background:var(--line)}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
+.stat{border:1.5px solid var(--line);border-radius:6px;padding:10px 12px;background:#FAFCFF}
+.stat b{display:block;font-size:16px;color:var(--raspberry)}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.moneyin{direction:ltr;text-align:left;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.btn{background:var(--raspberry);color:#fff;padding:10px 18px;border-radius:5px;font-weight:600;box-shadow:none;transition:.15s}
+.btn:hover{background:#163F6E}
+.btn:active{background:#12355D}
+.btn.ghost{background:#fff;color:var(--raspberry);border:1px solid var(--blush-deep);box-shadow:none}
+.btn.ghost:hover{background:var(--blush)}
+.btn.mini{padding:6px 12px;font-size:12.5px;border-radius:5px;box-shadow:none}
+.btn.danger{background:#fff;color:#C0392B;border:1.5px solid var(--line);box-shadow:none}
+.btn.danger:hover{background:#EBF3FF}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{margin-inline-start:auto}
+.chip{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11.5px;font-weight:700}
+.chip.new{background:var(--blush);color:var(--raspberry)}
+.chip.baking{background:#FDF0DC;color:#9A6516}
+.chip.done{background:#EAF6E2;color:#41682A}
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+/* cake-layer cost bar (signature) */
+.slice{margin-top:12px}
+.slice-bar{display:flex;height:26px;border-radius:5px;overflow:hidden;border:1.5px solid var(--line);background:#fff}
+.slice-bar i{display:block;height:100%}
+.slice-key{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:12px;color:var(--cocoa)}
+.slice-key span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* lists */
+.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.item{border:1.5px solid var(--line);border-radius:6px;padding:12px 14px;background:#FAFCFF}
+.item.hi{border-color:var(--blush-deep);background:#F1F7FF}
+.item b.name{font-size:15px}
+.muted{color:var(--cocoa);font-size:12.5px}
+.price{font-weight:800;color:var(--raspberry);font-size:15px}
+.empty{text-align:center;color:var(--cocoa);padding:26px 10px;font-size:13.5px}
+.empty .cake{font-size:20px;display:block;margin-bottom:6px;color:var(--blush-deep)}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:12px}
+.cal-title{font-weight:800;font-size:16px;min-width:170px;text-align:center}
+.nav{width:34px;height:34px;border-radius:50%;background:var(--blush);color:var(--raspberry);font-weight:800;display:grid;place-items:center}
+.nav:hover{background:var(--blush-deep)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .wd{text-align:center;font-size:11.5px;font-weight:700;color:var(--cocoa);padding-bottom:4px}
+.day{position:relative;aspect-ratio:1;border-radius:6px;border:1.5px solid transparent;background:#F7FAFF;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:600;transition:.15s;min-height:42px}
+.day:hover{border-color:var(--blush-deep)}
+.day.off{color:#B9C8DA;background:transparent}
+.day.fri{color:var(--raspberry-soft)}
+.day.today{border-color:var(--raspberry);color:var(--raspberry);font-weight:800}
+.day.sel{background:var(--raspberry);color:#fff;border-color:var(--raspberry)}
+.day .g{font-size:9px;font-weight:500;opacity:.6;line-height:1}
+.day .pips{position:absolute;bottom:5px;display:flex;gap:2px}
+.day .pips i{width:5px;height:5px;border-radius:50%;background:var(--raspberry-soft)}
+.day.sel .pips i{background:#fff}
+
+/* picker popover */
+.pick{position:relative}
+.pop{position:absolute;z-index:40;top:calc(100% + 6px);inset-inline-start:0;background:var(--sugar);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:14px;width:320px;max-width:92vw;display:none}
+.pop.on{display:block}
+.date-btn{width:100%;text-align:start;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;background:#F8FBFF;font-weight:600}
+.date-btn .g2{color:var(--cocoa);font-weight:500;font-size:12px}
+
+/* toast */
+#toast{position:fixed;bottom:96px;inset-inline-start:50%;transform:translateX(-50%) translateY(20px);background:var(--plum);color:#fff;padding:11px 20px;border-radius:4px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:90}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.savebar{position:fixed;bottom:0;inset-inline:0;z-index:80;display:flex;justify-content:center;
+ padding:16px 12px 20px;pointer-events:none;
+ background:linear-gradient(to top,rgba(242,247,255,.97) 45%,rgba(242,247,255,0))}
+.saveall{pointer-events:auto;display:inline-flex;align-items:center;gap:9px;padding:13px 30px;border-radius:4px;
+ font-weight:800;font-size:15px;background:#fff;color:var(--cocoa);border:1.5px solid var(--line);
+ box-shadow:var(--shadow);transition:.18s}
+.saveall.dirty{background:var(--raspberry);color:#fff;border-color:var(--raspberry);box-shadow:var(--shadow)}
+.saveall.dirty:hover{background:#163F6E}
+.saveall .ic{font-size:17px;line-height:1}
+.bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg .fl{position:absolute;bottom:-16vh;opacity:.10;color:var(--raspberry);animation:drift linear infinite}
+.bg .fl svg{width:100%;height:100%;display:block}
+@keyframes drift{
+ 0%{transform:translateY(0) rotate(-8deg)}
+ 50%{transform:translateY(-60vh) translateX(3vw) rotate(6deg)}
+ 100%{transform:translateY(-125vh) translateX(-2vw) rotate(-10deg)}
+}
+.bg .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.30;animation:breathe 18s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.bg .sp{position:absolute;width:7px;height:3px;border-radius:2px;background:var(--raspberry-soft);opacity:.22;animation:fall linear infinite}
+@keyframes fall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(110vh) rotate(320deg)}}
+.wrap{position:relative;z-index:1}
+.savebar{z-index:80}
+@media (prefers-reduced-motion:reduce){.bg{display:none}}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--cocoa);text-align:start;padding:6px 4px;font-weight:600}
+td{padding:5px 4px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="logo">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 6c1.8 2.8 4 4.6 4 7a4 4 0 1 1-8 0c0-2.4 2.2-4.2 4-7z" fill="#1B6BC9"/>
+        <rect x="14" y="24" width="36" height="12" rx="5" fill="#C3DAF7"/>
+        <rect x="10" y="35" width="44" height="12" rx="5" fill="#5A9BE6"/>
+        <rect x="7" y="46" width="50" height="12" rx="6" fill="#1B6BC9"/>
+        <circle cx="20" cy="30" r="2" fill="#fff"/><circle cx="32" cy="30" r="2" fill="#fff"/><circle cx="44" cy="30" r="2" fill="#fff"/>
+      </svg>
+      <div class="brand">Bakery<span>Panel</span><small>ORDERS &amp; PRICING</small></div>
+    </div>
+    <span class="demo-badge" title="Sample data is loaded so you can try every screen. Everything stays in this browser.">Demo</span>
+    <div class="today">
+      <b id="todayMain">—</b>
+      <span id="todaySub">—</span>
+      <div><span class="saved" id="savedChip">Saved ✓</span></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="view"></div>
+</div>
+<div class="savebar"><button class="saveall" id="resetBar" title="Clear the order form and start over" style="display:none"><span class="ic">↺</span><span>Start over</span></button><button class="saveall" id="undoBtn" title="Undo the last change"><span class="ic">↶</span><span>Undo</span></button><button class="saveall" id="saveAll" title="Saving is automatic — press to save right now"><span class="ic">✓</span><span id="saveAllTxt">Saved ✓</span></button></div>
+<div id="toast"></div>
+
+<script>
+/* ---------- date helpers ---------- */
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var GM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var WDS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function monthLen(y,m){return new Date(y,m,0).getDate()}
+function dKey(d){return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0')}
+function keyToD(k){var p=String(k).split('-');return{y:+p[0],m:+p[1],d:+p[2]}}
+function dToDate(d){return new Date(d.y,d.m-1,d.d)}
+function weekday(d){return dToDate(d).getDay()} /* 0 = Sunday */
+function serial(d){return Math.floor(Date.UTC(d.y,d.m-1,d.d)/86400000)}
+function fromSerial(n){var t=new Date(n*86400000);return{y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate()}}
+function shiftDays(d,n){return fromSerial(serial(d)+n)}
+function nowParts(){
+ var n=new Date(), tz=(typeof S!=='undefined'&&S&&S.settings)?S.settings.tz:'';
+ if(tz){try{
+  var o={};
+  new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',
+   hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n).forEach(function(x){o[x.type]=x.value});
+  var hh=+o.hour;if(hh===24)hh=0;
+  return {y:+o.year,m:+o.month,d:+o.day,hh:hh,mm:+o.minute}
+ }catch(e){}}
+ return {y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate(),hh:n.getHours(),mm:n.getMinutes()}
+}
+function today(){var p=nowParts();return{y:p.y,m:p.m,d:p.d}}
+function dateLong(d){return GM[d.m-1]+' '+d.d+', '+d.y}
+function dateFull(d){return WD[weekday(d)]+', '+MONTHS[d.m-1]+' '+d.d+', '+d.y}
+
+/* ---------- helpers ---------- */
+
+function fmtTime(t){
+ if(!t)return '';
+ var p=String(t).split(':'),h=+p[0]||0,m=(p[1]||'00');
+ if(S.settings.time24!==false)return num((h<10?'0':'')+h+':'+m);
+ var suf=h<12?'AM':'PM',h12=h%12;if(h12===0)h12=12;
+ return num(h12+':'+m)+' '+suf;
+}
+function num(n){return String(n==null?'':n)}
+function money(n){return Math.round(n||0).toLocaleString('en-US')}
+function toLatin(x){return String(x==null?'':x)}
+function phoneKey(x){return toLatin(x).replace(/[^0-9]/g,'')}
+function waLink(phone,text){
+ var dg=phoneKey(phone);if(dg.length<8)return '';
+ return 'https://wa.me/'+dg+(text?'?text='+encodeURIComponent(text):'')}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function dd(key,cur,items,ph){
+ var sel=null;items.forEach(function(x){if(String(x.v)===String(cur))sel=x});
+ var open=UI.ddOpen===key;
+ return '<div class="dd'+(open?' open':'')+'">'+
+  '<button type="button" class="dd-btn" data-ddtoggle="'+key+'">'+
+   (sel?'<span>'+sel.label+'</span>':'<span class="muted">'+esc(ph||'Select…')+'</span>')+'<i>▾</i></button>'+
+  '<div class="dd-list">'+
+   '<div class="dd-row'+(sel?'':' on')+'"><span class="dd-star ph"></span>'+
+    '<button type="button" class="dd-opt muted" data-ddpick="'+key+'|">— '+esc(ph||'not set')+' —</button></div>'+
+   items.map(function(it){
+    return '<div class="dd-row'+(String(it.v)===String(cur)?' on':'')+'">'+
+     (it.nostar?'<span class="dd-star ph"></span>'
+      :'<button type="button" class="dd-star'+(it.def?' on':'')+'" data-ddstar="'+key+'|'+esc(it.v)+'" title="'+(it.def?'Clear default':'Make default')+'">'+(it.def?'★':'☆')+'</button>')+
+     '<button type="button" class="dd-opt" data-ddpick="'+key+'|'+esc(it.v)+'">'+it.label+'</button></div>'}).join('')+
+  '</div></div>'
+}
+function ddPick(key,val){
+ if(key==='P'){UI.selP=val;UI.selS=null}
+ else if(key==='S')UI.selS=val;
+ else if(key==='I')UI.decIng=val;
+ else if(key==='M')UI.decDraft.mult=+val||1;
+ else if(key==='SORT')UI.sort=val||'dateAsc';
+ else if(key==='CSORT')UI.custSort=val||'total';
+ else if(key.slice(0,2)==='U~'){var g=S.ingredients.find(function(x){return x.id===key.slice(2)});
+  if(g){g.unit=val;touch();render();return}}
+ act();render()
+}
+function ddStar(key,val){
+ var st=S.settings,was;
+ if(key==='P'){was=st.defProduct===val;st.defProduct=was?'':val}
+ else if(key==='S'){if(!UI.selP)return toast('Pick a product first');
+  st.defSize=st.defSize||{};was=st.defSize[UI.selP]===val;
+  if(was)delete st.defSize[UI.selP];else st.defSize[UI.selP]=val}
+ else if(key==='I'){was=st.defDecIng===val;st.defDecIng=was?'':val}
+ else if(key==='M'){was=+st.defMult===+val;st.defMult=was?0:+val}
+ else if(key==='SORT'){was=st.defSort===val;st.defSort=was?'':val}
+ else if(key==='CSORT'){was=st.defCustSort===val;st.defCustSort=was?'':val}
+ else if(key.slice(0,2)==='U~'){was=st.defUnit===val;st.defUnit=was?'':val}
+ touch();render();
+ toast(was?'Default cleared':'Set as default ★')
+}
+function ihelp(txt){return '<button type="button" class="ihelp" tabindex="0" aria-label="Help">i<span class="tip">'+esc(txt)+'</span></button>'}
+function optNone(txt){return '<option value="">— '+(txt||'not set')+' —</option>'}
+function unitOpts(cur){
+ var us=(S.settings.units||[]).slice();
+ if(cur&&us.indexOf(cur)<0)us.push(cur);
+ return optNone()+us.map(function(u){return '<option value="'+esc(u)+'"'+(u===cur?' selected':'')+'>'+
+  (u===S.settings.defUnit?'★ ':'')+esc(u)+'</option>'}).join('')
+}
+function ingOptions(sel,starId){
+ return optNone('Pick an ingredient')+S.ingredients.map(function(x){
+  return '<option value="'+x.id+'"'+(x.id===sel?' selected':'')+'>'+(x.id===starId?'★ ':'')+
+   esc(x.name)+(x.unit?' ('+esc(x.unit)+')':'')+'</option>'}).join('')
+}
+function grp(n){return (Math.round(+n)||0).toLocaleString('en-US')}
+function unnum(v){return +String(v).replace(/[^0-9.]/g,'')||0}
+function reformatMoney(el){
+ var pos=el.selectionStart==null?el.value.length:el.selectionStart;
+ var dig=(el.value.slice(0,pos).match(/[0-9]/g)||[]).length;
+ var raw=el.value.replace(/[^0-9]/g,'');
+ var out=raw?(+raw).toLocaleString('en-US'):'';
+ el.value=out;
+ var c=0,i=0;for(;i<out.length&&c<dig;i++){if(out[i]>='0'&&out[i]<='9')c++}
+ try{el.setSelectionRange(i,i)}catch(e){}
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on')},2000)}
+function savedFlash(){var c=document.getElementById('savedChip');c.classList.add('on');clearTimeout(c._h);c._h=setTimeout(function(){c.classList.remove('on')},1800)}
+
+/* ---------- seed data ---------- */
+function seed(){
+ var ing=[
+  {id:'i1',name:'Cake flour',unit:'kg',price:2.4},
+  {id:'i2',name:'Sugar',unit:'kg',price:1.8},
+  {id:'i3',name:'Eggs',unit:'piece',price:0.35},
+  {id:'i4',name:'Butter',unit:'kg',price:9.5},
+  {id:'i5',name:'Whipping cream',unit:'kg',price:6.8},
+  {id:'i6',name:'Dark chocolate',unit:'kg',price:14},
+  {id:'i7',name:'Cream cheese',unit:'kg',price:11},
+  {id:'i8',name:'Vanilla & flavourings',unit:'pack',price:4.5},
+  {id:'i9',name:'Fresh fruit (topping)',unit:'kg',price:6},
+  {id:'i10',name:'Fondant',unit:'kg',price:9},
+  {id:'i11',name:'Food colouring & dust',unit:'pack',price:5}
+ ];
+ var pr=[
+  {id:'p1',name:'Cream birthday cake',emoji:'🎂',labor:90,
+   recipe:[{i:'i1',q:.35},{i:'i2',q:.3},{i:'i3',q:5},{i:'i4',q:.15},{i:'i5',q:.5},{i:'i9',q:.25},{i:'i8',q:.25}],
+   sizes:[{id:'s1',label:'1 kg',f:1,box:1.5},{id:'s2',label:'1.5 kg',f:1.5,box:2},{id:'s3',label:'2 kg',f:2,box:2.5},{id:'s4',label:'3 kg',f:3,box:3.5}]},
+  {id:'p2',name:'Cheesecake',emoji:'🍰',labor:70,
+   recipe:[{i:'i7',q:.5},{i:'i2',q:.15},{i:'i3',q:3},{i:'i4',q:.1},{i:'i5',q:.2},{i:'i9',q:.15}],
+   sizes:[{id:'s1',label:'Small tin',f:.7,box:1.2},{id:'s2',label:'Medium tin',f:1,box:1.8},{id:'s3',label:'Large tin',f:1.5,box:2.4}]},
+  {id:'p3',name:'Cupcakes',emoji:'🧁',labor:50,
+   recipe:[{i:'i1',q:.2},{i:'i2',q:.18},{i:'i3',q:3},{i:'i4',q:.12},{i:'i5',q:.25},{i:'i8',q:.25}],
+   sizes:[{id:'s1',label:'Box of 6',f:1,box:1.2},{id:'s2',label:'Box of 12',f:2,box:1.8},{id:'s3',label:'Box of 24',f:4,box:3}]},
+  {id:'p4',name:'Chocolate brownies',emoji:'🍫',labor:45,
+   recipe:[{i:'i6',q:.3},{i:'i4',q:.2},{i:'i2',q:.2},{i:'i3',q:4},{i:'i1',q:.12}],
+   sizes:[{id:'s1',label:'500 g tray',f:.5,box:1},{id:'s2',label:'1 kg tray',f:1,box:1.5}]}
+ ];
+ return{ingredients:ing,products:pr,orders:[],
+  settings:{laborRate:25,decorRate:35,round:1,currency:'USD',
+   prodOver:12,prodProfit:35,prodUseLabor:true,prodUseOver:true,prodUseProfit:true,prodLaborBySize:true,prodLaborScale:1,
+   decOver:12,decProfit:35,decUseLabor:true,decUseOver:true,decUseProfit:true,
+   units:['kg','g','piece','pack','litre','tbsp','sheet'],
+   defUnit:'kg',defProduct:'',defSize:{},defMult:0,defDecIng:'',time24:true,tz:'',
+   depModes:[{id:'dm0',label:'No deposit',type:'pct',value:0},
+             {id:'dm30',label:'30% upfront',type:'pct',value:30},
+             {id:'dm50',label:'Half now',type:'pct',value:50},
+             {id:'dm100',label:'Paid in full',type:'pct',value:100}],
+   defDepMode:'',defTab:'',defFilter:'',defSort:'',defCustSort:''}}
+}
+
+/* ---------- demo orders (only when nothing is stored yet) ---------- */
+function demoItem(pid,sid,qty,dec){
+ var p=S.products.find(function(x){return x.id===pid});if(!p)return null;
+ var z=p.sizes.find(function(x){return x.id===sid})||p.sizes[0];
+ var it={pid:p.id,sid:z.id,label:p.emoji+' '+p.name+' — '+z.label,price:calc(p,z).final,qty:qty};
+ if(dec){var c=calcDec(dec);it.dec=Object.assign({},dec,{price:c.final});
+  it.label+=' + decoration'+(dec.name?' '+dec.name:'')}
+ return it
+}
+function demoOrders(){
+ var t=today();
+ var man=function(name,matCost,hours,mult){return {mode:'manual',name:name,matCost:matCost,hours:hours,mult:mult,priceOverride:0}};
+ var raw=[
+  {off:-4,name:'Emma Collins',phone:'+15550142',time:'11:00',status:'done',dep:'dm100',note:'Pastel blue theme, "Happy Birthday Leo".',
+   items:[['p1','s2',1,man('Fondant flowers',6,1.5,1.5)],['p3','s1',1,null]]},
+  {off:-1,name:'Daniel Rivera',phone:'+15550178',time:'16:30',status:'done',dep:'dm50',note:'Office farewell party.',
+   items:[['p4','s2',2,null]]},
+  {off:0,name:'Sofia Marino',phone:'+15550119',time:'09:30',status:'baking',dep:'dm30',note:'Gluten-free base requested — confirm before baking.',
+   items:[['p2','s3',1,null],['p3','s2',1,null]]},
+  {off:1,name:'James Whitfield',phone:'+15550163',time:'14:00',status:'new',dep:'dm30',note:'Two-tier look, navy and white.',
+   items:[['p1','s3',1,man('Piped shells & gold dust',9,2,2)]]},
+  {off:3,name:'Aisha Rahman',phone:'+15550155',time:'10:00',status:'new',dep:'dm50',note:'Baby shower, 20 guests.',
+   items:[['p3','s3',1,man('Hand-painted toppers',5,1,1.5)],['p2','s2',1,null]]},
+  {off:6,name:'Noah Bennett',phone:'+15550187',time:'',status:'new',dep:'manual',note:'Will confirm flavour by Friday.',
+   items:[['p1','s1',1,null],['p4','s1',1,null]]},
+  {off:11,name:'Emma Collins',phone:'+15550142',time:'12:00',status:'new',dep:'dm30',note:'Repeat order for her sister.',
+   items:[['p1','s2',1,null]]}
+ ];
+ return raw.map(function(r,ix){
+  var items=r.items.map(function(a){return demoItem(a[0],a[1],a[2],a[3])}).filter(Boolean);
+  var total=items.reduce(function(s,it){return s+lineTotal(it)},0);
+  var m=(S.settings.depModes||[]).find(function(x){return x.id===r.dep});
+  var deposit=m?depAmount(m,total):0;
+  return {id:'demo'+ix,name:r.name,phone:r.phone,items:items,depMode:r.dep,
+   day:dKey(shiftDays(t,r.off)),time:r.time,note:r.note,discount:0,deposit:deposit,
+   total:total,status:r.status,createdAt:new Date().toISOString()}
+ })
+}
+
+/* ---------- storage ---------- */
+function migrateSettings(o){
+ var x=Object.assign({},o);
+ if(x.prodLaborScale==null)x.prodLaborScale=1;
+ if(x.time24==null)x.time24=true;
+ if(x.tz==null)x.tz='';
+ if(!Array.isArray(x.depModes)||!x.depModes.length)x.depModes=[
+  {id:'dm0',label:'No deposit',type:'pct',value:0},
+  {id:'dm30',label:'30% upfront',type:'pct',value:30},
+  {id:'dm50',label:'Half now',type:'pct',value:50},
+  {id:'dm100',label:'Paid in full',type:'pct',value:100}];
+ if(!x.defSize||typeof x.defSize!=='object')x.defSize={};
+ if(!Array.isArray(x.units)||!x.units.length)x.units=['kg','g','piece','pack','litre','tbsp','sheet'];
+ if(x.overhead!=null&&x.prodOver==null){x.prodOver=x.overhead;x.decOver=x.overhead}
+ if(x.profit!=null&&x.prodProfit==null){x.prodProfit=x.profit;x.decProfit=x.profit}
+ delete x.overhead;delete x.profit;
+ return x
+}
+var KEY='bakerypanel:data';
+var S=seed();
+if(localStorage.getItem("demo-off:bakery.html")!=="1"){S.orders=demoOrders();}
+var BACKENDS=[];
+function hasCloud(){return !!(window.storage&&window.storage.set&&window.storage.get)}
+function hasLocal(){try{window.localStorage.setItem('bp:t','1');window.localStorage.removeItem('bp:t');return true}catch(e){return false}}
+var LASTERR='';
+async function writeAll(str){
+ var ok=[],err=[];
+ if(hasCloud()){
+  try{
+   await window.storage.set(KEY,str,false);
+   var chk=await window.storage.get(KEY,false);
+   if(chk&&chk.value===str)ok.push('Cloud storage');else err.push('Cloud: written but not verified');
+  }catch(e){err.push('Cloud: '+((e&&e.message)||e))}
+ }else{err.push('Cloud: not available')}
+ if(hasLocal()){try{window.localStorage.setItem(KEY,str);ok.push('Browser storage')}catch(e){err.push('Browser: '+((e&&e.message)||e))}}
+ else{err.push('Browser: not available')}
+ BACKENDS=ok;LASTERR=err.join(' • ');
+ return ok.length>0;
+}
+async function readBest(){
+ var c=[];
+ if(hasCloud()){try{var r=await window.storage.get(KEY,false);if(r&&r.value)c.push(r.value)}catch(e){}}
+ if(hasLocal()){try{var v=window.localStorage.getItem(KEY);if(v)c.push(v)}catch(e){}}
+ var best=null,bt=-1;
+ c.forEach(function(t){try{var d=JSON.parse(t);var at=d.savedAt||0;if(at>=bt){bt=at;best=d}}catch(e){}});
+ return best;
+}
+async function load(){
+ var d=await readBest();
+ if(d){var sd=seed();
+  S={ingredients:d.ingredients||sd.ingredients,products:d.products||sd.products,
+     orders:d.orders||[],
+     settings:Object.assign(sd.settings,migrateSettings(d.settings||{})),savedAt:d.savedAt||0};
+ }
+ BACKENDS=[];if(hasCloud())BACKENDS.push('Cloud storage');if(hasLocal())BACKENDS.push('Browser storage');
+}
+var HIST=[],BASE=null;
+function snapshot(){try{return JSON.stringify({S:S,d:UI.draft,dd:UI.decDraft,p:UI.selP,z:UI.selS,i:UI.decIng,y:DIRTY,e:UI.editItem,qt:UI.qty,dO:UI.decOpen})}catch(e){return null}}
+function pushHist(){
+ var now=snapshot();if(now===BASE)return;
+ if(BASE!=null){HIST.push(BASE);if(HIST.length>40)HIST.shift()}
+ BASE=now;paintUndo()}
+function act(){pushHist()}
+function paintUndo(){var b=document.getElementById('undoBtn');if(!b)return;
+ b.disabled=!HIST.length;b.style.opacity=HIST.length?1:.45}
+function undo(){
+ if(!HIST.length)return toast('Nothing to undo');
+ var prev=HIST.pop(),o;
+ try{o=JSON.parse(prev)}catch(e){return toast('Undo failed')}
+ S=o.S;UI.draft=o.d||UI.draft;UI.decDraft=o.dd||{mode:'pick',mats:[],hours:0,mult:1,name:'',matCost:0,priceOverride:0};
+ UI.selP=o.p||'';UI.selS=o.z||null;UI.decIng=o.i||'';UI.ddOpen=null;
+ UI.editItem=(o.e===undefined?null:o.e);UI.qty=o.qt||1;UI.decOpen=!!o.dO;
+ BASE=prev;DIRTY=o.y===undefined?true:o.y;paintSaveBtn();paintUndo();render();
+ toast('Stepped back once')}
+var DIRTY=false;
+function paintSaveBtn(){
+ var b=document.getElementById('saveAll'),t=document.getElementById('saveAllTxt');
+ if(!b)return;b.classList.toggle('dirty',DIRTY);
+ t.textContent=DIRTY?'Saving…':'Saved ✓'}
+var AUTO=null;
+function autosave(){clearTimeout(AUTO);AUTO=setTimeout(function(){save(true)},600)}
+function touch(){DIRTY=true;pushHist();paintSaveBtn();autosave()}
+async function save(silent){
+ S.savedAt=Date.now();
+ var ok=await writeAll(JSON.stringify(S));
+ if(ok){DIRTY=false;paintSaveBtn();savedFlash();if(!silent)toast('Saved to: '+BACKENDS.join(' + '));return true}
+ toast('Save failed — details in the Settings tab');return false;
+}
+window.addEventListener('beforeunload',function(e){if(DIRTY){e.preventDefault();e.returnValue=''}});
+
+/* ---------- price calculation ---------- */
+function ingPrice(id){var g=S.ingredients.find(function(x){return x.id===id});return g?g.price:0}
+function calc(p,size){
+ var mat=0;(p.recipe||[]).forEach(function(r){mat+=ingPrice(r.i)*r.q});
+ var f=size?size.f:1, box=size?(size.box||0):0;
+ mat=mat*f;
+ var st=S.settings;
+ var k=st.prodLaborBySize===false?0:(st.prodLaborScale==null?1:+st.prodLaborScale);
+ var lf=1+(f-1)*k;
+ var labor=st.prodUseLabor===false?0:(p.labor||0)/60*st.laborRate*lf;
+ var over=st.prodUseOver?(mat+labor)*(st.prodOver||0)/100:0;
+ var cost=mat+labor+box+over;
+ var profit=st.prodUseProfit?cost*(st.prodProfit||0)/100:0;
+ var raw=cost+profit;
+ var step=S.settings.round||1;
+ var final=Math.ceil(raw/step)*step;
+ return{mat:mat,labor:labor,box:box,over:over,profit:profit,cost:cost,final:final}
+}
+var MULTS=[{v:1,l:'Simple (×1)'},{v:1.5,l:'Medium (×1.5)'},{v:2,l:'Complex (×2)'},{v:3,l:'Very complex (×3)'}];
+function calcDec(dd){
+ var mat=0;
+ if(dd.mode==='manual')mat=+dd.matCost||0;
+ else (dd.mats||[]).forEach(function(r){mat+=ingPrice(r.i)*r.q});
+ var m=+dd.mult||1;
+ var st=S.settings;
+ var labor=st.decUseLabor===false?0:(+dd.hours||0)*(st.decorRate||st.laborRate)*m;
+ var over=st.decUseOver?(mat+labor)*(st.decOver||0)/100:0;
+ var cost=mat+labor+over, profit=st.decUseProfit?cost*(st.decProfit||0)/100:0;
+ var step=S.settings.round||1;
+ var fin=Math.ceil((cost+profit)/step)*step;
+ if(dd.mode==='manual'&&+dd.priceOverride>0)fin=+dd.priceOverride;
+ return{mat:mat,labor:labor,box:0,over:over,profit:profit,cost:cost,final:fin,fixed:dd.mode==='manual'&&+dd.priceOverride>0}
+}
+function hasDec(dd){
+ if(!dd)return false;
+ var lb=S.settings.decUseLabor!==false;
+ if(dd.mode==='manual')return !!((dd.name&&dd.name.trim())||+dd.matCost>0||(lb&&+dd.hours>0)||+dd.priceOverride>0);
+ return !!((dd.mats&&dd.mats.length)||(lb&&+dd.hours>0))}
+function multLabel(v){var m=MULTS.find(function(x){return x.v===+v});return m?m.l:'×'+num(v)}
+function depAmount(m,total){
+ if(!m)return 0;
+ var v=+m.value||0, raw=(m.type==='amt')?v:total*v/100, step=S.settings.round||1;
+ return Math.max(0,Math.round(raw/step)*step)
+}
+function depMode(id){return (S.settings.depModes||[]).find(function(x){return x.id===id})}
+function currentDep(d,total){
+ if(d.depMode&&d.depMode!=='manual'){var m=depMode(d.depMode);if(m)return depAmount(m,total)}
+ return +d.deposit||0
+}
+function lineTotal(it){return (it.price+(it.dec?it.dec.price:0))*it.qty}
+function sliceBar(c){
+ var t=c.mat+c.labor+c.box+c.over+c.profit||1;
+ function w(v){return (v/t*100).toFixed(1)+'%'}
+ var seg=function(v,c,l){return v>0?'<span><i class="dot" style="background:'+c+'"></i>'+l+' '+money(v)+'</span>':''};
+ return '<div class="slice"><div class="slice-bar">'+
+  '<i style="width:'+w(c.mat)+';background:var(--raspberry-soft)"></i>'+
+  '<i style="width:'+w(c.labor)+';background:var(--cocoa)"></i>'+
+  '<i style="width:'+w(c.box)+';background:var(--box)"></i>'+
+  '<i style="width:'+w(c.over)+';background:var(--lav)"></i>'+
+  '<i style="width:'+w(c.profit)+';background:var(--pistachio)"></i></div>'+
+  '<div class="slice-key">'+
+  seg(c.mat,'var(--raspberry-soft)','Materials')+
+  seg(c.labor,'var(--cocoa)','Labour')+
+  seg(c.box,'var(--box)','Packaging')+
+  seg(c.over,'var(--lav)','Overhead')+
+  seg(c.profit,'var(--pistachio)','Profit')+
+  '</div></div>'
+}
+
+/* ---------- ui state ---------- */
+var UI={tab:'new',calM:null,selDay:null,filter:'up',q:'',editP:null,selS:null,step:1,decOpen:false,editItem:null,qty:1,ddOpen:null,decIng:'',custSort:'total',sort:'dateAsc',cust:false,decDraft:{mode:'pick',mats:[],hours:0,mult:1,name:'',matCost:0,priceOverride:0},
+ draft:{name:'',phone:'',date:null,time:'',items:[],note:'',deposit:0,discount:0,depMode:'manual',id:null}};
+
+var V=document.getElementById('view');
+function paint(){
+ var t=UI.tab;
+ V.innerHTML = t==='new'?viewNew(): t==='orders'?viewOrders(): t==='cal'?viewCal():
+               t==='products'?viewProducts(): t==='ing'?viewIng(): t==='bk'?viewBackup(): t==='help'?viewHelp(): viewSet();
+}
+var TABS=[['new','New order'],['orders','Orders'],['cal','Calendar'],['products','Products'],['ing','Ingredients'],['set','Pricing'],['bk','Settings'],['help','Help']];
+var TODAYKEY='';
+function paintToday(){
+ var t=today(),p=nowParts(),k=dKey(t);
+ var fe=document.getElementById('todayMain'),ge=document.getElementById('todaySub');
+ if(fe)fe.textContent=dateFull(t);
+ if(ge)ge.textContent=((p.hh<10?'0':'')+p.hh+':'+(p.mm<10?'0':'')+p.mm)+
+   (S.settings&&S.settings.tz?' • '+S.settings.tz.split('/').pop().replace(/_/g,' '):' • device time');
+ if(TODAYKEY&&TODAYKEY!==k){TODAYKEY=k;render()}else TODAYKEY=k;
+}
+function paintTabs(){
+ var el=document.getElementById('tabs');if(!el)return;
+ el.innerHTML=TABS.map(function(t){
+  var on=UI.tab===t[0],df=S.settings.defTab===t[0];
+  return '<button class="tab'+(on?' on':'')+'" data-t="'+t[0]+'">'+t[1]+
+   ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-tabstar="'+t[0]+'" title="'+(df?'Clear default':'Open this tab first')+'">'+(df?'★':'☆')+'</span>':'')+
+   '</button>'}).join('')
+}
+function goTab(t){UI.tab=t;if(t==='new')applyDefaults();paintTabs();render()}
+function applyDefaults(){
+ var d=UI.draft;
+ if(d.id||d.items.length||d.name)return;
+ UI.step=1;UI.decOpen=false;d.depMode=freshDep();
+ UI.selP=S.settings.defProduct||'';
+ UI.selS=(S.settings.defSize||{})[UI.selP]||null;
+ UI.decIng=S.settings.defDecIng||'';
+ if(!UI.decDraft.mats.length&&!+UI.decDraft.hours)UI.decDraft.mult=+S.settings.defMult||1;
+}
+document.getElementById('tabs').addEventListener('click',function(e){
+ var st=e.target.closest('[data-tabstar]');
+ if(st){e.stopPropagation();var k=st.dataset.tabstar;
+  S.settings.defTab=(S.settings.defTab===k)?'':k;touch();paintTabs();
+  toast(S.settings.defTab?'This tab will open first from now on':'Default cleared');return}
+ var b=e.target.closest('.tab');if(!b)return;
+ goTab(b.dataset.t)
+});
+
+/* ---------- new order ---------- */
+function viewNew(){
+ var d=UI.draft;
+ var total=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+ var dep=currentDep(d,total);
+ var due=total-(+d.discount||0)-dep;
+ var opts=S.products.map(function(p){
+   return {v:p.id,label:p.emoji+' '+esc(p.name),def:S.settings.defProduct===p.id}});
+ var cur=S.products.find(function(p){return p.id===UI.selP});
+ if(cur&&!cur.sizes.some(function(z){return z.id===UI.selS})){
+  var ds=(S.settings.defSize||{})[cur.id];
+  UI.selS=(ds&&cur.sizes.some(function(z){return z.id===ds}))?ds:(cur.sizes[0]&&cur.sizes[0].id)}
+
+ var sizeOpts=cur?cur.sizes.map(function(s){
+   return {v:s.id,label:esc(s.label)+' — '+money(calc(cur,s).final),def:(S.settings.defSize||{})[cur.id]===s.id}}):[];
+ var dd0=UI.decDraft;
+ var ingOpts=S.ingredients.map(function(x){
+   return {v:x.id,label:esc(x.name)+(x.unit?' <span class="muted">('+esc(x.unit)+')</span>':''),def:S.settings.defDecIng===x.id}});
+ var multOpts=MULTS.map(function(m){return {v:m.v,label:m.l,def:+S.settings.defMult===m.v}});
+ var t24=S.settings.time24!==false;
+ var hasT=!!d.time, tH=hasT?+String(d.time).split(':')[0]:0, tM=hasT?(String(d.time).split(':')[1]||'00'):'00';
+ var hList=[],hi;
+ if(t24){for(hi=0;hi<24;hi++)hList.push([hi,num((hi<10?'0':'')+hi)])}
+ else {for(hi=1;hi<=12;hi++)hList.push([hi,num(hi)])}
+ var curH=hasT?(t24?tH:(tH%12||12)):'';
+ var hOpts='<option value="">—</option>'+hList.map(function(x){
+   return '<option value="'+x[0]+'"'+(String(curH)===String(x[0])?' selected':'')+'>'+x[1]+'</option>'}).join('');
+ var mList=['00','05','10','15','20','25','30','35','40','45','50','55'];
+ if(hasT&&mList.indexOf(tM)<0)mList.push(tM);
+ mList.sort();
+ var mOpts=mList.map(function(m){return '<option value="'+m+'"'+(hasT&&tM===m?' selected':'')+'>'+num(m)+'</option>'}).join('');
+ var apOpts='<option value="am"'+(hasT&&tH<12?' selected':'')+'>AM</option>'+
+            '<option value="pm"'+(hasT&&tH>=12?' selected':'')+'>PM</option>';
+ var decLaborOn=S.settings.decUseLabor!==false;
+ var decRows=dd0.mats.map(function(r,ix){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'?',unit:'',price:0};
+  return '<tr><td>'+esc(g.name)+'</td><td>'+num(r.q)+' '+esc(g.unit)+'</td>'+
+  '<td class="muted">'+money(ingPrice(r.i))+'</td>'+
+  '<td class="muted">'+money(ingPrice(r.i)*r.q)+'</td>'+
+  '<td><button class="btn danger mini" data-drm="'+ix+'">×</button></td></tr>'}).join('');
+  var stepDone1=!!(d.name.trim()&&d.date);
+ var stepDone2=d.items.length>0;
+ var dirtyDraft=!!(d.name.trim()||d.phone.trim()||d.date||d.time||d.items.length||d.note||+d.discount||+d.deposit||hasDec(dd0));
+ var resetTop='<div class="row" style="margin-top:14px"><span class="muted">'+
+   (d.id?'Editing a saved order':(dirtyDraft?'Draft in progress':'New draft'))+'</span>'+
+   '<button class="btn danger mini sp" id="resetTop">↺ Start over</button></div>';
+ var steps='<div class="steps">'+
+  [[1,'Customer & time',(d.name.trim()||'—')+(d.date?' • '+dateLong(d.date):''),stepDone1],
+   [2,'Order items',d.items.length?num(d.items.length)+' items • '+money(total):'No items added yet',stepDone2],
+   [3,'Payment & save',d.items.length?'Balance '+money(due):'—',false]]
+  .map(function(x){
+   return '<button class="step'+(UI.step===x[0]?' on':'')+(x[3]?' done':'')+'" data-step="'+x[0]+'">'+
+    '<span class="n">'+(x[3]?'✓':num(x[0]))+'</span><span>'+x[1]+'<small>'+esc(x[2])+'</small></span></button>'}).join('')+
+  '</div>';
+
+ var summary=(d.items.length||d.name.trim())?'<div class="mini-summary">'+
+   (d.name.trim()?'<span>'+esc(d.name)+'</span>':'')+
+   (d.date?'<span>'+dateLong(d.date)+(d.time?' • '+fmtTime(d.time):'')+'</span>':'')+
+   (d.items.length?'<span class="sp">'+num(d.items.length)+' items</span><b>'+money(total)+' '+S.settings.currency+'</b>':'')+
+  '</div>':'';
+
+ var nav=function(back,next,nextLabel){
+  return '<div class="navrow">'+
+   (back?'<button class="btn ghost" data-step="'+back+'">‹ Previous step</button>':'')+
+   '<button class="btn danger mini" data-resetdraft="1">↺ Start over</button>'+
+   (next?'<button class="btn sp" data-step="'+next+'">'+nextLabel+' ›</button>':'')+'</div>'};
+
+ /* ===== step 1 ===== */
+ if(UI.step===1)return steps+resetTop+summary+
+ '<div class="card"><h2>Customer &amp; delivery time'+ihelp('Step one: who the order is for and when it has to be ready. Name and date are required.')+'</h2><p class="hint">Only the name and the delivery date are mandatory \u2014 everything else can be filled in later.</p>'+
+ '<div class="grid2">'+
+  '<div><label class="f">Customer name'+ihelp('Orders that share a phone number are grouped into one customer record under “Customers”.')+'</label><input type="text" id="cName" value="'+esc(d.name)+'" placeholder="e.g. Emma Collins"></div>'+
+  '<div><label class="f">Phone'+ihelp('With a number here, the call and WhatsApp buttons on the order card become active. Include the country code for WhatsApp to work.')+'</label><input type="tel" id="cPhone" value="'+esc(d.phone)+'" placeholder="+1 555 0142"></div>'+
+ '</div>'+
+ '<div class="grid2" style="margin-top:12px">'+
+  '<div><label class="f">Delivery date'+ihelp('Pick a day from the calendar. The order then shows up on that day in the Calendar tab.')+'</label>'+
+   '<div class="pick"><button class="date-btn" id="dateBtn">'+
+    (d.date?dateLong(d.date)+' <span class="g2">('+WD[weekday(d.date)]+')</span>':'Pick a delivery date')+
+   '</button><div class="pop" id="pop"></div></div></div>'+
+  '<div><label class="f">Delivery time'+ihelp('Optional. Switch between 12 and 24 hour display in the Settings tab.')+'</label><div class="row" style="gap:6px;flex-wrap:nowrap">'+
+   '<select id="tH" style="max-width:80px">'+hOpts+'</select><span class="muted">:</span>'+
+   '<select id="tM" style="max-width:80px">'+mOpts+'</select>'+
+   (t24?'':'<select id="tAP" style="max-width:120px">'+apOpts+'</select>')+
+   (hasT?'<button class="btn ghost mini" id="tClr">Clear</button>':'')+
+   '</div>'+(hasT?'<div class="muted" style="margin-top:4px">Shown as: '+fmtTime(d.time)+'</div>':'')+'</div>'+
+ '</div>'+
+ nav(0,2,'Order items')+'</div>';
+
+ /* ===== step 2 ===== */
+ if(UI.step===2){
+  var decOn=UI.decOpen||hasDec(dd0);
+  return steps+resetTop+summary+
+  '<div class="card'+(UI.editItem!=null?' locked':'')+'"><div class="row"><h2 style="margin:0">'+
+   (UI.editItem!=null?'Edit item '+num(UI.editItem+1):'Add an item to the order')+
+   ihelp('An order can hold several items. This box builds one item; “Add to order” moves it into the list below.')+'</h2>'+
+   (UI.editItem!=null?'<button class="btn ghost mini sp" id="cancelItem">Cancel editing</button>':'')+'</div>'+
+  '<div class="grid3">'+
+   '<div><label class="f">Product'+ihelp('Products are defined in the Products tab. The star next to an option makes it the default for future orders.')+'</label>'+dd('P',UI.selP,opts,'Pick a product')+'</div>'+
+   '<div><label class="f">Size'+ihelp('Each size is priced automatically from the ingredients and the Pricing settings. Every product can have its own default size.')+'</label>'+dd('S',UI.selS,sizeOpts,cur?'Pick a size':'Pick a product first')+'</div>'+
+   '<div><label class="f">Quantity'+ihelp('How many of this product at this size and decoration. The line price is multiplied by this.')+'</label><input type="number" id="selQ" value="'+(UI.qty||1)+'" min="1"></div>'+
+  '</div>'+
+
+  '<div class="optbox'+(decOn?' on':'')+'">'+
+   (decOn
+    ?'<div class="row"><b>Decoration for this item</b>'+ihelp('Decoration is priced separately from the product and stays attached to this line. Two ways: take materials from your list, or type everything in by hand.')+'<span class="sp"></span>'+
+      '<button class="btn '+(dd0.mode==='manual'?'ghost':'')+' mini" data-decmode="pick">From ingredients</button>'+
+      ihelp('Take decoration materials from your ingredient list. The advantage: when prices rise, future decoration prices follow automatically.')+
+      '<button class="btn '+(dd0.mode==='manual'?'':'ghost')+' mini" data-decmode="manual">Manual entry</button>'+
+      ihelp('Type everything yourself, with no link to the ingredient list. Good for one-off decorations or when you are in a hurry.')+
+      '<button class="btn danger mini" id="decClose">Close</button>'+
+      ihelp('Closes the decoration section and clears what you entered. The item will be added without decoration.')+'</div>'+
+     (dd0.mode==='manual'
+      ?'<div class="grid3" style="margin-top:10px">'+
+        '<div><label class="f">Decoration name'+ihelp('The name shown on the invoice and the order card — for example “hand-made fondant flowers”.')+'</label><input type="text" id="decName" value="'+esc(dd0.name||'')+'" placeholder="e.g. fondant flowers"></div>'+
+        '<div><label class="f">Material cost ('+S.settings.currency+')'+ihelp('Your own estimate of the materials this decoration uses. Unrelated to the ingredient list.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="decMat" value="'+grp(dd0.matCost||0)+'"></div>'+
+        '<div><label class="f">Fixed final price'+ihelp('Fill this in and no calculation is done — this exact number becomes the decoration price. Leave it empty to have it worked out automatically.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="decFix" value="'+grp(dd0.priceOverride||0)+'"></div>'+
+       '</div>'
+      :'<div class="grid3" style="margin-top:10px">'+
+        '<div><label class="f">Decoration ingredient'+ihelp('From the same ingredient list. When that ingredient’s price changes, the decoration price updates too.')+'</label>'+dd('I',UI.decIng,ingOpts,'Pick an ingredient')+'</div>'+
+        '<div><label class="f">Amount'+ihelp('In that ingredient\u2019s own unit (kg, piece, pack\u2026). For example 0.25 means a quarter of a kilo.')+'</label><input type="number" step="0.01" min="0" id="decQ" value="0.1"></div>'+
+        '<div style="display:flex;align-items:flex-end"><button class="btn ghost mini" id="decAdd">+ Add ingredient</button></div>'+
+       '</div>'+
+       (dd0.mats.length?'<table style="margin-top:10px"><tr><th>Ingredient</th><th>Amount</th><th>Unit price</th><th>Cost</th><th></th></tr>'+decRows+'</table>':''))+
+     (decLaborOn?'<div class="grid2" style="margin-top:12px">'+
+      '<div><label class="f">Decoration hours'+ihelp('How long it takes. Multiplied by the decoration hourly rate (Pricing tab) and the difficulty multiplier.')+'</label><input type="number" step="0.25" min="0" id="decH" value="'+(dd0.hours||0)+'"></div>'+
+      '<div><label class="f">Difficulty'+ihelp('Affects labour only, not materials. Finer work means a more expensive hour: Simple ×1 up to Very complex ×3.')+'</label>'+dd('M',dd0.mult,multOpts,'No multiplier set (×1)')+'</div>'+
+     '</div>'
+     :'<p class="hint" style="margin-top:10px">The decoration hourly rate is switched off in the Pricing tab, so hours are not asked for.</p>')+
+     (hasDec(dd0)?'<div class="item" id="decBreak" style="margin-top:10px">'+decBreakHTML(dd0)+'</div>':'<div id="decBreak"></div>')
+    :'<div class="row"><span class="muted">Does this item need decoration?</span>'+
+      '<button class="btn ghost mini sp" id="decOpenBtn">+ Add decoration</button></div>')+
+  '</div>'+
+
+  '<div class="row" style="margin-top:14px">'+ihelp('A live price preview for this item before you add it, split between product and decoration.')+'<span class="muted" id="itemPrev"></span>'+
+  '<button class="btn sp" id="addItem">'+(UI.editItem!=null?'Save changes to this item':'+ Add to order')+'</button></div></div>'+
+
+  '<div class="card locked"><div class="row"><h2 style="margin:0">Items on this order'+ihelp('Confirmed lines. Each one can be edited or removed. Nothing is final until you save the order.')+'</h2>'+
+  '<span class="chip new">'+num(d.items.length)+' items</span>'+
+  (d.items.length?'<b class="sp price">'+money(total)+' '+S.settings.currency+'</b>':'')+'</div>'+
+  (d.items.length?'<div class="list">'+d.items.map(function(it,ix){
+    return '<div class="item"><div class="row"><span class="lineno">'+num(ix+1)+'</span><b class="name">'+esc(it.label)+'</b>'+
+    '<span class="muted">× '+num(it.qty)+'</span><span class="sp price">'+money(lineTotal(it))+' '+S.settings.currency+'</span>'+
+    '<button class="btn ghost mini" data-edit="'+ix+'">Edit</button>'+
+    '<button class="btn danger mini" data-rm="'+ix+'">Delete</button></div>'+
+    (it.dec?'<div class="muted">Decoration: '+decSummary(it.dec)+'</div>':'')+
+    '<div class="muted">Product: '+money(it.price)+(it.dec?' + decoration: '+money(it.dec.price):'')+'</div></div>'}).join('')+'</div>'+
+    '<div class="divider"></div><div class="row"><span class="muted">Items total</span><b class="sp price">'+money(total)+' '+S.settings.currency+'</b>'+
+    '<button class="btn danger mini" id="clearItems">Clear the list</button></div>'
+   :'<div class="empty"><span class="cake">—</span>No items added yet.</div>')+
+  nav(1,3,'Payment & save')+'</div>'}
+
+ /* ===== step 3 ===== */
+ return steps+resetTop+summary+
+ '<div class="card"><h2>Payment & notes'+ihelp('Last step: discount, deposit and notes. Then press “Save order”.')+'</h2>'+
+ '<div class="grid2">'+
+  '<div><label class="f">Discount ('+S.settings.currency+')'+ihelp('An amount taken off the total. It does not affect how percentage deposits are calculated.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="cDisc" value="'+grp(d.discount||0)+'"></div>'+
+  '<div><label class="f">Deposit received'+ihelp('Money the customer has already paid. Use one of the preset buttons or type a number.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="cDep" value="'+grp(dep)+'"></div>'+
+ '</div>'+
+ '<div class="row" style="margin-top:10px;gap:6px">'+
+  ihelp('Preset deposit buttons. The amount on each is worked out from this order’s total. You define the presets in the Pricing tab.')+
+  (S.settings.depModes||[]).map(function(m){
+   var on=d.depMode===m.id,df=S.settings.defDepMode===m.id;
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-dep="'+m.id+'">'+esc(m.label)+
+    ' — '+money(depAmount(m,total))+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-depmstar="'+m.id+'">'+(df?'★':'☆')+'</span>':'')+'</button>'}).join('')+
+  (function(){var on=(!d.depMode||d.depMode==='manual'),df=S.settings.defDepMode==='manual';
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-dep="manual">Custom amount'+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-depmstar="manual">'+(df?'★':'☆')+'</span>':'')+'</button>'})()+
+ '</div>'+
+ '<div style="margin-top:12px"><label class="f">Notes (design, colours, message on the cake\u2026)'+ihelp('Anything you need to remember when you bake it. Order search looks in here too.')+'</label>'+
+ '<textarea id="cNote" placeholder="e.g. blue theme, “Happy Birthday Leo” on top">'+esc(d.note)+'</textarea></div>'+
+ '<div class="divider"></div>'+
+ '<div class="grid3">'+
+  '<div class="stat"><span class="muted">Items total'+ihelp('The sum of every line on this order, before discount and deposit.')+'</span><b><span id="sumTotal">'+money(total)+'</span> '+S.settings.currency+'</b></div>'+
+  '<div class="stat"><span class="muted">Deposit'+ihelp('What you have taken from the customer already, or are about to.')+'</span><b>'+money(dep)+'</b></div>'+
+  '<div class="stat"><span class="muted">Balance'+ihelp('Items total minus discount and deposit — what is still due on delivery.')+'</span><b><span id="sumDue">'+money(due)+'</span></b></div>'+
+ '</div>'+
+ '<div class="navrow"><button class="btn ghost" data-step="2">‹ Previous step</button>'+
+ '<button class="btn danger mini" data-resetdraft="1">↺ Start over</button><span class="sp"></span>'+
+ '<button class="btn" id="saveOrder">'+(d.id?'Save changes':'Save order')+'</button>'+
+ (d.id?'<button class="btn ghost" id="cancelEdit">Cancel</button>':'')+'</div></div>'
+}
+
+function bindNew(){
+ var d=UI.draft;
+ var g=function(id){return document.getElementById(id)};
+ ['cName:name','cPhone:phone','cNote:note'].forEach(function(p){
+  var a=p.split(':'),el=g(a[0]);if(el){
+   el.addEventListener('input',function(){d[a[1]]=el.value});
+   el.addEventListener('change',function(){d[a[1]]=el.value;act()})}});
+ var readTime=function(){
+  var H=g('tH'),M=g('tM'),AP=g('tAP');
+  if(!H)return;
+  if(H.value===''){d.time='';render();return}
+  var h=+H.value,m=(M&&M.value)||'00';
+  if(AP){if(AP.value==='pm'&&h<12)h+=12;if(AP.value==='am'&&h===12)h=0}
+  d.time=(h<10?'0':'')+h+':'+m;render()};
+ ['tH','tM','tAP'].forEach(function(id){var el=g(id);if(el)el.addEventListener('change',readTime)});
+ var tc=g('tClr');
+ if(tc)tc.addEventListener('click',function(){d.time='';render()});
+ ['cDisc:discount','cDep:deposit'].forEach(function(p){
+  var a=p.split(':'),el=g(a[0]);if(el)el.addEventListener('change',function(){
+   d[a[1]]=unnum(el.value);
+   if(a[1]==='deposit')d.depMode='manual';
+   var tot=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+   var st=g('sumTotal'),sd=g('sumDue');
+   if(st)st.textContent=money(tot);
+   if(sd)sd.textContent=money(tot-(+d.discount||0)-currentDep(d,tot));
+   V.querySelectorAll('[data-dep]').forEach(function(b){
+    b.classList.toggle('ghost',b.dataset.dep!==(d.depMode||'manual'))})})});
+ V.querySelectorAll('[data-depmstar]').forEach(function(b){b.addEventListener('click',function(e){
+  e.stopPropagation();var k=b.dataset.depmstar;
+  S.settings.defDepMode=(S.settings.defDepMode===k)?'':k;touch();render();
+  toast(S.settings.defDepMode?'This deposit preset is now the default':'Default cleared')})});
+ V.querySelectorAll('[data-dep]').forEach(function(b){b.addEventListener('click',function(e){
+  if(e.target.closest('[data-depmstar]'))return;
+  d.depMode=b.dataset.dep;
+  if(d.depMode!=='manual'){var tot=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+   d.deposit=currentDep(d,tot)}
+  act();render()})});
+
+ V.querySelectorAll('[data-decmode]').forEach(function(b){b.addEventListener('click',function(){
+  UI.decDraft.mode=b.dataset.decmode;act();render()})});
+ ['decName:name','decMat:matCost','decFix:priceOverride'].forEach(function(x){
+  var a=x.split(':'),el=g(a[0]);
+  if(el)el.addEventListener('change',function(){
+   UI.decDraft[a[1]]=(a[1]==='name')?el.value:unnum(el.value);act();itemPreview()})});
+ var decAdd=g('decAdd');
+ if(decAdd)decAdd.addEventListener('click',function(){
+  if(!UI.decIng)return toast('Pick a decoration ingredient first');
+  var q=+g('decQ').value||0;if(q<=0)return toast('Enter an amount for the decoration ingredient');
+  UI.decDraft.mats.push({i:UI.decIng,q:q});act();render()});
+ V.querySelectorAll('[data-drm]').forEach(function(b){b.addEventListener('click',function(){
+  UI.decDraft.mats.splice(+b.dataset.drm,1);act();render()})});
+ var decH=g('decH');
+ if(decH)decH.addEventListener('change',function(){UI.decDraft.hours=+decH.value||0;act();itemPreview()});
+
+ itemPreview();
+ var add=g('addItem');
+ if(add)add.addEventListener('click',function(){
+  var p=S.products.find(function(x){return x.id===UI.selP});
+  if(!p)return toast('Pick a product first');
+  var s=p.sizes.find(function(x){return x.id===UI.selS});
+  if(!s)return toast('Pick a size');
+  var q=Math.max(1,+g('selQ').value||1);
+  UI.qty=q;
+  var it={pid:p.id,sid:s.id,label:p.emoji+' '+p.name+' — '+s.label,price:calc(p,s).final,qty:q};
+  var dc=UI.decDraft;
+  if(hasDec(dc)){
+   it.dec=(dc.mode==='manual')
+    ?{mode:'manual',name:(dc.name||'').trim(),matCost:+dc.matCost||0,hours:+dc.hours||0,mult:+dc.mult||1,
+      priceOverride:+dc.priceOverride||0,price:calcDec(dc).final}
+    :{mats:dc.mats.slice(),hours:+dc.hours||0,mult:+dc.mult||1,price:calcDec(dc).final};
+   it.label+=' + decoration'+(dc.mode==='manual'&&dc.name?' '+dc.name.trim():'')}
+  if(UI.editItem!=null&&d.items[UI.editItem]){d.items[UI.editItem]=it;toast('Item updated')}
+  else{d.items.push(it);toast('Added to the order')}
+  cancelItemEdit();act();render()});
+ V.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){
+  var ix=+b.dataset.rm;
+  d.items.splice(ix,1);
+  if(UI.editItem===ix)cancelItemEdit();
+  else if(UI.editItem!=null&&UI.editItem>ix)UI.editItem--;
+  act();render()})});
+ V.querySelectorAll('[data-edit]').forEach(function(b){b.addEventListener('click',function(){
+  var ix=+b.dataset.edit,it=d.items[ix];if(!it)return;
+  UI.editItem=ix;UI.selP=it.pid;UI.selS=it.sid;UI.qty=it.qty||1;
+  var c=it.dec;
+  if(c){UI.decOpen=true;
+   UI.decDraft=(c.mode==='manual')
+    ?{mode:'manual',mats:[],hours:+c.hours||0,mult:+c.mult||1,name:c.name||'',matCost:+c.matCost||0,priceOverride:+c.priceOverride||0}
+    :{mode:'pick',mats:(c.mats||[]).slice(),hours:+c.hours||0,mult:+c.mult||1,name:'',matCost:0,priceOverride:0}}
+  else{UI.decOpen=false;
+   UI.decDraft={mode:'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0}}
+  act();render();window.scrollTo({top:0,behavior:'smooth'})})});
+ var ci2=g('cancelItem');
+ if(ci2)ci2.addEventListener('click',function(){cancelItemEdit();render()});
+ var ci=g('clearItems');
+ if(ci)ci.addEventListener('click',function(){
+  if(!confirm('Remove every item from this order?'))return;
+  d.items=[];cancelItemEdit();act();render()});
+ var db=g('dateBtn');
+ if(db)db.addEventListener('click',function(e){e.stopPropagation();var pop=g('pop');
+  pop.classList.toggle('on');if(pop.classList.contains('on'))drawPicker()});
+ V.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){
+  UI.step=+b.dataset.step||1;render();window.scrollTo({top:0,behavior:'smooth'})})});
+ var dob=g('decOpenBtn');
+ if(dob)dob.addEventListener('click',function(){UI.decOpen=true;render()});
+ var dcb=g('decClose');
+ if(dcb)dcb.addEventListener('click',function(){
+  UI.decOpen=false;
+  UI.decDraft={mode:UI.decDraft.mode||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};
+  act();render()});
+ var so=g('saveOrder');if(so)so.addEventListener('click',saveOrder);
+ var doReset=function(){
+  if(!confirm('Clear the whole form and start over? Undo can bring it back.'))return;
+  resetDraft();act();render();window.scrollTo({top:0,behavior:'smooth'});toast('Form cleared')};
+ var rt=g('resetTop');if(rt)rt.addEventListener('click',doReset);
+ V.querySelectorAll('[data-resetdraft]').forEach(function(b){b.addEventListener('click',doReset)});
+ var ce=g('cancelEdit');if(ce)ce.addEventListener('click',function(){resetDraft();render()});
+}
+function decBreakHTML(dd){
+ if(!hasDec(dd))return '<span class="muted">Nothing entered for the decoration yet.</span>';
+ var c=calcDec(dd), rate=S.settings.decorRate||S.settings.laborRate, m=+dd.mult||1, h=+dd.hours||0;
+ if(c.fixed)return '<div class="muted">A fixed decoration price was entered, so no calculation is done.</div>'+
+  '<div class="row" style="margin-top:6px"><span class="muted">Decoration price</span><b class="sp price">'+money(c.final)+' '+S.settings.currency+'</b></div>';
+ return (dd.mode==='manual'&&dd.name?'<div class="muted">Name: <b>'+esc(dd.name)+'</b></div>':'')+
+  (c.mat>0?'<div class="muted">Decoration materials: <b>'+money(c.mat)+'</b></div>':'')+
+  (S.settings.decUseLabor===false?''
+    :'<div class="muted">Labour: '+num(h)+' h × '+money(rate)+' (decoration rate) × '+num(m)+' (multiplier) = <b>'+money(c.labor)+'</b></div>')+
+  (S.settings.decUseOver?'<div class="muted">Overhead '+num(S.settings.decOver)+'%: <b>'+money(c.over)+'</b></div>':'')+
+  (S.settings.decUseProfit?'<div class="muted">Profit '+num(S.settings.decProfit)+'%: <b>'+money(c.profit)+'</b></div>':'')+
+  '<div class="row" style="margin-top:6px"><span class="muted">Decoration price (rounded)</span><b class="sp price">'+money(c.final)+' '+S.settings.currency+'</b></div>'
+}
+function decSummary(dc){
+ if(dc.mode==='manual'){
+  return (dc.name?esc(dc.name)+' • ':'')+(+dc.matCost>0?'Materials '+money(dc.matCost)+' • ':'')+
+   ((S.settings.decUseLabor!==false&&+dc.hours>0)?num(dc.hours)+' h of work • '+multLabel(dc.mult)+' • ':'')+money(dc.price)+' (manual)'}
+ var mats=(dc.mats||[]).map(function(r){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'?',unit:''};
+  return esc(g.name)+' '+num(r.q)+' '+esc(g.unit)}).join(', ');
+ return (mats?mats+' • ':'')+((S.settings.decUseLabor!==false&&+dc.hours>0)?num(dc.hours)+' h of work • '+multLabel(dc.mult)+' • ':'')+money(dc.price);
+}
+function cancelItemEdit(){
+ UI.editItem=null;UI.qty=1;UI.decOpen=false;
+ UI.decDraft={mode:(UI.decDraft&&UI.decDraft.mode)||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};
+}
+function itemPreview(){
+ var el=document.getElementById('itemPrev');if(!el)return;
+ var p=S.products.find(function(x){return x.id===UI.selP});
+ var z=p?(p.sizes.find(function(x){return x.id===UI.selS})||p.sizes[0]):null;
+ var base=(p&&z)?calc(p,z).final:0;
+ var dd=UI.decDraft, on=hasDec(dd), dp=on?calcDec(dd).final:0;
+ var pe=document.getElementById('decBreak');
+ if(pe)pe.innerHTML=decBreakHTML(dd);
+ if(!p||!z){el.innerHTML='<span class="muted">Pick a product and a size'+(on?' — decoration: '+money(dp):'')+'</span>';return}
+ el.innerHTML=on?('Product '+money(base)+' + decoration '+money(dp)+' = <b class="price">'+money(base+dp)+' '+S.settings.currency+'</b>')
+  :('Item price: <b class="price">'+money(base)+' '+S.settings.currency+'</b>');
+}
+function freshDep(){return S.settings.defDepMode||'manual'}
+function resetDraft(){UI.step=1;UI.decOpen=false;UI.editItem=null;UI.qty=1;UI.decDraft={mode:(UI.decDraft&&UI.decDraft.mode)||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};UI.selP=S.settings.defProduct||'';
+ UI.selS=(S.settings.defSize||{})[UI.selP]||null;UI.decIng=S.settings.defDecIng||'';UI.draft={name:'',phone:'',date:null,time:'',items:[],note:'',deposit:0,discount:0,depMode:freshDep(),id:null}}
+
+function drawPicker(){
+ var pop=document.getElementById('pop');if(!pop)return;
+ var m=UI.pickM||(UI.draft.date?{y:UI.draft.date.y,m:UI.draft.date.m}:{y:today().y,m:today().m});
+ UI.pickM=m;
+ pop.innerHTML=calendarHTML(m,UI.draft.date,false);
+ pop.onclick=function(e){e.stopPropagation()};
+ pop.querySelectorAll('[data-nav]').forEach(function(b){b.addEventListener('click',function(){
+  var s=+b.dataset.nav,mo=m.m+s,yr=m.y;if(mo>12){mo=1;yr++}if(mo<1){mo=12;yr--}
+  UI.pickM={y:yr,m:mo};drawPicker()})});
+ pop.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+  UI.draft.date=keyToD(b.dataset.day);document.getElementById('pop').classList.remove('on');act();render()})});
+}
+document.addEventListener('click',function(){var p=document.getElementById('pop');if(p)p.classList.remove('on')});
+
+async function saveOrder(){
+ var d=UI.draft;
+ if(!d.name.trim())return toast('Enter the customer name');
+ if(!d.date)return toast('Pick a delivery date');
+ if(!d.items.length)return toast('Add at least one product');
+ var total=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+ var depNow=currentDep(d,total);
+ var o={id:d.id||uid(),name:d.name.trim(),phone:d.phone.trim(),items:d.items.slice(),depMode:d.depMode||'manual',
+  day:dKey(d.date),
+  time:d.time,note:d.note,discount:+d.discount||0,deposit:depNow,total:total,
+  status:d.status||'new',createdAt:d.createdAt||new Date().toISOString()};
+ var ix=S.orders.findIndex(function(x){return x.id===o.id});
+ if(ix>-1)S.orders[ix]=o;else S.orders.push(o);
+ pushHist();
+ await save();
+ resetDraft();goTab('orders')
+}
+
+/* ---------- orders ---------- */
+function statusChip(s){return s==='done'?'<span class="chip done">Delivered</span>':
+ s==='baking'?'<span class="chip baking">In the kitchen</span>':'<span class="chip new">New</span>'}
+function orderCard(o){
+ var j=keyToD(o.day),due=o.total-o.discount-o.deposit;
+ var t=today(),dd=serial(j)-serial(t);
+ var when=dd===0?'Today':dd===1?'Tomorrow':dd>0?'in '+num(dd)+' days':num(-dd)+' days ago';
+ return '<div class="item'+(dd>=0&&dd<=1&&o.status!=='done'?' hi':'')+'">'+
+ '<div class="row"><b class="name">'+esc(o.name)+'</b>'+statusChip(o.status)+
+ '<span class="sp price">'+money(o.total)+' '+S.settings.currency+'</span></div>'+
+ '<div class="muted">'+WD[weekday(j)]+', '+dateLong(j)+(o.time?' • '+fmtTime(o.time):'')+' • '+when+'</div>'+
+ '<div class="muted">'+o.items.map(function(i){return esc(i.label)+' ×'+num(i.qty)}).join(' | ')+'</div>'+
+ o.items.filter(function(i){return i.dec}).map(function(i){
+   return '<div class="muted">Decoration: '+(i.dec.mats?decSummary(i.dec):esc(i.dec.name||'')+' • '+money(i.dec.price))+'</div>'}).join('')+
+ (o.phone?'<div class="muted">Phone: '+num(o.phone)+'</div>':'')+
+ (o.note?'<div class="muted">Notes: '+esc(o.note)+'</div>':'')+
+ '<div class="muted">Deposit '+money(o.deposit)+' • balance '+money(due)+'</div>'+
+ '<div class="row" style="margin-top:8px">'+
+  '<button class="btn ghost mini" data-st="'+o.id+'">Change status</button>'+
+  '<button class="btn ghost mini" data-ed="'+o.id+'">Edit</button>'+
+  '<button class="btn ghost mini" data-cp="'+o.id+'">Copy invoice</button>'+
+  (o.phone?'<a class="btn ghost mini" href="tel:'+esc(phoneKey(o.phone))+'">Call</a>':'')+
+  (o.phone&&waLink(o.phone)?'<a class="btn ghost mini" href="'+waLink(o.phone,invoiceText(o))+'" target="_blank" rel="noopener">WhatsApp</a>':'')+
+  '<button class="btn danger mini sp" data-del="'+o.id+'">Delete</button></div></div>'
+}
+function invoiceText(o){
+ var j=keyToD(o.day);
+ return 'Order confirmation\nCustomer: '+o.name+'\nDelivery: '+WD[weekday(j)]+', '+dateLong(j)+(o.time?' at '+fmtTime(o.time):'')+'\n'+
+  o.items.map(function(i){return '• '+i.label+' ×'+i.qty+' — '+Math.round(lineTotal(i)).toLocaleString('en-US')}).join('\n')+
+  '\nTotal: '+o.total.toLocaleString('en-US')+' '+S.settings.currency+
+  '\nDeposit: '+o.deposit.toLocaleString('en-US')+'\nBalance: '+(o.total-o.discount-o.deposit).toLocaleString('en-US')}
+function dayLabel(j){
+ var t=today(),dd=serial(j)-serial(t);
+ return dd===0?'Today':dd===1?'Tomorrow':dd===-1?'Yesterday':dd>0?'In '+num(dd)+' days':num(-dd)+' days ago'}
+function customers(){
+ var m={};
+ S.orders.forEach(function(o){
+  var k=phoneKey(o.phone)||('n:'+(o.name||'').trim());
+  var c=m[k]||(m[k]={key:k,name:o.name,phone:o.phone,n:0,total:0,due:0,last:'',first:'',open:0});
+  c.n++;c.total+=o.total-o.discount;c.due+=o.total-o.discount-o.deposit;
+  if(o.status!=='done')c.open++;
+  if(!c.phone&&o.phone)c.phone=o.phone;
+  if(!c.last||o.day>c.last)c.last=o.day;
+  if(!c.first||o.day<c.first)c.first=o.day;
+ });
+ return Object.keys(m).map(function(k){return m[k]}).sort(function(a,b){return b.total-a.total})
+}
+function filterOrders(){
+ var t=today(),tk=serial(t),mk=dKey(t).slice(0,7);
+ var q=toLatin(UI.q||'').trim().toLowerCase(), qd=q.replace(/[^0-9]/g,'');
+ return S.orders.filter(function(o){
+  var j=keyToD(o.day),k=serial(j),f=UI.filter;
+  var pass = f==='all'?true:
+   f==='today'?k===tk:
+   f==='tomorrow'?k===tk+1:
+   f==='week'?(k>=tk&&k<tk+7):
+   f==='month'?o.day.slice(0,7)===mk:
+   f==='overdue'?(k<tk&&o.status!=='done'):
+   f==='done'?o.status==='done':
+   /* up */ (k>=tk&&o.status!=='done');
+  if(!pass)return false;
+  if(!q)return true;
+  var hay=toLatin((o.name||'')+' '+(o.note||'')+' '+o.items.map(function(i){return i.label}).join(' ')).toLowerCase();
+  if(hay.indexOf(q)>-1)return true;
+  return !!(qd&&phoneKey(o.phone).indexOf(qd)>-1)
+ })
+}
+function sortOrders(list){
+ var s=UI.sort||'dateAsc';
+ var by={
+  dateAsc:function(a,b){return a.day<b.day?-1:a.day>b.day?1:0},
+  dateDesc:function(a,b){return a.day>b.day?-1:a.day<b.day?1:0},
+  amount:function(a,b){return (b.total-b.discount)-(a.total-a.discount)},
+  due:function(a,b){return (b.total-b.discount-b.deposit)-(a.total-a.discount-a.deposit)},
+  newest:function(a,b){return (b.createdAt||'')<(a.createdAt||'')?-1:1},
+  name:function(a,b){return (a.name||'').localeCompare(b.name||'','en')}
+ };
+ return list.slice().sort(by[s]||by.dateAsc)
+}
+function viewOrders(){
+ var t=today(),tk=serial(t);
+ var list=sortOrders(filterOrders());
+ var sumAll=list.reduce(function(a,o){return a+o.total-o.discount},0);
+ var sumDue=list.reduce(function(a,o){return a+o.total-o.discount-o.deposit},0);
+ var late=S.orders.filter(function(o){var j=keyToD(o.day);return serial(j)<tk&&o.status!=='done'}).length;
+ var f=[['today','today'],['tomorrow','tomorrow'],['week','Next 7 days'],['month','This month'],
+        ['overdue','Overdue'+(late?' ('+num(late)+')':'')],['up','Upcoming'],['done','Delivered'],['all','All']]
+  .map(function(x){var on=UI.filter===x[0],df=S.settings.defFilter===x[0];
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-f="'+x[0]+'">'+x[1]+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-fstar="'+x[0]+'">'+(df?'★':'☆')+'</span>':'')+'</button>'}).join('');
+ var sortItems=[['dateAsc','Soonest delivery'],['dateDesc','Latest delivery'],['amount','Highest amount'],
+            ['due','Largest balance'],['newest','Most recently created'],['name','Customer name']]
+  .map(function(x){return {v:x[0],label:x[1],def:S.settings.defSort===x[0]}});
+ var csortItems=[['total','Highest spend'],['count','Most orders'],['recent','Most recent order'],
+            ['due','Largest balance'],['name','Customer name']]
+  .map(function(x){return {v:x[0],label:x[1],def:S.settings.defCustSort===x[0]}});
+
+ var head='<div class="card">'+
+  '<div class="row">'+ihelp('Search by name, phone, note or product name.')+'<input type="text" id="q" placeholder="'+(UI.cust?'Search customers: name or phone…':'Search: name, phone, note or product…')+'" value="'+esc(UI.q)+'" style="max-width:280px">'+
+  (UI.q?'<button class="btn ghost mini" id="qclr">Clear</button>':'')+
+  '<button class="btn '+(UI.cust?'':'ghost')+' mini sp" id="custBtn">Customers</button>'+ihelp('Customer view: orders are grouped by phone number into one record, showing each person’s total spend and outstanding balance.')+'</div>'+
+  '<div class="row" style="margin-top:10px">'+ihelp('Narrows the list. “Overdue” means the delivery date has passed but the order is not marked delivered; the number beside it is the count.')+f+'</div>'+
+  '<div class="row" style="margin-top:10px"><label class="f" style="margin:0">Sort by'+ihelp('The order of the list. The star next to an option makes it the default next time.')+'</label>'+
+  '<div style="min-width:230px">'+(UI.cust
+    ?dd('CSORT',UI.custSort||'total',csortItems,'Highest spend')
+    :dd('SORT',UI.sort||'dateAsc',sortItems,'Soonest delivery'))+'</div></div>'+
+  '<div class="divider"></div>'+
+  '<div class="grid3">'+
+   '<div class="stat"><span class="muted">Orders in this view'+ihelp('These three figures describe the current filter and search only, not the whole database.')+'</span><b>'+num(list.length)+'</b></div>'+
+   '<div class="stat"><span class="muted">Total value'+ihelp('The total of the orders in this view after discounts, deposits not deducted.')+'</span><b>'+money(sumAll)+'</b></div>'+
+   '<div class="stat"><span class="muted">Still to collect</span><b>'+money(sumDue)+'</b></div>'+
+  '</div></div>';
+
+ if(UI.cust){
+  var cs=customers();
+  var cq=toLatin(UI.q||'').trim().toLowerCase(),cqd=cq.replace(/[^0-9]/g,'');
+  if(cq)cs=cs.filter(function(c){
+   return toLatin(c.name||'').toLowerCase().indexOf(cq)>-1||(cqd&&phoneKey(c.phone).indexOf(cqd)>-1)});
+  var cby={total:function(a,b){return b.total-a.total},
+   count:function(a,b){return b.n-a.n},
+   recent:function(a,b){return a.last<b.last?1:-1},
+   due:function(a,b){return b.due-a.due},
+   name:function(a,b){return (a.name||'').localeCompare(b.name||'','en')}};
+  cs=cs.slice().sort(cby[UI.custSort||'total']||cby.total);
+  return head+'<div class="card"><h2>Customers'+ihelp('Deleting a customer deletes all of their orders. Undo can bring them back.')+'</h2><p class="hint">Grouped by phone number. The search and sort controls above work on this list too.</p>'+
+  (cs.length?'<div class="list">'+cs.map(function(c){
+    var wa=waLink(c.phone,'Hi '+c.name);
+    return '<div class="item"><div class="row"><b class="name">'+esc(c.name||'No name')+'</b>'+
+     (c.n>=3?'<span class="chip done">Regular</span>':'')+
+     (c.open?'<span class="chip new">'+num(c.open)+' open</span>':'')+
+     '<span class="sp price">'+money(c.total)+'</span></div>'+
+     '<div class="muted">'+num(c.n)+' orders • last: '+dateLong(keyToD(c.last))+
+     (c.due>0?' • balance: '+money(c.due):'')+'</div>'+
+     (c.phone?'<div class="muted ltr">'+esc(c.phone)+'</div>':'')+
+     '<div class="row" style="margin-top:8px">'+
+      '<button class="btn ghost mini" data-cq="'+esc(c.phone||c.name)+'">Their orders</button>'+
+      '<button class="btn ghost mini" data-cnew="'+esc(c.key)+'">New order for them</button>'+
+      '<button class="btn danger mini" data-cdel="'+esc(c.key)+'">Delete customer</button>'+
+      (c.phone?'<a class="btn ghost mini" href="tel:'+esc(phoneKey(c.phone))+'">Call</a>':'')+
+      (wa?'<a class="btn ghost mini" href="'+wa+'" target="_blank" rel="noopener">WhatsApp</a>':'')+
+     '</div></div>'}).join('')+'</div>'
+   :'<div class="empty"><span class="cake">—</span>No customers yet.</div>')+'</div>';
+ }
+
+ var body='';
+ if(!list.length)body='<div class="card"><div class="empty"><span class="cake">—</span>No orders in this view.</div></div>';
+ else if((UI.sort||'dateAsc').indexOf('date')===0){
+  var cur='';
+  body='<div class="card">';
+  list.forEach(function(o){
+   if(o.day!==cur){cur=o.day;var j=keyToD(o.day);
+    body+='<div class="dayhead"><span>'+dayLabel(j)+' — '+WD[weekday(j)]+', '+dateLong(j)+'</span></div>'}
+   body+=orderCard(o)});
+  body+='</div>';
+ } else body='<div class="card"><div class="list">'+list.map(orderCard).join('')+'</div></div>';
+ return head+body
+}
+function bindOrders(){
+ V.querySelectorAll('[data-fstar]').forEach(function(b){b.addEventListener('click',function(e){
+  e.stopPropagation();var k=b.dataset.fstar;
+  S.settings.defFilter=(S.settings.defFilter===k)?'':k;touch();render();
+  toast(S.settings.defFilter?'This view is now the default':'Default cleared')})});
+ V.querySelectorAll('[data-f]').forEach(function(b){b.addEventListener('click',function(e){
+  if(e.target.closest('[data-fstar]'))return;
+  UI.filter=b.dataset.f;UI.cust=false;render()})});
+ var cb=document.getElementById('custBtn');
+ if(cb)cb.addEventListener('click',function(){UI.cust=!UI.cust;render()});
+ var cl=document.getElementById('qclr');
+ if(cl)cl.addEventListener('click',function(){UI.q='';render()});
+ var q=document.getElementById('q');
+ if(q)q.addEventListener('input',function(){UI.q=q.value;render();
+  var n=document.getElementById('q');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}});
+ V.querySelectorAll('[data-cq]').forEach(function(b){b.addEventListener('click',function(){
+  UI.q=b.dataset.cq;UI.cust=false;UI.filter='all';render()})});
+ V.querySelectorAll('[data-cdel]').forEach(function(b){b.addEventListener('click',function(){
+  var key=b.dataset.cdel;
+  var mine=S.orders.filter(function(o){return (phoneKey(o.phone)||('n:'+(o.name||'').trim()))===key});
+  if(!mine.length)return;
+  if(!confirm('Delete this customer and their '+mine.length+' order(s)? Undo can bring them back.'))return;
+  S.orders=S.orders.filter(function(o){return (phoneKey(o.phone)||('n:'+(o.name||'').trim()))!==key});
+  touch();render();toast('Customer and their orders deleted')})});
+ V.querySelectorAll('[data-cnew]').forEach(function(b){b.addEventListener('click',function(){
+  var c=customers().find(function(x){return x.key===b.dataset.cnew});if(!c)return;
+  resetDraft();UI.draft.name=c.name;UI.draft.phone=c.phone;goTab('new')})});
+ V.querySelectorAll('[data-st]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.st});
+  o.status=o.status==='new'?'baking':o.status==='baking'?'done':'new';touch();render()})});
+ V.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){
+  if(!confirm('Delete this order?'))return;
+  S.orders=S.orders.filter(function(x){return x.id!==b.dataset.del});touch();render()})});
+ V.querySelectorAll('[data-ed]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.ed});
+  UI.draft={id:o.id,name:o.name,phone:o.phone,date:keyToD(o.day),time:o.time,items:o.items.slice(),
+   note:o.note,deposit:o.deposit,discount:o.discount,depMode:o.depMode||'manual',status:o.status,createdAt:o.createdAt};
+  UI.step=1;goTab('new')})});
+ V.querySelectorAll('[data-cp]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.cp});
+  navigator.clipboard.writeText(invoiceText(o)).then(function(){toast('Invoice copied')},function(){toast('Copy failed')})})});
+}
+
+/* ---------- calendar ---------- */
+function ordersByDay(){var m={};S.orders.forEach(function(o){(m[o.day]=m[o.day]||[]).push(o)});return m}
+function calendarHTML(m,sel,withPips){
+ var map=withPips?ordersByDay():{};
+ var t=today(),len=monthLen(m.y,m.m),start=weekday({y:m.y,m:m.m,d:1});
+ var h='<div class="cal-head"><button class="nav" data-nav="-1">‹</button>'+
+  '<div class="cal-title">'+MONTHS[m.m-1]+' '+m.y+'</div>'+
+  '<button class="nav" data-nav="1">›</button></div><div class="cal">';
+ WDS.forEach(function(w){h+='<div class="wd">'+w+'</div>'});
+ for(var i=0;i<start;i++)h+='<div class="day off"></div>';
+ for(var d=1;d<=len;d++){
+  var j={y:m.y,m:m.m,d:d},k=dKey(j),wd=weekday(j);
+  var cls='day'+((wd===0||wd===6)?' fri':'')+(k===dKey(t)?' today':'')+(sel&&k===dKey(sel)?' sel':'');
+  var n=(map[k]||[]).length;
+  h+='<button class="'+cls+'" data-day="'+k+'"><span>'+d+'</span>'+
+   (n?'<span class="pips">'+Array(Math.min(n,3)).fill('<i></i>').join('')+'</span>':'')+'</button>'}
+ return h+'</div>'
+}
+function viewCal(){
+ var m=UI.calM||{y:today().y,m:today().m};UI.calM=m;
+ var sel=UI.selDay,map=ordersByDay();
+ var day=sel?(map[dKey(sel)]||[]):[];
+ return '<div class="card"><h2>Delivery calendar'+ihelp('A month view of deliveries. Click any day to pull that day\u2019s orders up underneath.')+'</h2><p class="hint">A blue dot means there is an order due that day. Today has an outlined border.</p>'+
+  calendarHTML(m,sel,true)+'</div>'+
+  (sel?'<div class="card"><h2>'+dateLong(sel)+ihelp('Orders due on this day. You can change their status or edit them from here too.')+'</h2><p class="hint">'+WD[weekday(sel)]+' • '+dayLabel(sel)+'</p>'+
+   (day.length?'<div class="list">'+day.map(orderCard).join('')+'</div>'
+    :'<div class="empty"><span class="cake">—</span>No orders on this day.</div>')+'</div>':'')
+}
+function bindCal(){
+ V.querySelectorAll('[data-nav]').forEach(function(b){b.addEventListener('click',function(){
+  var s=+b.dataset.nav,m=UI.calM,mo=m.m+s,yr=m.y;if(mo>12){mo=1;yr++}if(mo<1){mo=12;yr--}
+  UI.calM={y:yr,m:mo};render()})});
+ V.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+  UI.selDay=keyToD(b.dataset.day);render()})});
+ bindOrders()
+}
+
+/* ---------- products ---------- */
+function viewProducts(){
+ var h='<div class="card"><h2>Products &amp; recipes'+ihelp('Each product has one recipe, written for the base size, plus a set of sizes. Prices are worked out from those two.')+'</h2><p class="hint">Enter quantities for the base size; every other size is worked out with its factor. Changes are saved as you make them.</p>'+
+  '<div class="row"><button class="btn ghost mini" id="addP">+ New product</button></div></div>';
+ S.products.forEach(function(p){
+  var open=UI.editP===p.id;
+  var base=p.sizes[0];
+  h+='<div class="card"><div class="row"><b class="name" id="nm-'+p.id+'">'+p.emoji+' '+esc(p.name)+'</b>'+
+   '<span class="muted" id="hd-'+p.id+'">'+num(p.sizes.length)+' Size'+(S.settings.prodUseLabor!==false?' • labour '+num(p.labor)+' min':'')+'</span>'+
+   '<button class="btn ghost mini sp" data-op="'+p.id+'">'+(open?'Close':'Edit')+'</button>'+
+   '<button class="btn danger mini" data-dp="'+p.id+'">Delete</button></div>'+
+   '<div class="row" id="chips-'+p.id+'" style="margin-top:10px;gap:8px">'+p.sizes.map(function(s){
+     return '<span class="chip new">'+esc(s.label)+' — '+money(calc(p,s).final)+'</span>'}).join('')+'</div>'+
+   '<div id="slice-'+p.id+'">'+sliceBar(calc(p,base))+'</div>';
+  if(open){
+   h+='<div class="divider"></div><div class="grid3">'+
+    '<div><label class="f">Product name'+ihelp('The name shown in the order form and on the customer’s invoice.')+'</label><input type="text" data-pf="name" data-p="'+p.id+'" value="'+esc(p.name)+'"></div>'+
+    '<div><label class="f">Emoji'+ihelp('A small visual marker next to the product name, purely so you can spot it faster in a list.')+'</label><input type="text" data-pf="emoji" data-p="'+p.id+'" value="'+esc(p.emoji)+'"></div>'+
+    (S.settings.prodUseLabor!==false
+      ?'<div><label class="f">Work time (minutes)'+ihelp('How many minutes the base size of this product takes to make. Multiplied by the baking hourly rate. Decoration time is not counted here.')+'</label><input type="number" data-pf="labor" data-p="'+p.id+'" value="'+p.labor+'"></div>'
+      :'<div><label class="f">Work time</label><div class="muted" style="padding:10px 0">Baking labour is switched off</div></div>')+'</div>'+
+    '<div class="divider"></div><b>Base-size ingredients</b>'+ihelp('Write quantities for the smallest size; larger sizes are scaled by their own factor. The unit price column is read-only and is edited in the Ingredients tab.')+'<table><tr><th>Ingredient'+ihelp('An ingredient from your list that this product uses.')+'</th>'+
+     '<th>Amount'+ihelp('How much of this ingredient the base size uses, in its own unit \u2014 for example 0.35 kg of flour.')+'</th>'+
+     '<th>Unit'+ihelp('The unit set for this ingredient in the Ingredients tab. It cannot be changed here.')+'</th>'+
+     '<th>Unit price'+ihelp('Today’s price for one unit of this ingredient. Read-only here — change it in the Ingredients tab.')+'</th>'+
+     '<th>Cost'+ihelp('Amount × unit price — how much of the product’s cost this ingredient accounts for.')+'</th><th></th></tr>'+
+    p.recipe.map(function(r,ix){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'?',unit:'',price:0};
+     return '<tr><td>'+esc(g.name)+'</td><td><input type="number" step="0.01" style="max-width:90px" data-rq="'+p.id+':'+ix+'" value="'+r.q+'"></td>'+
+     '<td class="muted">'+esc(g.unit)+'</td>'+
+     '<td class="muted" id="pu-'+p.id+'-'+ix+'">'+money(g.price)+'</td>'+
+     '<td class="muted" id="rc-'+p.id+'-'+ix+'">'+money(g.price*r.q)+'</td>'+
+     '<td><button class="btn danger mini" data-rr="'+p.id+':'+ix+'">×</button></td></tr>'}).join('')+
+    '</table><div class="row" style="margin-top:8px"><select data-ai="'+p.id+'" style="max-width:220px">'+
+    ingOptions('')+
+    '</select><button class="btn ghost mini" data-aib="'+p.id+'">+ Add ingredient</button></div>'+
+    '<div class="divider"></div><b>Sizes</b>'+ihelp('The factor is how many times the base-size quantities this size needs (2 kg = 2). Packaging is the box cost for that size.')+'<table><tr><th>Label'+ihelp('The name shown in the size dropdown \u2014 for example \u201c1 kg\u201d or \u201cLarge tin\u201d.')+'</th>'+
+     '<th>Factor'+ihelp('How many times the base-size quantities this size uses. If the recipe is written for 1 kg, a 2 kg cake gets a factor of 2 and a half-kilo 0.5.')+'</th>'+
+     '<th>Packaging'+ihelp('The box and packaging cost for this size. Added to the price as-is, independently of the factor.')+'</th>'+
+     '<th>Final price'+ihelp('The calculated price for this size with the current Pricing settings, rounded up.')+'</th><th></th></tr>'+
+    p.sizes.map(function(s,ix){return '<tr><td><input type="text" style="max-width:120px" data-sf="'+p.id+':'+ix+':label" value="'+esc(s.label)+'"></td>'+
+     '<td><input type="number" step="0.1" style="max-width:80px" data-sf="'+p.id+':'+ix+':f" value="'+s.f+'"></td>'+
+     '<td><input type="text" inputmode="numeric" class="moneyin" style="max-width:100px" data-sf="'+p.id+':'+ix+':box" value="'+grp(s.box||0)+'"></td>'+
+     '<td class="price" id="sp-'+p.id+'-'+ix+'">'+money(calc(p,s).final)+'</td>'+
+     '<td><button class="btn danger mini" data-sr="'+p.id+':'+ix+'">×</button></td></tr>'}).join('')+
+    '</table><div class="row" style="margin-top:8px"><button class="btn ghost mini" data-as="'+p.id+'">+ Add size</button>'+
+    '<button class="btn ghost mini sp" data-op2="'+p.id+'">Close editor</button></div>'}
+  h+='</div>'});
+ return h
+}
+function refreshProduct(pid){
+ var p=S.products.find(function(x){return x.id===pid});if(!p)return;
+ var el=function(i){return document.getElementById(i)};
+ var nm=el('nm-'+pid);if(nm)nm.textContent=p.emoji+' '+p.name;
+ var hd=el('hd-'+pid);if(hd)hd.textContent=num(p.sizes.length)+' Size'+(S.settings.prodUseLabor!==false?' • labour '+num(p.labor)+' min':'');
+ var ch=el('chips-'+pid);if(ch)ch.innerHTML=p.sizes.map(function(s){return '<span class="chip new">'+esc(s.label)+' — '+money(calc(p,s).final)+'</span>'}).join('');
+ var sl=el('slice-'+pid);if(sl&&p.sizes[0])sl.innerHTML=sliceBar(calc(p,p.sizes[0]));
+ p.recipe.forEach(function(r,ix){var g=S.ingredients.find(function(y){return y.id===r.i})||{price:0};
+  var c=el('rc-'+pid+'-'+ix);if(c)c.textContent=money(g.price*r.q);
+  var u=el('pu-'+pid+'-'+ix);if(u)u.textContent=money(g.price)});
+ p.sizes.forEach(function(s,ix){var c=el('sp-'+pid+'-'+ix);if(c)c.textContent=money(calc(p,s).final)});
+}
+function bindProducts(){
+ var g=function(s){return V.querySelectorAll(s)};
+ var b=document.getElementById('addP');
+ if(b)b.addEventListener('click',async function(){var id=uid();
+  S.products.push({id:id,name:'New product',emoji:'🍮',labor:60,recipe:[],sizes:[{id:uid(),label:'One size',f:1,box:0}]});
+  UI.editP=id;touch();render()});
+ g('[data-op]').forEach(function(x){x.addEventListener('click',function(){UI.editP=UI.editP===x.dataset.op?null:x.dataset.op;render()})});
+ g('[data-dp]').forEach(function(x){x.addEventListener('click',async function(){
+  if(!confirm('Delete this product?'))return;S.products=S.products.filter(function(p){return p.id!==x.dataset.dp});touch();render()})});
+ g('[data-pf]').forEach(function(x){x.addEventListener('change',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.p});
+  p[x.dataset.pf]=x.dataset.pf==='labor'?+x.value:x.value;refreshProduct(p.id);touch()})});
+ g('[data-rq]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.rq.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.recipe[+a[1]].q=+x.value||0;refreshProduct(p.id);touch()})});
+ g('[data-rr]').forEach(function(x){x.addEventListener('click',async function(){
+  var a=x.dataset.rr.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.recipe.splice(+a[1],1);touch();render()})});
+ g('[data-aib]').forEach(function(x){x.addEventListener('click',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.aib});
+  var sel=V.querySelector('[data-ai="'+x.dataset.aib+'"]');
+  if(!sel.value)return toast('Pick an ingredient first');
+  p.recipe.push({i:sel.value,q:0.1});touch();render()})});
+ g('[data-sf]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.sf.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.sizes[+a[1]][a[2]]=a[2]==='label'?x.value:unnum(x.value);refreshProduct(p.id);touch()})});
+ g('[data-sr]').forEach(function(x){x.addEventListener('click',async function(){
+  var a=x.dataset.sr.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.sizes.splice(+a[1],1);touch();render()})});
+ g('[data-as]').forEach(function(x){x.addEventListener('click',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.as});
+  p.sizes.push({id:uid(),label:'New size',f:1,box:0});touch();render()})});
+ g('[data-op2]').forEach(function(x){x.addEventListener('click',function(){UI.editP=null;render()})});
+}
+
+/* ---------- ingredients ---------- */
+function viewIng(){
+ return '<div class="card"><h2>Ingredient list'+ihelp('The heart of the pricing. Change one ingredient price and every product and decoration that uses it updates automatically.')+'</h2>'+
+ '<p class="hint">Change an ingredient price once and every product that uses it re-prices itself. Saving is automatic.</p>'+
+ '<table><tr><th>Ingredient'+ihelp('This name appears in product recipes and in the decoration ingredient picker. Renaming it applies everywhere.')+'</th>'+
+ '<th>Unit'+ihelp('The basis for the quantities you write in a recipe. If you price flour per kg, write kg in the recipe too \u2014 0.35 means 350 g.')+'</th>'+
+ '<th>Unit price ('+S.settings.currency+')'+ihelp('What you pay for one full unit of this ingredient. Update it whenever you buy at a new price and every product re-prices itself.')+'</th>'+
+ '<th>Used in'+ihelp('How many products use this ingredient. Before deleting one, this number tells you how many recipes are affected.')+'</th><th></th></tr>'+
+ S.ingredients.map(function(g){
+  var used=S.products.filter(function(p){return p.recipe.some(function(r){return r.i===g.id})}).length;
+  return '<tr><td><input type="text" data-gf="'+g.id+':name" value="'+esc(g.name)+'"></td>'+
+   '<td style="min-width:150px">'+dd('U~'+g.id,g.unit,(function(){
+     var us=(S.settings.units||[]).slice();if(g.unit&&us.indexOf(g.unit)<0)us.push(g.unit);
+     return us.map(function(u){return {v:u,label:esc(u),def:S.settings.defUnit===u}})})(),'not set')+'</td>'+
+   '<td><input type="text" inputmode="numeric" class="moneyin" style="max-width:130px" data-gf="'+g.id+':price" value="'+grp(g.price)+'"></td>'+
+   '<td class="muted">'+num(used)+' Product</td>'+
+   '<td><button class="btn danger mini" data-gd="'+g.id+'">×</button></td></tr>'}).join('')+
+ '</table><div class="row" style="margin-top:12px"><button class="btn ghost mini" id="addG">+ New ingredient</button></div></div>'+
+ '<div class="card"><h2>Units'+ihelp('The options in the unit dropdown. ★ marks the unit a new ingredient starts with.')+'</h2><p class="hint">These fill the unit dropdown. You can add a new unit, remove one you never use, and star one so new ingredients start with it.</p>'+
+ '<div class="row" style="gap:8px">'+(S.settings.units||[]).map(function(u,ix){
+   var df=u===S.settings.defUnit;
+   return '<span class="chip '+(df?'baking':'new')+'">'+esc(u)+(df?' ★ default':'')+
+    (df?'':' <button class="btn ghost mini" style="padding:0 6px" data-ustar="'+ix+'" title="Make default">★</button>')+
+    ' <button class="btn danger mini" style="padding:0 6px" data-udel="'+ix+'" title="Delete">×</button></span>'}).join('')+'</div>'+
+ '<div class="row" style="margin-top:12px"><input type="text" id="newUnit" placeholder="New unit, e.g. tray" style="max-width:220px">'+
+ '<button class="btn ghost mini" id="addUnit">+ Add unit</button></div></div>'
+}
+function bindIng(){
+ V.querySelectorAll('[data-gf]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.gf.split(':'),g=S.ingredients.find(function(y){return y.id===a[0]});
+  g[a[1]]=a[1]==='price'?unnum(x.value):x.value;touch()})});
+ var a=document.getElementById('addG');
+ if(a)a.addEventListener('click',function(){S.ingredients.push({id:uid(),name:'New ingredient',unit:S.settings.defUnit||'',price:0});touch();render()});
+ var nu=document.getElementById('addUnit');
+ if(nu)nu.addEventListener('click',function(){
+  var el=document.getElementById('newUnit'),v=(el.value||'').trim();
+  if(!v)return toast('Type a unit name');
+  if((S.settings.units||[]).indexOf(v)>-1)return toast('That unit already exists');
+  S.settings.units.push(v);touch();render()});
+ V.querySelectorAll('[data-ustar]').forEach(function(x){x.addEventListener('click',function(){
+  S.settings.defUnit=S.settings.units[+x.dataset.ustar];touch();render()})});
+ V.querySelectorAll('[data-udel]').forEach(function(x){x.addEventListener('click',function(){
+  var u=S.settings.units[+x.dataset.udel];
+  var n=S.ingredients.filter(function(g){return g.unit===u}).length;
+  if(n&&!confirm('This unit is used by '+n+' ingredient(s). Delete it anyway?'))return;
+  S.settings.units.splice(+x.dataset.udel,1);
+  if(S.settings.defUnit===u)S.settings.defUnit='';
+  touch();render()})});
+ V.querySelectorAll('[data-gd]').forEach(function(x){x.addEventListener('click',async function(){
+  S.ingredients=S.ingredients.filter(function(y){return y.id!==x.dataset.gd});
+  S.products.forEach(function(p){p.recipe=p.recipe.filter(function(r){return r.i!==x.dataset.gd})});
+  touch();render()})});
+}
+
+/* ---------- settings ---------- */
+function faq(title,inner,open){return '<details class="faq"'+(open?' open':'')+'><summary>'+title+'</summary><div class="inner">'+inner+'</div></details>'}
+function viewHelp(){
+ return '<div class="card"><h2>How this panel works</h2>'+
+ '<p class="hint">Next to most headings there is a small <span class="kbd">i</span> button \u2014 hover it for a short explanation of that piece. This page is the longer version.</p>'+
+
+ faq('Get started in three minutes',
+  '<p>If this is your first time, work through it in this order:</p><ol>'+
+  '<li><b>Ingredients</b> \u2014 enter what you actually pay for each item. Every price in the panel is built on these.</li>'+
+  '<li><b>Pricing</b> \u2014 set your hourly rate, overhead percentage and profit margin.</li>'+
+  '<li><b>Products</b> \u2014 give each product its recipe and its sizes. The price works itself out.</li>'+
+  '<li><b>New order</b> \u2014 from here on, taking an order is a few clicks.</li></ol>'+
+  '<p>Sample products, ingredients and orders are already filled in so you can look around. Edit them rather than starting from an empty sheet.</p>',true)+
+
+ faq('Saving, undo and backups',
+  '<p><b>You never need to press save.</b> Every change is written to your browser automatically. The button at the bottom of the screen shows the state: \u201cSaving\u2026\u201d or \u201cSaved \u2713\u201d. Press it if you want to force a write right now.</p>'+
+  '<p><span class="kbd">\u21b6 Undo</span> goes back up to 40 steps \u2014 a deleted order, a price change, a cleared form are all reversible.</p>'+
+  '<p><b>Important:</b> the data lives in this browser on this device. If browser storage is cleared, it is gone. Once a month, download a backup file from the <b>Settings</b> tab and keep it somewhere safe.</p>')+
+
+ faq('Taking an order',
+  '<p>The form has three steps and you can click straight onto any of them:</p><ol>'+
+  '<li><b>Customer &amp; time</b> \u2014 name, phone, delivery date and time.</li>'+
+  '<li><b>Items</b> \u2014 pick product, size and quantity, add decoration if needed, then \u201cAdd to order\u201d. Each line lands in the box below and can be edited or removed.</li>'+
+  '<li><b>Payment</b> \u2014 discount, deposit and notes, then \u201cSave order\u201d.</li></ol>'+
+  '<p><span class="kbd">\u21ba Start over</span> clears the form at any point, and Undo brings it back.</p>')+
+
+ faq('How decoration is priced',
+  '<p>Decoration is priced separately from the product itself and stays attached to that line. Two ways to do it:</p>'+
+  '<p><b>From the ingredient list</b> \u2014 take materials out of your stock list and enter the quantities. The advantage: when material prices rise, decoration prices follow automatically.</p>'+
+  '<p><b>Manual entry</b> \u2014 type the name, the material cost, even the final price. If you fill in \u201cfixed final price\u201d, no calculation is done at all.</p>'+
+  '<p><b>The difficulty multiplier</b> only affects labour, not materials \u2014 an hour of sugar flowers is not worth the same as an hour of plain piping.</p>')+
+
+ faq('The pricing formula',
+  '<p>Every product price is built like this:</p>'+
+  '<p><b>materials + labour + packaging + overhead + profit \u2192 rounded up</b></p>'+
+  '<p><b>Overhead</b> covers the costs that do not sit inside any single product: oven electricity and gas, wear on tools, waste, trips to buy supplies. For a home kitchen, 10\u201315% is typical.</p>'+
+  '<p><b>Rounding</b> pushes the price up to the next multiple you choose \u2014 with a step of 5, a price of 41.30 becomes 45.</p>'+
+  '<p><b>Size effect on labour</b>: a 2 kg cake takes twice the materials but usually not twice the time. At 0.5 only half of the increase carries into labour; at 0 labour stays flat.</p>'+
+  '<p>The checkbox next to each box in the Pricing tab decides whether that part applies. Switch one off and it disappears from both the formula and the order form.</p>')+
+
+ faq('Customers and follow-up',
+  '<p>In the Orders tab, the <b>Customers</b> button groups orders by phone number into one record: number of orders, total spend, outstanding balance and the date of the last order. From three orders up, a \u201cregular\u201d tag appears.</p>'+
+  '<p>From there you can view that person\u2019s orders, start a new one for them (name and phone are filled in), or call and message them.</p>'+
+  '<p>The filters, the sorting and the three figures above the list all describe the current view only, not the whole database.</p>')+
+
+ faq('What the stars do',
+  '<p>A star anywhere means \u201cmake this the default\u201d. Click it and \u2606 fills in; next time that choice is already selected. Click again to clear it.</p>'+
+  '<p>It works on: tabs (which tab opens first), product, size, decoration ingredient and difficulty multiplier, order filters and sorting, deposit mode, and ingredient units.</p>'+
+  '<p>Size is remembered per product \u2014 for example birthday cake at \u201c2 kg\u201d and cupcakes at \u201cBox of 12\u201d.</p>')+
+
+ faq('Dates and time',
+  '<p>Blue dots on a calendar day mean there is an order due that day. Click any day to pull its orders up underneath.</p>'+
+  '<p>In the Settings tab you can switch the time display between 12 and 24 hour, and set which time zone \u201ctoday\u201d and \u201ctomorrow\u201d are measured against.</p>')+
+
+ faq('Common problems',
+  '<p><b>A product price looks wrong</b> \u2014 check its ingredient prices first, then look at the coloured bar under that product to see which part is making it heavy.</p>'+
+  '<p><b>I deleted an ingredient that was used in a product</b> \u2014 it is removed from that recipe too and the price drops. Undo brings it back.</p>'+
+  '<p><b>I deleted an order by mistake</b> \u2014 press Undo straight away.</p>'+
+  '<p><b>I want this on another device</b> \u2014 download the backup file, open this page there and restore it. Note that two devices do not sync automatically.</p>')+
+
+ faq('About this demo',
+  '<p>This is a working demo panel, not a hosted service. Everything runs inside this single page: no account, no server, no data leaving your browser.</p>'+
+  '<p>It ships with sample products, ingredients and orders so you can try every screen right away. Use <b>Reset demo data</b> in the Settings tab to put the samples back at any time.</p>')+
+ '</div>'
+}
+function bindHelp(){}
+function viewSet(){
+ var s=S.settings;
+ var t=today(),tk=serial(t);
+ var month=S.orders.filter(function(o){return o.day.slice(0,7)===dKey(t).slice(0,7)});
+ var rev=month.reduce(function(a,o){return a+o.total-o.discount},0);
+ var sw=function(k,label){return '<label class="sw'+(s[k]?'':' off')+'"><input type="checkbox" data-sw="'+k+'"'+(s[k]?' checked':'')+'>'+label+'</label>'};
+ var fld=function(k,title,inner){var on=s[k]!==false;
+  return '<div class="fld'+(on?'':' offbox')+'"><div class="fldhead"><span>'+title+'</span>'+
+   '<label class="mini-sw'+(on?'':' off')+'"><input type="checkbox" data-sw="'+k+'"'+(on?' checked':'')+'>apply</label></div>'+
+   inner(on)+'</div>'};
+ var demo=S.products[0]?calc(S.products[0],S.products[0].sizes[0]):null;
+ var demoD=calcDec({mats:[],hours:1,mult:1});
+ return '<div class="card"><h2>Product pricing'+ihelp('The formula behind every product price. The checkbox on each box decides whether that part applies; unchecking it removes it from the formula and from the order form.')+'</h2>'+
+ '<p class="hint">Materials'+(s.prodUseLabor!==false?'  + labour':'')+'  + packaging'+(s.prodUseOver?'  + overhead':'')+(s.prodUseProfit?'  + profit':'')+' → rounded up. The checkbox on each box decides whether that part applies.</p>'+
+ '<div class="grid2">'+
+  fld('prodUseLabor','Baking rate per hour ('+s.currency+')'+ihelp('What an hour of your baking time is worth. Multiplied by each product\u2019s work time, which is recorded in minutes. Uncheck it to leave labour out of product prices entirely.'),function(on){
+    return '<input type="text" inputmode="numeric" class="moneyin" data-st="laborRate" value="'+grp(s.laborRate)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodLaborBySize','Size effect on labour'+ihelp('How much of a product getting bigger carries into labour. 0 keeps labour identical at every size, 1 scales it fully with the size factor, 0.5 passes on half. Materials always scale fully.'),function(on){
+    return '<input type="number" step="0.1" min="0" data-st="prodLaborScale" value="'+(s.prodLaborScale==null?1:s.prodLaborScale)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodUseOver','Product overhead %'+ihelp('A percentage added on top of materials plus labour to cover hidden costs: oven electricity and gas, wear on tins and mixers, cleaning, waste. For a home kitchen, usually 10 to 15.'),function(on){
+    return '<input type="number" data-st="prodOver" value="'+(s.prodOver||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodUseProfit','Product profit %'+ihelp('Your margin, applied last on top of the full cost: materials + labour + packaging + overhead. This is the part that is actually your income.'),function(on){
+    return '<input type="number" data-st="prodProfit" value="'+(s.prodProfit||0)+'"'+(on?'':' disabled')+'>'})+
+ '</div>'+
+ '<p class="hint" style="margin-top:10px">The size effect decides how much of a product getting bigger carries into labour: '+
+ '<b>0</b> keeps labour flat across all sizes, <b>1</b> scales it fully with the size factor, <b>0.5</b> passes on half. '+
+ 'Currently set to <b>'+(s.prodLaborBySize===false?'off (0)':num(s.prodLaborScale==null?1:s.prodLaborScale))+'</b>.'+
+ (S.products[0]&&S.products[0].sizes[1]?'<br>Example: '+esc(S.products[0].sizes[0].label)+' → '+money(calc(S.products[0],S.products[0].sizes[0]).final)+
+   ' • '+esc(S.products[0].sizes[1].label)+' → '+money(calc(S.products[0],S.products[0].sizes[1]).final)+
+   (S.products[0].sizes[2]?' • '+esc(S.products[0].sizes[2].label)+' → '+money(calc(S.products[0],S.products[0].sizes[2]).final):''):'')+'</p>'+
+ (demo?'<div class="divider"></div><div class="muted">Example — '+esc(S.products[0].name)+' '+esc(S.products[0].sizes[0].label)+': <b class="price">'+money(demo.final)+' '+s.currency+'</b></div>'+sliceBar(demo):'')+
+ '</div>'+
+
+ '<div class="card"><h2>Decoration pricing'+ihelp('Decoration has its own formula: decoration materials + (hours \u00d7 decoration rate \u00d7 difficulty) + overhead + profit. Packaging plays no part in it.')+'</h2>'+
+ '<p class="hint">Decoration materials'+(s.decUseLabor!==false?' + (hours \u00d7 rate \u00d7 difficulty)':'')+(s.decUseOver?'  + overhead':'')+(s.decUseProfit?'  + profit':'')+' → rounded up.</p>'+
+ '<div class="grid3">'+
+  fld('decUseLabor','Decoration rate per hour ('+s.currency+')'+ihelp('What an hour of decorating is worth, separately from baking. Multiplied by the decoration hours on an order and by the difficulty multiplier. Most people set it a little above the baking rate.'),function(on){
+    return '<input type="text" inputmode="numeric" class="moneyin" data-st="decorRate" value="'+grp(s.decorRate||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('decUseOver','Decoration overhead %'+ihelp('Overhead for decoration only. Since decorating usually burns less power and oven time, you can set it lower than product overhead or switch it off entirely.'),function(on){
+    return '<input type="number" data-st="decOver" value="'+(s.decOver||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('decUseProfit','Decoration profit %'+ihelp('Your margin on decoration, independent of the product margin. Because decorating is specialist work, many people set a higher percentage here.'),function(on){
+    return '<input type="number" data-st="decProfit" value="'+(s.decProfit||0)+'"'+(on?'':' disabled')+'>'})+
+ '</div>'+
+ '<div class="divider"></div><div class="muted">Example — one hour of simple decorating with no materials: <b class="price">'+money(demoD.final)+' '+s.currency+'</b></div>'+
+ '</div>'+
+
+ '<div class="card"><h2>General'+ihelp('Currency label and the step that final prices round up to.')+'</h2><div class="grid2">'+
+  '<div><label class="f">Round prices up to'+ihelp('The calculated price is pushed up to the next multiple of this number. With a step of 5, a price of 41.30 becomes 45.')+'</label><input type="text" inputmode="numeric" class="moneyin" data-st="round" value="'+grp(s.round)+'"></div>'+
+  '<div><label class="f">Currency label'+ihelp('The text shown next to every amount \u2014 USD, EUR, \u00a3, whatever fits. It is display only and has no effect on the maths.')+'</label><input type="text" data-stx="currency" value="'+esc(s.currency)+'"></div>'+
+ '</div></div>'+
+ '<div class="card"><h2>Deposit presets'+ihelp('The preset deposit buttons in the order form. A percentage preset recalculates as items change; a fixed amount does not.')+'</h2><p class="hint">These become the preset buttons in the order form. The star marks the default for every new order. “Custom amount” is always available.</p>'+
+ '<table><tr><th>Label'+ihelp('The text written on the deposit button in the order form \u2014 for example \u201c30% upfront\u201d.')+'</th>'+
+ '<th>Type'+ihelp('“Percentage of total” recalculates as the order items change. “Fixed amount” always stays the same number.')+'</th>'+
+ '<th>Value'+ihelp('For a percentage type, write the number without the percent sign \u2014 for example 30. For a fixed amount, enter the amount in '+s.currency+'.')+'</th>'+
+ '<th>Default'+ihelp('A filled star means every new order opens with this deposit preset.')+'</th><th></th></tr>'+
+ (s.depModes||[]).map(function(m){
+  return '<tr><td><input type="text" style="max-width:150px" data-dm="'+m.id+'|label" value="'+esc(m.label)+'"></td>'+
+  '<td><select data-dm="'+m.id+'|type" style="max-width:150px">'+
+   '<option value="pct"'+(m.type!=='amt'?' selected':'')+'>Percentage of total</option>'+
+   '<option value="amt"'+(m.type==='amt'?' selected':'')+'>Fixed amount</option></select></td>'+
+  '<td><input type="'+(m.type==='amt'?'text" inputmode="numeric" class="moneyin':'number')+'" style="max-width:120px" data-dm="'+m.id+'|value" value="'+(m.type==='amt'?grp(m.value):(+m.value||0))+'"></td>'+
+  '<td><button class="starbtn'+(s.defDepMode===m.id?'':' off')+'" data-depstar="'+m.id+'">'+(s.defDepMode===m.id?'★':'☆')+'</button></td>'+
+  '<td><button class="btn danger mini" data-depdel="'+m.id+'">×</button></td></tr>'}).join('')+
+ '</table><div class="row" style="margin-top:12px"><button class="btn ghost mini" id="addDep">+ New preset</button>'+
+ '<button class="starbtn sp'+(s.defDepMode?' off':'')+'" data-depstar="">'+(s.defDepMode?'☆':'★')+'</button>'+
+ '<span class="muted">default: custom amount</span></div></div>'+
+
+ '<div class="card"><h2>This month at a glance'+ihelp('A summary of the current calendar month, based on order delivery dates.')+'</h2><div class="grid3">'+
+  '<div class="item"><div class="muted">Orders in '+MONTHS[t.m-1]+ihelp('How many orders are due for delivery in this calendar month, delivered or not.')+'</div><b class="price">'+num(month.length)+'</b></div>'+
+  '<div class="item"><div class="muted">Value this month'+ihelp('The total of this month’s orders after discounts. Deposits are not deducted — this is the month’s gross sales.')+'</div><b class="price">'+money(rev)+'</b></div>'+
+  '<div class="item"><div class="muted">Upcoming deliveries'+ihelp('Orders dated today or later that are not yet delivered — the work you have queued up.')+'</div><b class="price">'+num(S.orders.filter(function(o){var j=keyToD(o.day);return serial(j)>=tk&&o.status!=='done'}).length)+'</b></div>'+
+ '</div></div>'
+}
+function viewBackup(){
+ var s=S.settings;
+ return '<div class="card"><h2>Display'+ihelp('Presentation only. These have no effect on calculations or data.')+'</h2><div class="grid2">'+
+ '<div><label class="f">Delivery time format'+ihelp('Changes the display only. Times are always stored the same way, so older orders still show correctly.')+'</label><select data-stb="time24">'+
+   '<option value="1"'+(s.time24!==false?' selected':'')+'>24-hour — 17:30</option>'+
+   '<option value="0"'+(s.time24===false?' selected':'')+'>12-hour — 5:30 PM</option>'+
+  '</select></div>'+
+  '<div><label class="f">Time zone'+ihelp('If this device’s clock differs from where you work, pick the right place here so “today” and “tomorrow” are counted correctly.')+'</label><select data-stx="tz">'+
+   '<option value=""'+(!s.tz?' selected':'')+'>This device</option>'+
+   '<option value="America/New_York"'+(s.tz==='America/New_York'?' selected':'')+'>New York</option>'+
+   '<option value="Europe/London"'+(s.tz==='Europe/London'?' selected':'')+'>London</option>'+
+   '<option value="Europe/Berlin"'+(s.tz==='Europe/Berlin'?' selected':'')+'>Berlin</option>'+
+   '<option value="Asia/Dubai"'+(s.tz==='Asia/Dubai'?' selected':'')+'>Dubai</option>'+
+  '</select>'+
+  '<div class="muted" style="margin-top:6px">Now: '+WD[weekday(today())]+' '+dateLong(today())+' • '+
+   num((nowParts().hh<10?'0':'')+nowParts().hh+':'+(nowParts().mm<10?'0':'')+nowParts().mm)+'</div></div>'+
+ '</div></div>'+
+ '<div class="card"><h2>Storage status'+ihelp('Everything saves automatically. This shows where and when it was written.')+'</h2>'+
+ '<p class="hint">Active storage: <b>'+(BACKENDS.length?esc(BACKENDS.join(' + ')):'none — this session only')+'</b>'+
+ (S.savedAt?' • last saved: '+num(new Date(S.savedAt).toLocaleString()):' • nothing saved yet')+'</p>'+
+ (LASTERR?'<p class="hint" style="color:#C0392B">Last save report: '+esc(LASTERR)+'</p>':'')+
+ '<div class="row"><span class="muted">'+num(S.orders.length)+' orders \u2022 '+num(S.products.length)+' products \u2022 '+num(S.ingredients.length)+' ingredients</span>'+
+ ihelp('Saving is automatic, so you never have to press this. Use it when you want to be sure it was written this second.')+
+ '<button class="btn sp" id="saveNow">Save now</button></div></div>'+
+ '<div class="card"><h2>Backup file'+ihelp('One file containing everything. If browser storage is cleared or you move to another device, this file brings it all back.')+'</h2><p class="hint">Download a backup once a month and keep it somewhere safe.</p>'+
+ '<div class="row">'+ihelp('Creates a JSON file holding every order, product, ingredient and setting. Email it to yourself or store it in the cloud.')+
+ '<button class="btn ghost" id="exp">Download backup</button>'+
+ ihelp('Restores a backup file. Warning: the current data is replaced by the file’s contents. If that was a mistake, press Undo.')+
+ '<label class="btn ghost" style="display:inline-block">Restore from file<input type="file" id="imp" accept="application/json" style="display:none"></label></div></div>'+
+ '<div class="card"><h2>Clean-up'+ihelp('Deletes orders only. Products, ingredients and settings are left untouched.')+'</h2><p class="hint">Orders are removed; products, ingredients and pricing settings stay as they are. If it was a mistake, the Undo button at the bottom brings them back.</p>'+
+ '<div class="row"><button class="btn danger" id="wipe">Delete all orders</button>'+
+ '<button class="btn ghost" id="resetDemo">Reset demo data</button></div></div>'
+}
+function bindSet(){
+ V.querySelectorAll('[data-st]').forEach(function(x){x.addEventListener('change',function(){S.settings[x.dataset.st]=unnum(x.value);touch();render()})});
+ V.querySelectorAll('[data-stb]').forEach(function(x){x.addEventListener('change',function(){
+  S.settings[x.dataset.stb]=x.value==='1';touch();render()})});
+ V.querySelectorAll('[data-dm]').forEach(function(x){x.addEventListener('change',function(){
+  var a=x.dataset.dm.split('|'),m=depMode(a[0]);if(!m)return;
+  if(a[1]==='label')m.label=x.value;
+  else if(a[1]==='type'){m.type=x.value;touch();render();return}
+  else m.value=unnum(x.value);
+  touch()})});
+ V.querySelectorAll('[data-depstar]').forEach(function(x){x.addEventListener('click',function(){
+  var id=x.dataset.depstar;
+  S.settings.defDepMode=(S.settings.defDepMode===id)?'':id;
+  touch();render()})});
+ V.querySelectorAll('[data-depdel]').forEach(function(x){x.addEventListener('click',function(){
+  S.settings.depModes=(S.settings.depModes||[]).filter(function(m){return m.id!==x.dataset.depdel});
+  if(S.settings.defDepMode===x.dataset.depdel)S.settings.defDepMode='';
+  touch();render()})});
+ var ad=document.getElementById('addDep');
+ if(ad)ad.addEventListener('click',function(){
+  S.settings.depModes.push({id:uid(),label:'New preset',type:'pct',value:20});touch();render()});
+ V.querySelectorAll('[data-stx]').forEach(function(x){x.addEventListener('change',function(){
+  var k=x.dataset.stx;S.settings[k]=(k==='currency'?(x.value||'USD'):x.value);touch();render()})});
+ V.querySelectorAll('[data-sw]').forEach(function(x){x.addEventListener('change',function(){S.settings[x.dataset.sw]=x.checked;touch();render()})});
+}
+function bindBackup(){
+ V.querySelectorAll('[data-stb]').forEach(function(x){x.addEventListener('change',function(){
+  S.settings[x.dataset.stb]=x.value==='1';touch();render()})});
+ var sn=document.getElementById('saveNow');
+ if(sn)sn.addEventListener('click',async function(){await save();render()});
+ var e=document.getElementById('exp');
+ if(e)e.addEventListener('click',function(){
+  var blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='bakery-panel-backup-'+dKey(today())+'.json';a.click();toast('Backup file created')});
+ var i=document.getElementById('imp');
+ if(i)i.addEventListener('change',function(){
+  var f=i.files[0];if(!f)return;var r=new FileReader();
+  r.onload=async function(){try{var d=JSON.parse(r.result);
+    S={ingredients:d.ingredients||[],products:d.products||[],orders:d.orders||[],settings:Object.assign(seed().settings,d.settings||{})};
+    pushHist();await save(true);render();toast('Data restored')}catch(err){toast('That file is not valid')}};
+  r.readAsText(f)});
+ var rd=document.getElementById('resetDemo');
+ if(rd)rd.addEventListener('click',async function(){
+  if(!confirm('Replace everything with the original sample products, ingredients and orders?'))return;
+  S=seed();if(localStorage.getItem("demo-off:bakery.html")!=="1"){S.orders=demoOrders();}touch();render();toast('Demo data restored')});
+ var w=document.getElementById('wipe');
+ if(w)w.addEventListener('click',async function(){if(!confirm('Delete every order? Products and ingredients stay.'))return;
+  S.orders=[];touch();render()});
+}
+
+/* ---------- boot ---------- */
+function render(){paint();
+ var rb=document.getElementById('resetBar');
+ if(rb)rb.style.display=(UI.tab==='new')?'inline-flex':'none';
+ if(UI.tab==='new')bindNew();else if(UI.tab==='orders')bindOrders();
+ else if(UI.tab==='cal')bindCal();else if(UI.tab==='products')bindProducts();
+else if(UI.tab==='ing')bindIng();else if(UI.tab==='bk')bindBackup();else if(UI.tab==='help')bindHelp();else bindSet()}
+V.addEventListener('click',function(e){
+ var t=e.target.closest?e.target.closest('[data-ddtoggle]'):null;
+ if(t){e.stopPropagation();UI.ddOpen=(UI.ddOpen===t.dataset.ddtoggle)?null:t.dataset.ddtoggle;render();return}
+ var pk=e.target.closest?e.target.closest('[data-ddpick]'):null;
+ if(pk){e.stopPropagation();var a=pk.dataset.ddpick.split('|');UI.ddOpen=null;ddPick(a[0],a.slice(1).join('|'));return}
+ var st=e.target.closest?e.target.closest('[data-ddstar]'):null;
+ if(st){e.stopPropagation();var b=st.dataset.ddstar.split('|');ddStar(b[0],b.slice(1).join('|'));return}
+});
+document.addEventListener('click',function(){if(UI.ddOpen){UI.ddOpen=null;render()}});
+V.addEventListener('input',function(e){
+ var t=e.target;
+ if(t&&t.classList&&t.classList.contains('moneyin'))reformatMoney(t)});
+document.getElementById('resetBar').addEventListener('click',function(){
+ if(UI.tab!=='new')return;
+ if(!confirm('Clear the whole order form and start over? Undo can bring it back.'))return;
+ resetDraft();act();render();window.scrollTo({top:0,behavior:'smooth'});toast('Form cleared')});
+document.getElementById('undoBtn').addEventListener('click',function(){undo()});
+document.getElementById('saveAll').addEventListener('click',async function(){
+ var a=document.activeElement;
+ if(a&&a.blur&&a!==document.body)a.blur();
+ await save();
+ render()
+});
+(async function(){
+ await load();
+(function(){})();
+ UI.selP=S.settings.defProduct||'';UI.selS=(S.settings.defSize||{})[UI.selP]||null;
+ UI.decDraft.mult=+S.settings.defMult||1;UI.decIng=S.settings.defDecIng||'';
+ UI.tab=S.settings.defTab||'new';
+ UI.filter=S.settings.defFilter||'up';
+ UI.sort=S.settings.defSort||'dateAsc';
+ UI.custSort=S.settings.defCustSort||'total';
+ applyDefaults();paintTabs();
+ BASE=snapshot();
+ render();
+ paintSaveBtn();paintUndo();
+ paintToday();
+ setInterval(paintToday,20000);
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)paintToday()});
+ window.addEventListener('focus',paintToday)
+})();
+</script>
+</body>
+</html>

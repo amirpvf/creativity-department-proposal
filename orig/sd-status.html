@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SD+ Crypto — Project Status, Day 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-mute: #8a8a8a;
+    --rule: #e4ddd0;
+    --accent: #c8501a;
+    --accent-soft: #f5e6db;
+    --green: #2d6a4f;
+    --green-soft: #d8eadc;
+    --red: #9d2235;
+    --red-soft: #f3dcdf;
+    --gold: #b08738;
+    --gold-soft: #f0e6cf;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter Tight', sans-serif; font-size: 14px; line-height: 1.5; }
+  body {
+    padding: 48px 56px;
+    max-width: 1140px;
+    margin: 0 auto;
+    background:
+      radial-gradient(ellipse at 10% 0%, rgba(200, 80, 26, 0.04) 0%, transparent 40%),
+      radial-gradient(ellipse at 90% 100%, rgba(45, 106, 79, 0.04) 0%, transparent 40%),
+      var(--bg);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  h1 .accent { color: var(--accent); font-style: italic; font-weight: 500; }
+  .header-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-align: right;
+    line-height: 1.7;
+  }
+  .header-meta strong { color: var(--ink); font-weight: 700; }
+
+  /* TL;DR */
+  .tldr {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 22px 28px;
+    margin-bottom: 32px;
+    border-radius: 2px;
+  }
+  .tldr-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .tldr-body {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+  .tldr-body em { font-style: italic; color: #f5e6db; }
+
+  /* Section heading */
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2::before {
+    content: attr(data-num);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  /* Main grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+
+  /* Stat tiles */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    border-radius: 2px;
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .stat-num .unit { font-size: 14px; color: var(--ink-mute); font-weight: 400; }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  /* Timeline */
+  .timeline {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 18px 20px;
+    border-radius: 2px;
+  }
+  .phase {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--rule);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .phase-dot.done { background: var(--green); box-shadow: 0 0 0 1px var(--green); }
+  .phase-dot.current {
+    background: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 5px var(--accent-soft); }
+    50% { box-shadow: 0 0 0 1px var(--accent), 0 0 0 7px var(--accent-soft); }
+  }
+  .phase-name { font-size: 13px; }
+  .phase-name .id { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); margin-right: 8px; }
+  .phase-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .phase-status.done { color: var(--green); }
+  .phase-status.current { color: var(--accent); font-weight: 700; }
+
+  /* Architecture */
+  .arch {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 18px 20px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+  }
+  .arch-stage {
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .arch-arrow { color: var(--accent); }
+  .arch-label { color: var(--ink); }
+  .arch-label .tag { color: var(--ink-mute); }
+
+  /* The recantation block */
+  .recant {
+    background: linear-gradient(135deg, var(--accent-soft) 0%, var(--paper) 100%);
+    border: 1px solid var(--accent);
+    border-left: 4px solid var(--accent);
+    padding: 22px 26px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .recant-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .recant-headline {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 10px;
+    letter-spacing: -0.015em;
+  }
+  .recant-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .recant-body em { font-style: italic; color: var(--ink); font-weight: 500; }
+
+  /* Findings table */
+  .findings {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .findings-row {
+    display: grid;
+    grid-template-columns: 1fr 90px 90px 100px;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+    align-items: center;
+  }
+  .findings-row:last-child { border-bottom: none; }
+  .findings-row.header {
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding: 8px 20px;
+  }
+  .finding-name { font-size: 13px; font-weight: 500; }
+  .finding-name .sub { font-size: 11px; color: var(--ink-mute); display: block; margin-top: 2px; font-weight: 400; }
+  .finding-val {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+    letter-spacing: -0.02em;
+  }
+  .val-4h { color: var(--green); }
+  .val-24h { color: var(--ink); }
+  .verdict {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    background: var(--red-soft);
+    color: var(--red);
+    border-radius: 2px;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  /* Resolution chart */
+  .resolution-chart {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 20px 24px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+  }
+  .res-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .res-bars { display: grid; gap: 10px; }
+  .res-bar {
+    display: grid;
+    grid-template-columns: 80px 1fr 56px;
+    gap: 12px;
+    align-items: center;
+  }
+  .res-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .res-bar-track {
+    height: 18px;
+    background: var(--bg);
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+  }
+  .res-bar-fill {
+    height: 100%;
+    background: var(--ink);
+    transition: width 0.6s;
+  }
+  .res-bar-fill.canon { background: var(--accent); }
+  .res-bar-val {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: right;
+    letter-spacing: -0.02em;
+  }
+
+  /* Two col below */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .next-steps, .principles {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 20px 24px;
+    border-radius: 2px;
+  }
+  .step-item, .principle-item {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: start;
+  }
+  .step-item:last-child, .principle-item:last-child { margin-bottom: 0; }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    padding-top: 2px;
+  }
+  .step-content { font-size: 13px; line-height: 1.5; }
+  .step-content strong { font-weight: 600; }
+  .step-content em { font-style: italic; color: var(--ink-soft); }
+  .check {
+    color: var(--green);
+    font-size: 14px;
+    padding-top: 1px;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+
+  @media print {
+    body { padding: 24px; }
+    .tldr { background: var(--ink) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="eyebrow">Project Status / Day 2 of 14</div>
+    <h1>SD+ <span class="accent">Crypto</span></h1>
+  </div>
+  <div class="header-meta">
+    <div><strong>Phase</strong> &nbsp; 1.5 complete</div>
+    <div><strong>Tests</strong> &nbsp; 177 / 177 passing</div>
+    <div><strong>ADRs</strong> &nbsp; 10 logged</div>
+    <div><strong>Updated</strong> &nbsp; 2026-05-12</div>
+  </div>
+</header>
+
+<div class="tldr">
+  <div class="tldr-label">— STATE OF PLAY</div>
+  <div class="tldr-body">
+    A research-grade data pipeline, rule-based zone detector, and 2-year analytical dataset — built in two days. The headline findings looked strong at first. A sensitivity check we ran on ourselves <em>retired them all.</em> What remains is the right shape of question to bring to the trader partner.
+  </div>
+</div>
+
+<div class="main-grid">
+
+  <div>
+    <h2 data-num="01">What's built</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">2,773</div>
+        <div class="stat-label">Enriched zones</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2<span class="unit"> yr</span></div>
+        <div class="stat-label">Data span</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Pair × exchange</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">177</div>
+        <div class="stat-label">Passing tests</div>
+      </div>
+    </div>
+
+    <div class="arch">
+      <div class="arch-stage"><span class="arch-arrow">▸</span><span class="arch-label">Data pipeline <span class="tag">— Binance + Bybit perps · M5 / H1 / D1 · funding · zero-gap</span></span></div>
+      <div class="arch-stage"><span class="arch-arrow">▸</span><span class="arch-label">Zone detector <span class="tag">— rule-based, lenient mode for proposal-and-verify</span></span></div>
+      <div class="arch-stage"><span class="arch-arrow">▸</span><span class="arch-label">Enrichment <span class="tag">— context features + forward outcomes, mixed-tf resolution</span></span></div>
+      <div class="arch-stage"><span class="arch-arrow">▸</span><span class="arch-label">Triage layer <span class="tag">— atomic session save, schema migration, append-only labels</span></span></div>
+      <div class="arch-stage"><span class="arch-arrow">▸</span><span class="arch-label">Analysis module <span class="tag">— Wilson CIs, regime bucketing, sensitivity diagnostics</span></span></div>
+    </div>
+  </div>
+
+  <div>
+    <h2 data-num="02">Where we are</h2>
+    <div class="timeline">
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-name"><span class="id">1.1</span>Data pipeline</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-name"><span class="id">1.2</span>Zone detector</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-name"><span class="id">1.3</span>Context features</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-name"><span class="id">1.4</span>Outcome labeling</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <div class="phase-name"><span class="id">1.5</span>Edge analysis</div>
+        <div class="phase-status done">Done</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot current"></div>
+        <div class="phase-name"><span class="id">2.0</span>Trader triage session</div>
+        <div class="phase-status current">Next</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <div class="phase-name"><span class="id">2.1</span>Strategy specification</div>
+        <div class="phase-status">Gated</div>
+      </div>
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <div class="phase-name"><span class="id">3.0</span>ML verifier on labels</div>
+        <div class="phase-status">Gated</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- The recantation -->
+<div class="recant">
+  <div class="recant-eyebrow">— THE FINDING THAT KILLED OUR FINDING</div>
+  <div class="recant-headline">At 4 hours, DBD setups won 68%. At 24 hours, 49%.</div>
+  <div class="recant-body">
+    Three "headline signals" emerged from the 4-hour forward window: a 32-point win-rate gap between continuation-supply (DBD) and reversal-demand (DBR) setups, a textbook-defying RSI-neutral supply edge, and an Asian-session bias. A single sensitivity check at 24 hours <em>collapsed all three</em> — gaps narrowed to single digits, confidence intervals fell within noise. The 24h confidence intervals are <em>tighter</em> than at 4h, so this isn't a power problem. The 4h "edges" are horizon-specific selection effects.<br><br>
+    This is the most important Phase 1.5 result: <em>running one sensitivity check on ourselves prevented a strategy built on artifacts.</em>
+  </div>
+</div>
+
+<!-- Findings table -->
+<div class="findings">
+  <div class="findings-row header">
+    <div>Candidate signal</div>
+    <div style="text-align:right">4h win rate</div>
+    <div style="text-align:right">24h win rate</div>
+    <div style="text-align:center">Status</div>
+  </div>
+  <div class="findings-row">
+    <div class="finding-name">DBD vs DBR<span class="sub">Continuation supply vs reversal demand</span></div>
+    <div class="finding-val val-4h">68% vs 36%</div>
+    <div class="finding-val val-24h">49% vs 47%</div>
+    <div class="verdict">Retired</div>
+  </div>
+  <div class="findings-row">
+    <div class="finding-name">Supply at RSI [43,49)<span class="sub">Near-neutral RSI for supply zones</span></div>
+    <div class="finding-val val-4h">77%</div>
+    <div class="finding-val val-24h">52%</div>
+    <div class="verdict">Retired</div>
+  </div>
+  <div class="findings-row">
+    <div class="finding-name">00–05 UTC bucket<span class="sub">Asian-session window</span></div>
+    <div class="finding-val val-4h">67%</div>
+    <div class="finding-val val-24h">50%</div>
+    <div class="verdict">Retired</div>
+  </div>
+</div>
+
+<!-- Resolution rate chart -->
+<div class="resolution-chart">
+  <div class="res-title">Resolution rate by forward window — the structural issue under the findings</div>
+  <div class="res-bars">
+    <div class="res-bar">
+      <div class="res-bar-label">240 min · 4h</div>
+      <div class="res-bar-track"><div class="res-bar-fill canon" style="width: 21.7%"></div></div>
+      <div class="res-bar-val">21.7%</div>
+    </div>
+    <div class="res-bar">
+      <div class="res-bar-label">480 min · 8h</div>
+      <div class="res-bar-track"><div class="res-bar-fill" style="width: 41.7%"></div></div>
+      <div class="res-bar-val">41.7%</div>
+    </div>
+    <div class="res-bar">
+      <div class="res-bar-label">1440 min · 24h</div>
+      <div class="res-bar-track"><div class="res-bar-fill" style="width: 71.9%"></div></div>
+      <div class="res-bar-val">71.9%</div>
+    </div>
+  </div>
+  <div style="font-size: 12px; color: var(--ink-soft); margin-top: 14px; line-height: 1.5;">
+    Only 22% of zones reach a win or loss within 4h. At 24h, 72% do. The 4h findings were sampling the fastest-resolving 22% — a non-random subset. The trader's intended holding horizon resolves which view matters.
+  </div>
+</div>
+
+<!-- Bottom two columns -->
+<div class="two-col">
+
+  <div class="principles">
+    <h2 data-num="03" style="border-bottom: 1px solid var(--rule); margin-bottom: 14px;">How we got here fast</h2>
+    <div class="principle-item">
+      <span class="check">✓</span>
+      <div class="step-content"><strong>Rule-based foundation first.</strong> No ML until we have a labeled dataset and proof of signal.</div>
+    </div>
+    <div class="principle-item">
+      <span class="check">✓</span>
+      <div class="step-content"><strong>Proposal-and-verify architecture.</strong> Detector surfaces candidates; trader labels them. Trader's bias becomes data, not code.</div>
+    </div>
+    <div class="principle-item">
+      <span class="check">✓</span>
+      <div class="step-content"><strong>Causality enforced structurally.</strong> Three temporal regions — PAST, FORMATION, FORWARD — make look-ahead leakage impossible by design.</div>
+    </div>
+    <div class="principle-item">
+      <span class="check">✓</span>
+      <div class="step-content"><strong>Every decision documented.</strong> 10 ADRs. Reversing course is cheap because reasoning is in git.</div>
+    </div>
+    <div class="principle-item">
+      <span class="check">✓</span>
+      <div class="step-content"><strong>Findings framed as candidates, not edges.</strong> Validation gated on trader input and out-of-sample testing.</div>
+    </div>
+  </div>
+
+  <div class="next-steps">
+    <h2 data-num="04" style="border-bottom: 1px solid var(--rule); margin-bottom: 14px;">What's next</h2>
+    <div class="step-item">
+      <span class="step-num">01</span>
+      <div class="step-content"><strong>Triage session with trader.</strong> Bring both the 4h-resolver subset and the 24h subset. <em>Ask which horizon he actually holds for.</em></div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">02</span>
+      <div class="step-content"><strong>Capture execution mechanics.</strong> Entry, stop, target — currently placeholders. His rules trigger a v3 → v4 recomputation of outcome_class across the whole dataset.</div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">03</span>
+      <div class="step-content"><strong>Re-run analysis with his parameters.</strong> Either the signals re-emerge, or they don't. Both outcomes are informative.</div>
+    </div>
+    <div class="step-item">
+      <span class="step-num">04</span>
+      <div class="step-content"><strong>If real edge appears →</strong> ML verifier on labeled zones. Out-of-sample validation. Then — and only then — live execution.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div>SD+ Crypto · Day 2 of 14 · 177 passing tests · 10 ADRs · 2,773 zones</div>
+  <div>Phase 1.5 complete · awaiting trader input</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>زیستن کوچینگ | برنامه‌ی ۳۰ روزه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#EDF0F2; --surface:#F8F9FA; --ink:#1C2530; --muted:#5B6672; --line:#D3D9DE; --soft:#E3E8EC;
+  --w1:#5F8A6E; --w2:#4F6A9E; --w3:#8B5578; --w4:#A9812F;
+  --r-lg:22px; --r-sm:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12171D; --surface:#1A2129; --ink:#E6EAEE; --muted:#9AA5B1; --line:#2C3640; --soft:#232C36;
+    --w1:#7FAF8E; --w2:#7C97CC; --w3:#B77EA3; --w4:#D0A650;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12171D; --surface:#1A2129; --ink:#E6EAEE; --muted:#9AA5B1; --line:#2C3640; --soft:#232C36;
+  --w1:#7FAF8E; --w2:#7C97CC; --w3:#B77EA3; --w4:#D0A650;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 18px 60px}
+
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:8px 0 18px;border-bottom:1px solid var(--line)}
+.brand h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.3px;line-height:1.3}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
+nav.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:999px}
+nav.tabs button{border:0;background:transparent;padding:7px 16px;border-radius:999px;cursor:pointer;font-size:14px;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:700}
+.sync{font-size:12px;color:var(--muted);width:100%;text-align:left;margin-top:-6px}
+
+.view{display:none;padding-top:24px}
+.view.on{display:block}
+
+/* daily layout */
+.daily{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:32px;align-items:start}
+.ringcol{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px)}
+.ring{width:100%;max-width:380px;display:block;margin:0 auto}
+.ring .bead{cursor:pointer;transition:r .2s}
+.ring text{font-family:"Vazirmatn",Tahoma,sans-serif}
+.weeks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.wk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:var(--r-sm);padding:6px 10px;cursor:pointer;text-align:right}
+.wk i{width:10px;height:10px;border-radius:50%;flex:none}
+.wk.cur{color:var(--ink);border-color:var(--ink)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px 28px}
+.dayhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.dayhead .t{font-size:13px;color:var(--muted)}
+.dayhead h2{margin:0;font-size:24px;font-weight:800;line-height:1.4}
+.navbtns{display:flex;gap:6px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--ink)}
+.btn.solid{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.chip{font-size:12px;padding:2px 10px;border-radius:999px;border:1px solid currentColor;color:var(--wc)}
+.chip b{font-weight:700}
+
+.part{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+.part:first-of-type{border-top:0}
+.part h3{margin:0;font-size:13px;font-weight:500;color:var(--wc)}
+.part .prompt{margin:2px 0 10px;font-size:19px;font-weight:700;line-height:1.6}
+textarea{width:100%;min-height:92px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;line-height:1.8}
+textarea:focus{border-color:var(--wc);outline:none}
+textarea.small{min-height:60px}
+.done{display:flex;align-items:center;gap:10px;margin:0 0 10px;cursor:pointer;user-select:none;font-size:15px}
+.done input{appearance:none;width:26px;height:26px;border:2px solid var(--wc);border-radius:8px;display:grid;place-items:center;cursor:pointer;margin:0;flex:none}
+.done input:checked{background:var(--wc)}
+.done input:checked::after{content:"";width:7px;height:12px;border:solid var(--surface);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+
+.quality{margin:0 0 12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--bg)}
+.quality.off{opacity:.55}
+.quality .hint{margin:2px 0 0}
+.meter{display:grid;grid-template-columns:120px 1fr 28px;align-items:center;gap:10px;font-size:14px}
+.meter output{font-weight:700;text-align:center}
+input[type=range]{appearance:none;width:100%;height:4px;background:var(--line);border-radius:4px;direction:rtl}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--wc);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--wc);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--wc);border:3px solid var(--surface);cursor:pointer}
+.meter.unset output{color:var(--muted);font-weight:400}
+.hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+
+.symbol{margin-top:24px;border:1px solid var(--wc);border-radius:var(--r-lg);padding:18px 20px}
+.symbol h3{margin:0 0 4px;font-size:17px;font-weight:800;color:var(--wc)}
+.glyphs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.glyphs button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--bg);cursor:pointer;display:grid;place-items:center;padding:0}
+.glyphs button[aria-pressed="true"]{border:2px solid var(--ink)}
+.glyphs svg{width:28px;height:28px}
+.swatches{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.swatches button{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.swatches button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.symrow{display:grid;grid-template-columns:1fr;gap:8px}
+input.word{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 12px;width:100%}
+
+/* journey */
+.jgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.jgrid .full{grid-column:1/-1}
+.jcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px}
+.jcard h2{margin:0 0 4px;font-size:19px;font-weight:800}
+.jcard .sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+.stats{display:flex;gap:28px;flex-wrap:wrap}
+.stat b{display:block;font-size:34px;font-weight:800;line-height:1.2}
+.stat span{font-size:13px;color:var(--muted)}
+.chartbox{overflow-x:auto}
+.chart{width:100%;min-width:520px;height:auto;display:block}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--muted);flex-wrap:wrap;margin-top:6px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-left:6px}
+.syms{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.sym{text-align:center;border:1px dashed var(--line);border-radius:var(--r-sm);padding:14px 8px}
+.sym svg{width:52px;height:52px}
+.sym .w{font-weight:700;margin-top:4px}
+.sym .n{font-size:12px;color:var(--muted)}
+.sym p{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.7}
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:170px 1fr 30px;gap:10px;align-items:center;font-size:13px}
+.bar .track{height:8px;background:var(--soft);border-radius:8px;overflow:hidden}
+.bar .fill{height:100%;background:var(--ink);border-radius:8px}
+.exportrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.msg{font-size:13px;color:var(--muted)}
+#fallback{display:none;margin-top:12px}
+
+/* guide */
+.guide{max-width:760px}
+.guide section{margin-bottom:28px}
+.guide h2{font-size:20px;font-weight:800;margin:0 0 6px}
+.guide p,.guide li{color:var(--ink)}
+.guide dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.guide dt{font-weight:700}
+.guide dd{margin:0;color:var(--muted)}
+.setrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=date]{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:6px 10px}
+
+@media (max-width:860px){
+  .daily{grid-template-columns:1fr;gap:18px}
+  .ringcol{position:static}
+  .ring{max-width:300px}
+  .jgrid{grid-template-columns:1fr}
+  .syms{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:520px){
+  .card{padding:20px 16px}
+  .brand h1{font-size:25px}
+  .meter{grid-template-columns:96px 1fr 24px}
+  .bar{grid-template-columns:120px 1fr 26px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>زیستن کوچینگ</h1>
+      <p>برنامه‌ی ۳۰ روزه‌ی کوچینگ شخصی، روز به روز</p>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-v="daily" aria-selected="true">تمرین روزانه</button>
+      <button role="tab" data-v="journey" aria-selected="false">نقشه‌ی سفر</button>
+      <button role="tab" data-v="guide" aria-selected="false">راهنما</button>
+    </nav>
+    <div class="sync" id="sync">ذخیره در همین مرورگر</div>
+  </header>
+
+  <main>
+    <section class="view on" id="v-daily">
+      <div class="daily">
+        <div class="ringcol">
+          <svg class="ring" id="ring" viewBox="0 0 400 400" role="img" aria-label="حلقه‌ی ۳۰ روز"></svg>
+          <div class="weeks" id="weeks"></div>
+        </div>
+        <article class="card" id="day"></article>
+      </div>
+    </section>
+
+    <section class="view" id="v-journey"></section>
+
+    <section class="view" id="v-guide">
+      <div class="guide">
+        <section>
+          <h2>هر روز سه بخش دارد</h2>
+          <p>صبح به سؤال تأملی پاسخ بده و در ژورنال بنویس. در طول روز تمرین را زندگی کن و بعد از انجام، تیکش را بزن. بعد کیفیت انجامش را از ۱ تا ۵ امتیاز بده. شب بازنگری را بنویس تا چرخه‌ی یادگیری کامل شود.</p>
+        </section>
+        <section>
+          <h2>چهار هفته، چهار نماد</h2>
+          <p>روزهای ۷، ۱۴، ۲۱ و ۳۰ جای انتخاب نماد هفته است: یک شکل، یک رنگ، یک کلمه و چند خط درباره‌ی اینکه چرا. نماد درست و غلط ندارد و از تجربه‌ی خودت می‌آید. نمادها روی حلقه و در نقشه‌ی سفر کنار هم می‌نشینند.</p>
+        </section>
+        <section>
+          <h2>امتیاز کیفیت انجام</h2>
+          <p>تیک انجام فقط می‌گوید تمرین انجام شد. امتیاز کیفیت می‌گوید چطور انجام شد. بعد از زدن تیک، از ۱ تا ۵ امتیاز بده:</p>
+          <dl id="qlist"></dl>
+          <p class="hint">روند امتیازها و میانگین هر هفته و هر صلاحیت در نقشه‌ی سفر نمایش داده می‌شود.</p>
+        </section>
+        <section>
+          <h2>اتصال به صلاحیت‌های کلیدی کوچینگ</h2>
+          <p>هر روز به یک یا چند صلاحیت از هشت صلاحیت کلیدی وصل شده است تا تمرین شخصی مستقیم به کیفیت جلسه‌هایت برگردد.</p>
+          <dl id="complist"></dl>
+        </section>
+        <section>
+          <h2>تنظیمات</h2>
+          <div class="setrow">
+            <label for="startdate">تاریخ شروع برنامه</label>
+            <input type="date" id="startdate">
+            <span class="msg" id="startfa"></span>
+          </div>
+          <p class="hint">روز «امروز» روی حلقه از همین تاریخ حساب می‌شود.</p>
+          <div class="setrow" style="margin-top:14px">
+            <button class="btn" id="reset">پاک کردن همه‌ی یادداشت‌ها</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+const FA = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+const COMPS = {
+  1:["نمایش رفتار اخلاقی","درک و به‌کارگیری اخلاق و استانداردهای کوچینگ"],
+  2:["تجسم ذهنیت کوچینگ","ذهنیتی باز، کنجکاو، انعطاف‌پذیر و مراجع‌محور"],
+  3:["ایجاد و حفظ توافق‌ها","روشن کردن هدف، معیار موفقیت و مسیر گفت‌وگو"],
+  4:["پرورش اعتماد و امنیت","ساختن فضایی امن که در آن بیان آزادانه ممکن است"],
+  5:["حفظ حضور","حضور کامل، متمرکز و آرام در لحظه"],
+  6:["گوش دادن فعال","شنیدن گفته‌ها و ناگفته‌ها در بافت زندگی مراجع"],
+  7:["برانگیختن آگاهی","ایجاد بینش با سؤال، سکوت، استعاره و بازتاب"],
+  8:["تسهیل رشد مراجع","تبدیل بینش به عمل و پیشرفت پایدار"]
+};
+
+const WEEKS = [
+  {n:1, t:"حضور در خود", from:1, to:7, c:"--w1"},
+  {n:2, t:"کوچ برای خود", from:8, to:14, c:"--w2"},
+  {n:3, t:"بازسازی هویت کوچ", from:15, to:21, c:"--w3"},
+  {n:4, t:"تجسم کوچ اصیل", from:22, to:30, c:"--w4"}
+];
+
+const DAYS = [
+ null,
+ {q:"در کدام لحظه‌ها خودم نبودم؟ چرا؟", p:"در یک مکالمه‌ی ساده فقط گوش بده (تمرین سکوت).", n:"از گوش دادن بدون عجله چه حسی داشتم؟", c:[5,6]},
+ {q:"مهم‌ترین حسی که امروز در من تکرار شد چه بود؟", p:"هنگام قدم زدن، فقط حس بدنت را رصد کن.", n:"امروز چند بار از بدنم غافل شدم؟", c:[5,2]},
+ {q:"آیا می‌توانم بی‌واکنش حضور داشته باشم؟", p:"در یک مکالمه هیچ قضاوت ذهنی نکن؛ فقط باش.", n:"به کدام افکارم نیاز دارم الان گوش بدهم، ولی نادیده‌شان می‌گیرم یا سرکوبشان می‌کنم؟", c:[5,4]},
+ {q:"سکوت برای من امن است یا ناآرام؟", p:"در یک گفت‌وگو، پیش از هر پاسخ سه نفس مکث کن.", n:"مکث چه چیزی به گفت‌وگو اضافه کرد؟", c:[5,6]},
+ {q:"بدنم امروز چه پیامی داشت که نشنیدم؟", p:"سه بار در طول روز یک اسکن بدنی یک‌دقیقه‌ای انجام بده.", n:"کدام حس بدنی بیش از همه تکرار شد؟", c:[5,2]},
+ {q:"امروز کجا خواستم اوضاع را کنترل کنم؟", p:"در یک موقعیت، مسیر گفت‌وگو را به طرف مقابل بسپار.", n:"وقتی کنترل را رها کردم چه شد؟", c:[2,5]},
+ {q:"«بودن» برای من یعنی چه؟", p:"تجربه و برداشت‌های این هفته را بنویس یا طراحی کن.", n:"این هفته چه چیزی در من آرام‌تر شد؟", c:[2,5]},
+ {q:"امروز کدام تصمیمم از روی ترس بود، نه وضوح؟", p:"از خودت یک سؤال کوچینگی بپرس و ۵ دقیقه مکث کن، بدون پاسخ فوری.", n:"چه چیزهایی درون من هنوز بی‌پاسخ مانده‌اند؟", c:[7,2]},
+ {q:"امروز چه ترسی را حس کردم؟", p:"به صحبت‌های ترس درونت گوش بده و با آن گفت‌وگو کن.", n:"چه نیازهایی شنیده شد؟", c:[6,7]},
+ {q:"کدام احساس را سرکوب کردم؟", p:"به شک‌هایت با گشودگی اجازه‌ی شنیده شدن بده.", n:"آیا پذیرش آسان بود؟", c:[4,2]},
+ {q:"اگر امروز اشتباه کنم…؟", p:"یک احساس سرکوب‌شده را ابراز کن.", n:"واکنش اطرافیان چه بود؟", c:[4,2]},
+ {q:"چه بخشی از وجودم نیاز به توجه داشت؟", p:"مکث کن، بدون قضاوت.", n:"چه چیزی آشکار شد؟", c:[5,7]},
+ {q:"چه دغدغه‌ای دارم؟", p:"یک جلسه‌ی سلف‌کوچینگ روی همین دغدغه: اول روشن کن از این جلسه چه می‌خواهی.", n:"چه آگاهی‌ای کسب کردم؟", c:[3,7]},
+ {q:"از آگاهی دیروز، چه چیزی آماده‌ی عمل است؟", p:"سلف‌کوچینگ را ادامه بده و یک قدم مشخص و زمان‌دار برای خودت تعیین کن.", n:"چه اقدامی می‌خواهم انجام دهم؟", c:[8,3]},
+ {q:"من کی هستم وقتی قرار نیست تأثیرگذار باشم؟", p:"یک گفت‌وگوی عمیق با دوست یا یکی از اعضای خانواده، بدون نیت راه‌حل دادن یا تغییر.", n:"چه دریافت‌هایی داشتم؟", c:[2,6]},
+ {q:"میل به نجات دادن دیگران از کجای من می‌آید؟", p:"همراهی بدون نجات دادن: فقط گوش بده، بدون پیشنهاد راهکار.", n:"وقتی راهکار ندادم، طرف مقابل خودش به کجا رسید؟", c:[2,6]},
+ {q:"اگر مدرک و شغلم را کنار بگذارم، چه کسی هستم؟", p:"خودت را با ارزش‌هایت تعریف کن؛ مثلاً «من کنجکاوم» به جای مدرک و شغل.", n:"کدام ارزش بیشتر از همه «من» بود؟", c:[2,1]},
+ {q:"کوچ درونم از کجا متولد شد؟", p:"داستان «کوچ درونت» را بنویس: این بخش از وجودت را چگونه پرورش دادی؟", n:"در این داستان چه چیز تازه‌ای دیدم؟", c:[2,7]},
+ {q:"چرا در جمع می‌خواهم اثر بگذارم؟", p:"در یک جمع فقط «باش»، بدون تلاش برای کنترل موقعیت یا اثرگذاری.", n:"وقتی تلاش نکردم، چه چیزی از من دیده شد؟", c:[5,2]},
+ {q:"کدام بخش از وجودم امروز به توجه نیاز دارد؟", p:"با آن بخش از وجودت یک گفت‌وگوی درونی داشته باش.", n:"آن بخش از من چه می‌خواست؟", c:[7,4]},
+ {q:"ارزش‌هایم امروز در کدام رفتارم دیده شد و در کدام نه؟", p:"ارزش‌های شخصی‌ات را مرور کن و با رفتارهای روزانه تطبیق بده.", n:"بزرگ‌ترین فاصله‌ی ارزش و رفتارم کجا بود؟", c:[1,2]},
+ {q:"اگر امروز هیچ ترسی نداشتم، چه جور کوچی بودم؟", p:"امروز نقش کوچ ایده‌آل خودت را زندگی کن.", n:"کدام بخش از خودم را امروز بیشتر دیدم؟", c:[2,5]},
+ {q:"ده دقیقه سکوت با من چه می‌کند؟", p:"ده دقیقه سکوت و هیچ کاری نکردن.", n:"در سکوت چه چیزی بلندتر شد؟", c:[5,2]},
+ {q:"اگر به خودِ کوچ‌نشده‌ی گذشته‌ام نامه بنویسم، اولین جمله‌اش چیست؟", p:"نامه‌ای به خودِ کوچ‌نشده‌ی گذشته‌ات بنویس.", n:"نوشتن این نامه چه حسی داشت؟", c:[2,7]},
+ {q:"وقتی از کوچینگ حرف می‌زنم، صدایم چه می‌گوید؟", p:"صدای خودت را هنگام صحبت از کوچینگ ضبط کن و یک بار با دقت گوش بده.", n:"در لحن و کلماتم چه شنیدم؟", c:[2,6]},
+ {q:"کجا هنوز منتظر اجازه‌ام تا کوچ باشم؟", p:"ده دقیقه سکوت، سپس یک جمله بنویس: «من کوچی هستم که…»", n:"این جمله چقدر به من نزدیک بود؟", c:[2,1]},
+ {q:"کدام کیفیتِ کوچ ایده‌آلم امروز در من زنده بود؟", p:"در یک گفت‌وگو فقط سؤال باز بپرس و به سکوت طرف مقابل احترام بگذار.", n:"کدام سؤالم فضا باز کرد؟", c:[7,6]},
+ {q:"مراجع بعدی‌ام از «بودنِ» من چه دریافت می‌کند؟", p:"پیش از یک جلسه یا گفت‌وگوی مهم، دو دقیقه حضور بگیر: نفس، بدن، نیت.", n:"حضور پیش از گفت‌وگو چه تفاوتی ساخت؟", c:[5,4]},
+ {q:"از روز اول تا امروز چه چیزی در من جابه‌جا شده؟", p:"یادداشت‌های هفته‌ی اول را دوباره بخوان.", n:"کدام بینش ماندنی است؟", c:[2,8]},
+ {q:"تجربه‌ی من از این ۳۰ روز چه بود؟", p:"ده دقیقه سکوت، سپس «امضای کوچینگ» خودت را در یک جمله بنویس.", n:"از فردا کدام تمرین را با خودم نگه می‌دارم؟", c:[2,8]}
+];
+const SYMBOL_DAY = {7:1, 14:2, 21:3, 30:4};
+
+const GLYPHS = {
+  seed:'<ellipse cx="16" cy="18" rx="7" ry="10"/><path d="M16 8 C16 4 19 3 21 3"/>',
+  wave:'<path d="M3 17 C7 11 11 11 16 17 S25 23 29 17"/>',
+  drop:'<path d="M16 4 C10 13 8 17 8 20 a8 8 0 0 0 16 0 C24 17 22 13 16 4 Z"/>',
+  flame:'<path d="M16 3 C20 10 25 13 25 20 a9 9 0 0 1 -18 0 C7 15 11 13 12 8 C14 12 16 12 16 3 Z"/>',
+  mountain:'<path d="M3 26 L12 10 L17 18 L21 13 L29 26 Z"/>',
+  spiral:'<path d="M16 16 m0 0 a2 2 0 1 1 2 2 a4 4 0 1 1 -4 -4 a6 6 0 1 1 6 6 a8 8 0 1 1 -8 -8"/>',
+  circle:'<circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="3"/>',
+  tree:'<path d="M16 29 V14 M16 18 L10 12 M16 15 L22 9 M16 22 L21 18"/><circle cx="16" cy="9" r="5"/>'
+};
+const GLYPH_NAMES = {seed:"دانه",wave:"موج",drop:"قطره",flame:"شعله",mountain:"کوه",spiral:"مارپیچ",circle:"دایره",tree:"درخت"};
+const SWATCHES = ["#5F8A6E","#4F6A9E","#8B5578","#A9812F","#B5533C","#3E7F87","#6B6B6B"];
+const glyphSvg = (g, color, sw=2) => `<svg viewBox="0 0 32 32" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GLYPHS[g]||""}</svg>`;
+
+/* ---------- state ---------- */
+const KEY = "coach30:v1";
+const todayISO = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const blank = () => ({v:1, start:todayISO(), days:{}, symbols:{}, updatedAt:0});
+let S = blank();
+try { const raw = localStorage.getItem(KEY); if (raw) { const p = JSON.parse(raw); if (p && p.days) S = Object.assign(blank(), p); } } catch(e){}
+
+const D = n => (S.days[n] = S.days[n] || {q:"",p:"",done:false,n:"",qs:0});
+const hasAny = n => { const d=S.days[n]; return d && (d.q||d.p||d.n||d.done||d.qs); };
+const score = n => { const d=S.days[n]; return d && d.done && d.qs ? d.qs : 0; };
+const weekOf = n => WEEKS.find(w => n>=w.from && n<=w.to);
+const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function dayIndexToday(){
+  const s = new Date(S.start+"T00:00:00"), t = new Date(todayISO()+"T00:00:00");
+  const diff = Math.round((t - s)/86400000) + 1;
+  return Math.min(30, Math.max(1, diff));
+}
+function dateOf(n){
+  const d = new Date(S.start+"T00:00:00"); d.setDate(d.getDate()+n-1);
+  try { return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{weekday:"long",day:"numeric",month:"long"}).format(d); } catch(e){ return ""; }
+}
+
+let cur = dayIndexToday();
+
+/* ---------- persistence ---------- */
+let db=null, dref=null, remoteTimer=null, writing=Promise.resolve();
+const syncEl = document.getElementById("sync");
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function touch(){
+  S.updatedAt = Date.now();
+  saveLocal();
+  if (dref){
+    clearTimeout(remoteTimer);
+    remoteTimer = setTimeout(pushRemote, 1500);
+  }
+}
+function pushRemote(){
+  const body = JSON.parse(JSON.stringify(S));
+  writing = writing.then(() => dref.set(body)).then(
+    () => { syncEl.textContent = "ذخیره در حساب شما"; },
+    () => { syncEl.textContent = "ذخیره در همین مرورگر (همگام‌سازی حساب موقتاً در دسترس نیست)"; }
+  );
+}
+async function initRemote(){
+  try{
+    if (!window.claude || !window.claude.use) return;
+    const [dbns, userns] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!dbns || !userns) return;
+    const uid = await userns.id();
+    if (!uid) return;
+    db = dbns;
+    const ref = db.doc("data/users/" + uid + "/journal");
+    const snap = await ref.get();
+    dref = ref;
+    if (snap.exists){
+      const r = snap.data();
+      if (r && r.days && (r.updatedAt||0) > (S.updatedAt||0)){
+        S = Object.assign(blank(), JSON.parse(JSON.stringify(r)));
+        saveLocal(); cur = dayIndexToday(); renderAll();
+      } else if ((S.updatedAt||0) > (r.updatedAt||0)) { pushRemote(); }
+    } else if (S.updatedAt) { pushRemote(); }
+    syncEl.textContent = "ذخیره در حساب شما";
+  }catch(e){ dref=null; }
+}
+
+/* ---------- ring ---------- */
+const ring = document.getElementById("ring");
+function beadPos(n){
+  // 30 beads + gaps of 1.6 between weeks
+  let units = 0;
+  for (let i=1;i<n;i++){ units += 1; if (i===7||i===14||i===21) units += 1.6; }
+  const total = 30 + 1.6*3 + 1.6;
+  const a = (units/total)*Math.PI*2 - Math.PI/2 + 0.08;
+  return {x:200+150*Math.cos(a), y:200+150*Math.sin(a), a};
+}
+function renderRing(){
+  const today = dayIndexToday();
+  let s = `<circle cx="200" cy="200" r="150" fill="none" stroke="${cssVar("--line")}" stroke-width="1"/>`;
+  // week symbols outside
+  WEEKS.forEach(w=>{
+    const sym = S.symbols[w.n];
+    const mid = beadPos(Math.round((w.from+w.to)/2));
+    const x = 200+186*Math.cos(mid.a), y = 200+186*Math.sin(mid.a);
+    if (sym && sym.g){
+      s += `<g transform="translate(${x-14},${y-14})"><svg width="28" height="28" viewBox="0 0 32 32" fill="none" stroke="${sym.col||cssVar(w.c)}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${GLYPHS[sym.g]}</svg></g>`;
+    } else {
+      s += `<circle cx="${x}" cy="${y}" r="3" fill="${cssVar(w.c)}" opacity=".45"/>`;
+    }
+  });
+  for (let n=1;n<=30;n++){
+    const {x,y} = beadPos(n); const col = cssVar(weekOf(n).c); const d=S.days[n];
+    const done = d && d.done, some = hasAny(n);
+    if (n===cur) s += `<circle cx="${x}" cy="${y}" r="17" fill="none" stroke="${cssVar("--ink")}" stroke-width="1.5"/>`;
+    if (n===today && n!==cur) s += `<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="${col}" stroke-width="1" stroke-dasharray="2 3"/>`;
+    s += `<circle class="bead" data-d="${n}" cx="${x}" cy="${y}" r="${n===cur?11:9}" fill="${done?col:cssVar("--surface")}" stroke="${col}" stroke-width="${some&&!done?3.5:1.6}" tabindex="0" role="button" aria-label="روز ${FA(n)}"><title>روز ${FA(n)}</title></circle>`;
+  }
+  const w = weekOf(cur);
+  const doneCount = Object.values(S.days).filter(d=>d.done).length;
+  s += `<text x="200" y="165" text-anchor="middle" font-size="14" fill="${cssVar("--muted")}">روز</text>`;
+  s += `<text x="200" y="222" text-anchor="middle" font-size="68" font-weight="800" fill="${cssVar("--ink")}">${FA(cur)}</text>`;
+  s += `<text x="200" y="252" text-anchor="middle" font-size="13" fill="${cssVar(w.c)}" font-weight="700">هفته‌ی ${FA(w.n)}: ${w.t}</text>`;
+  s += `<text x="200" y="274" text-anchor="middle" font-size="12" fill="${cssVar("--muted")}">${FA(doneCount)} از ۳۰ تمرین انجام شد</text>`;
+  ring.innerHTML = s;
+}
+ring.addEventListener("click", e=>{ const d=e.target.closest(".bead"); if(d){ go(+d.dataset.d); }});
+ring.addEventListener("keydown", e=>{ const d=e.target.closest(".bead"); if(d && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); go(+d.dataset.d); }});
+
+function renderWeeks(){
+  document.getElementById("weeks").innerHTML = WEEKS.map(w=>
+    `<button class="wk ${weekOf(cur).n===w.n?"cur":""}" data-go="${w.from}"><i style="background:var(${w.c})"></i>${FA(w.n)}. ${w.t}</button>`).join("");
+}
+document.getElementById("weeks").addEventListener("click", e=>{ const b=e.target.closest("[data-go]"); if(b) go(+b.dataset.go); });
+
+/* ---------- day card ---------- */
+const dayEl = document.getElementById("day");
+const esc = s => String(s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const QLEVELS = {1:"۱: سرسری و با حواس‌پرتی انجام شد.",2:"۲: انجام شد، اما بیشتر در ذهنم بودم تا در تجربه.",3:"۳: نسبتاً کامل؛ چند لحظه‌ی واقعی حضور داشتم.",4:"۴: با توجه و صداقت انجام شد و چیزی از آن یاد گرفتم.",5:"۵: کاملاً حاضر و عمیق؛ تمرین را واقعاً زندگی کردم."};
+
+function renderDay(){
+  const n=cur, day=DAYS[n], d=D(n), w=weekOf(n);
+  dayEl.style.setProperty("--wc", `var(${w.c})`);
+  let h = `<div class="dayhead"><div><div class="t">${dateOf(n)}</div><h2>روز ${FA(n)}</h2></div>
+    <div class="navbtns"><button class="btn" data-nav="-1" ${n===1?"disabled":""}>روز قبل</button>
+    <button class="btn" data-nav="today">امروز</button>
+    <button class="btn" data-nav="1" ${n===30?"disabled":""}>روز بعد</button></div></div>
+    <div class="chips">${day.c.map(c=>`<span class="chip">صلاحیت ${FA(c)}: <b>${COMPS[c][0]}</b></span>`).join("")}</div>
+
+    <div class="part"><h3>سؤال تأملی برای ژورنال صبح</h3><p class="prompt">${day.q}</p>
+      <textarea data-f="q" placeholder="آزاد بنویس، بدون ویرایش…">${esc(d.q)}</textarea></div>
+
+    <div class="part"><h3>تمرین امروز</h3><p class="prompt">${day.p}</p>
+      <label class="done"><input type="checkbox" data-f="done" ${d.done?"checked":""}> انجامش دادم</label>
+      <div class="quality ${d.done?"":"off"}">
+        <div class="meter ${d.qs?"":"unset"}"><label for="qs">کیفیت انجام</label>
+          <input type="range" id="qs" min="1" max="5" step="1" value="${d.qs||3}" data-qs="1" ${d.done?"":"disabled"}><output>${d.qs?FA(d.qs):"–"}</output></div>
+        <p class="hint" id="qlabel">${d.done?(d.qs?QLEVELS[d.qs]:"بعد از انجام، صادقانه به کیفیتش امتیاز بده."):"اول تیک انجام را بزن، بعد کیفیتش را امتیاز بده."}</p>
+      </div>
+      <textarea class="small" data-f="p" placeholder="تجربه‌ی تمرین در چند خط…">${esc(d.p)}</textarea></div>
+
+    <div class="part"><h3>بازنگری شبانه</h3><p class="prompt">${day.n}</p>
+      <textarea data-f="n" placeholder="پیش از خواب…">${esc(d.n)}</textarea></div>`;
+
+  const wn = SYMBOL_DAY[n];
+  if (wn){
+    const sym = S.symbols[wn] || {};
+    const wk = WEEKS[wn-1];
+    const col = sym.col || cssVar(wk.c);
+    h += `<div class="symbol"><h3>نماد هفته‌ی ${FA(wn)}: ${wk.t}</h3>
+      <p class="hint" style="margin:0">اگر این هفته یک تصویر بود، چه بود؟ درست و غلط ندارد.</p>
+      <div class="glyphs">${Object.keys(GLYPHS).map(g=>`<button data-g="${g}" aria-pressed="${sym.g===g}" title="${GLYPH_NAMES[g]}" aria-label="${GLYPH_NAMES[g]}">${glyphSvg(g,col)}</button>`).join("")}</div>
+      <div class="swatches">${SWATCHES.map(c=>`<button data-col="${c}" aria-pressed="${sym.col===c}" style="background:${c}" aria-label="رنگ"></button>`).join("")}</div>
+      <div class="symrow"><input class="word" data-sf="word" maxlength="24" placeholder="یک کلمه برای این هفته" value="${esc(sym.word)}">
+      <textarea class="small" data-sf="why" placeholder="چرا این نماد؟">${esc(sym.why)}</textarea></div></div>`;
+  }
+  dayEl.innerHTML = h;
+}
+
+dayEl.addEventListener("input", e=>{
+  const t=e.target, d=D(cur);
+  if (t.dataset.f && t.dataset.f!=="done"){ d[t.dataset.f]=t.value; touch(); renderRingSoon(); }
+  else if (t.dataset.qs){ d.qs=+t.value; const row=t.closest(".meter"); row.classList.remove("unset"); row.querySelector("output").textContent=FA(t.value); document.getElementById("qlabel").textContent=QLEVELS[d.qs]; touch(); }
+  else if (t.dataset.sf){ const wn=SYMBOL_DAY[cur]; S.symbols[wn]=S.symbols[wn]||{}; S.symbols[wn][t.dataset.sf]=t.value; touch(); }
+});
+dayEl.addEventListener("change", e=>{
+  const t=e.target;
+  if (t.dataset.f==="done"){ D(cur).done=t.checked; touch(); renderRing(); renderDay(); const cb=dayEl.querySelector('[data-f="done"]'); cb&&cb.focus(); }
+});
+dayEl.addEventListener("click", e=>{
+  const nav=e.target.closest("[data-nav]");
+  if (nav){ const v=nav.dataset.nav; go(v==="today"?dayIndexToday():cur+(+v)); return; }
+  const g=e.target.closest("[data-g]"), c=e.target.closest("[data-col]");
+  if (g||c){
+    const wn=SYMBOL_DAY[cur]; S.symbols[wn]=S.symbols[wn]||{};
+    if (g) S.symbols[wn].g=g.dataset.g;
+    if (c) S.symbols[wn].col=c.dataset.col;
+    touch();
+    const word = dayEl.querySelector('[data-sf="word"]'), why=dayEl.querySelector('[data-sf="why"]');
+    renderDay(); renderRing();
+    if (c) { const b=dayEl.querySelector(`[data-col="${c.dataset.col}"]`); b&&b.focus(); }
+    if (g) { const b=dayEl.querySelector(`[data-g="${g.dataset.g}"]`); b&&b.focus(); }
+  }
+});
+let rt=null; function renderRingSoon(){ clearTimeout(rt); rt=setTimeout(renderRing,400); }
+
+function go(n){ cur=Math.min(30,Math.max(1,n)); renderRing(); renderWeeks(); renderDay(); }
+
+/* ---------- journey ---------- */
+const jEl = document.getElementById("v-journey");
+function renderJourney(){
+  const vals = Object.values(S.days);
+  const done = vals.filter(d=>d.done).length;
+  const words = vals.reduce((a,d)=>a+[d.q,d.p,d.n].join(" ").split(/\s+/).filter(Boolean).length,0);
+  const streak = (()=>{ let s=0; for(let n=dayIndexToday();n>=1;n--){ if(S.days[n]&&S.days[n].done) s++; else break; } return s; })();
+
+  // chart: quality per day
+  const W=600,H=220,L=36,R=12,T=14,B=30;
+  const step=(W-L-R)/30, bw=step*0.62;
+  const xs=n=> W-R-(n-0.5)*step; // RTL: day 1 on the right
+  const ys=v=> T+(5-v)*(H-T-B)/5;
+  let g="";
+  for(let v=1;v<=5;v++) g+=`<line x1="${L-6}" x2="${W-R}" y1="${ys(v)}" y2="${ys(v)}" stroke="${cssVar("--line")}" stroke-width="1"/><text x="${L-14}" y="${ys(v)+4}" font-size="11" fill="${cssVar("--muted")}" text-anchor="middle">${FA(v)}</text>`;
+  g+=`<line x1="${L-6}" x2="${W-R}" y1="${ys(0)}" y2="${ys(0)}" stroke="${cssVar("--muted")}" stroke-width="1"/>`;
+  [1,7,14,21,30].forEach(n=> g+=`<text x="${xs(n)}" y="${H-8}" font-size="11" fill="${cssVar("--muted")}" text-anchor="middle">${FA(n)}</text>`);
+  const scored=[];
+  for(let n=1;n<=30;n++){ const v=score(n); const col=cssVar(weekOf(n).c);
+    if(v){ scored.push(v); g+=`<rect x="${(xs(n)-bw/2).toFixed(1)}" y="${ys(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(ys(0)-ys(v)).toFixed(1)}" rx="3" fill="${col}"><title>روز ${FA(n)}: ${FA(v)}</title></rect>`; }
+    else if(S.days[n]&&S.days[n].done){ g+=`<rect x="${(xs(n)-bw/2).toFixed(1)}" y="${ys(0)-3}" width="${bw.toFixed(1)}" height="3" rx="1.5" fill="${col}" opacity=".5"/>`; }
+  }
+  const anyMetric = scored.length>0;
+  const avg = anyMetric ? (scored.reduce((a,b)=>a+b,0)/scored.length) : 0;
+  const weekAvg = WEEKS.map(w=>{ const a=[]; for(let n=w.from;n<=w.to;n++){ const v=score(n); if(v) a.push(v);} return a.length? a.reduce((x,y)=>x+y,0)/a.length : 0; });
+  const fa1 = x => FA(x.toFixed(1)).replace(".", "٫");
+
+  // competencies: days done and average quality
+  const cov={}, qsum={}, qn={}, totalC={};
+  for(let i=1;i<=8;i++){ cov[i]=0; qsum[i]=0; qn[i]=0; totalC[i]=0; }
+  for(let n=1;n<=30;n++){ DAYS[n].c.forEach(c=>{ totalC[c]++; if(S.days[n]&&S.days[n].done){ cov[c]++; const v=score(n); if(v){ qsum[c]+=v; qn[c]++; } } }); }
+
+  jEl.innerHTML = `<div class="jgrid">
+    <div class="jcard full"><div class="stats">
+      <div class="stat"><b>${FA(done)}</b><span>روز تمرین انجام‌شده از ۳۰</span></div>
+      <div class="stat"><b>${FA(streak)}</b><span>روز پیاپی تا امروز</span></div>
+      <div class="stat"><b>${anyMetric?fa1(avg):"–"}</b><span>میانگین کیفیت انجام از ۵</span></div>
+      <div class="stat"><b>${FA(words)}</b><span>کلمه در ژورنال</span></div>
+      <div class="stat"><b>${FA(Object.values(S.symbols).filter(s=>s&&s.g).length)}</b><span>نماد از ۴ نماد هفته</span></div>
+    </div></div>
+
+    <div class="jcard full"><h2>کیفیت انجام تمرین</h2><p class="sub">امتیاز هر روز، از روز ۱ (راست) تا روز ۳۰ (چپ)</p>
+      ${anyMetric?`<div class="chartbox"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="نمودار کیفیت انجام تمرین">${g}</svg></div>
+      <div class="legend">${WEEKS.map((w,i)=>`<span><i style="background:var(${w.c})"></i>هفته‌ی ${FA(w.n)}: ${weekAvg[i]?"میانگین "+fa1(weekAvg[i]):"بدون امتیاز"}</span>`).join("")}</div>`
+      :`<p class="msg">هنوز امتیازی ثبت نشده. بعد از زدن تیک انجام، به کیفیت تمرین امتیاز بده تا روندش این‌جا رسم شود.</p>`}
+    </div>
+
+    <div class="jcard full"><h2>چهار نماد</h2><p class="sub">امضای تصویری این ۳۰ روز</p>
+      <div class="syms">${WEEKS.map(w=>{ const s=S.symbols[w.n]||{};
+        return `<div class="sym">${s.g?glyphSvg(s.g,s.col||cssVar(w.c),1.8):`<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="none" stroke="${cssVar("--line")}" stroke-dasharray="3 3"/></svg>`}
+          <div class="w">${esc(s.word)||"—"}</div><div class="n">هفته‌ی ${FA(w.n)}: ${w.t}</div>${s.why?`<p>${esc(s.why)}</p>`:""}</div>`; }).join("")}</div>
+    </div>
+
+    <div class="jcard"><h2>صلاحیت‌هایی که تمرین شد</h2><p class="sub">طول نوار: میانگین کیفیت انجام؛ عدد کنار آن: روزهای انجام‌شده از کل روزهای آن صلاحیت</p>
+      <div class="bars">${Object.keys(COMPS).map(k=>{ const a=qn[k]?qsum[k]/qn[k]:0; return `<div class="bar"><span>${FA(k)}. ${COMPS[k][0]}</span><div class="track" title="${a?"میانگین "+fa1(a):"بدون امتیاز"}"><div class="fill" style="width:${a/5*100}%"></div></div><span>${FA(cov[k])}/${FA(totalC[k])}</span></div>`; }).join("")}</div>
+    </div>
+
+    <div class="jcard"><h2>گزارش برای ارائه</h2><p class="sub">همه‌ی یادداشت‌ها، شاخص‌ها و نمادها در یک فایل متنی مرتب</p>
+      <div class="exportrow"><button class="btn solid" id="export">دانلود گزارش</button><span class="msg" id="exmsg"></span></div>
+      <textarea id="fallback" readonly></textarea>
+    </div>
+  </div>`;
+  document.getElementById("export").addEventListener("click", exportReport);
+}
+
+function buildReport(){
+  let out = `# زیستن کوچینگ: گزارش ۳۰ روز\n\nتاریخ شروع: ${dateOf(1)}\n\n`;
+  WEEKS.forEach(w=>{
+    out += `## هفته‌ی ${FA(w.n)}: ${w.t}\n\n`;
+    for(let n=w.from;n<=w.to;n++){
+      const d=S.days[n]||{q:"",p:"",n:"",done:false,qs:0}; const day=DAYS[n];
+      out += `### روز ${FA(n)} ${d.done?"(انجام شد"+(score(n)?"، کیفیت "+FA(score(n))+" از ۵":"")+")":""}\n`;
+      out += `صلاحیت‌ها: ${day.c.map(c=>COMPS[c][0]).join("، ")}\n\n`;
+      out += `**سؤال:** ${day.q}\n\n${d.q||"—"}\n\n`;
+      out += `**تمرین:** ${day.p}\n\n${d.p||"—"}\n\n`;
+      out += `**بازنگری شبانه:** ${day.n}\n\n${d.n||"—"}\n\n`;
+    }
+    const s=S.symbols[w.n]; if(s&&(s.g||s.word)) out += `**نماد هفته:** ${GLYPH_NAMES[s.g]||""} ${s.word?"، «"+s.word+"»":""}\n\n${s.why||""}\n\n`;
+  });
+  return out;
+}
+async function exportReport(){
+  const msg=document.getElementById("exmsg"), fb=document.getElementById("fallback");
+  const text=buildReport();
+  let dl=null; try{ dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; }catch(e){}
+  if (dl){
+    try{ await dl.save({filename:"coaching-30-days.md", data:text}); msg.textContent="فایل ذخیره شد."; return; }
+    catch(e){ if(e&&e.code==="declined"){ msg.textContent="دانلود لغو شد."; return; } }
+  }
+  fb.style.display="block"; fb.style.minHeight="220px"; fb.value=text; fb.select();
+  msg.textContent="متن گزارش آماده است؛ آن را کپی کن.";
+}
+
+/* ---------- guide ---------- */
+document.getElementById("qlist").innerHTML = Object.keys(QLEVELS).map(k=>`<dt>${FA(k)}</dt><dd>${QLEVELS[k].slice(3)}</dd>`).join("");
+document.getElementById("complist").innerHTML = Object.keys(COMPS).map(k=>`<dt>${FA(k)}. ${COMPS[k][0]}</dt><dd>${COMPS[k][1]}</dd>`).join("");
+const sd=document.getElementById("startdate"), sf=document.getElementById("startfa");
+function renderGuide(){ sd.value=S.start; sf.textContent=dateOf(1); }
+sd.addEventListener("change", ()=>{ if(sd.value){ S.start=sd.value; touch(); cur=dayIndexToday(); renderAll(); } });
+document.getElementById("reset").addEventListener("click", ()=>{
+  if (confirm("همه‌ی یادداشت‌ها، شاخص‌ها و نمادها پاک می‌شوند. ادامه می‌دهی؟")){
+    const st=S.start; S=blank(); S.start=st; touch(); cur=dayIndexToday(); renderAll();
+  }
+});
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b=> b.addEventListener("click", ()=>{
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected", x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on", v.id==="v-"+b.dataset.v));
+  if (b.dataset.v==="journey") renderJourney();
+  if (b.dataset.v==="guide") renderGuide();
+}));
+
+function renderAll(){ renderRing(); renderWeeks(); renderDay(); renderGuide(); if(document.getElementById("v-journey").classList.contains("on")) renderJourney(); }
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderAll);
+renderAll();
+initRemote();
+})();
+</script>
+</body>
+</html>

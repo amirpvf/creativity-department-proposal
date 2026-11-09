@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><script data-demo-inject>
+(function(){var F='values.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آنچه واقعاً برایم مهم است — کتاب کار کشف ارزش‌های شخصی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f5f2; --surface:#ffffff; --ink:#1d2a29; --muted:#5d6b68; --line:#dcd5c3; --border:#e3dfd4;
+  --teal:#13595b; --teal-tint:#e6eeed; --brass:#98692c; --brass-tint:#f7f0e3;
+  --rose:#99392f; --rose-tint:#f8ebe8; --note:#66706d; --note-tint:#f0efea;
+  --green:#2e6a4e; --red:#99392f; --gold:#8a6a2f; --on-teal:#ffffff; --row-alt:#f8f7f3;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111716; --surface:#172020; --ink:#e4ebe9; --muted:#9aaaa6; --line:#35433f; --border:#293533;
+    --teal:#62b3ae; --teal-tint:#18302f; --brass:#d3a35d; --brass-tint:#2a2418;
+    --rose:#e3857a; --rose-tint:#2e1c1a; --note:#a6b0ad; --note-tint:#1c2322;
+    --green:#6dbb94; --red:#e3857a; --gold:#d3a35d; --on-teal:#0f1615; --row-alt:#1a2423;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111716; --surface:#172020; --ink:#e4ebe9; --muted:#9aaaa6; --line:#35433f; --border:#293533;
+  --teal:#62b3ae; --teal-tint:#18302f; --brass:#d3a35d; --brass-tint:#2a2418;
+  --rose:#e3857a; --rose-tint:#2e1c1a; --note:#a6b0ad; --note-tint:#1c2322;
+  --green:#6dbb94; --red:#e3857a; --gold:#d3a35d; --on-teal:#0f1615; --row-alt:#1a2423;
+  color-scheme: dark;
+}
+html{scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Vazirmatn,Tahoma,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--teal)}
+
+/* top bar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--paper);border-bottom:1px solid var(--border);min-height:58px}
+.brand{display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.brand b{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{font-size:12.5px;color:var(--muted)}
+.spacer{flex:1}
+.status{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.status[data-s="synced"] i{background:var(--green)}
+.status[data-s="local"] i{background:var(--brass)}
+.status[data-s="saving"] i{background:var(--teal);animation:pulse 1s infinite}
+.status[data-s="error"] i{background:var(--rose)}
+@keyframes pulse{50%{opacity:.3}}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:6px 13px;cursor:pointer;font-size:14px;line-height:1.6}
+.btn:hover{border-color:var(--teal)}
+.btn:focus-visible,.toc a:focus-visible,.navbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.menu-btn{display:none}
+.dropdown{position:relative}
+.dropdown-panel{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:240px;box-shadow:0 12px 30px rgba(0,0,0,.12);display:none;z-index:40}
+.dropdown.open .dropdown-panel{display:block}
+.dropdown-panel button{display:block;width:100%;text-align:right;background:none;border:0;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:14.5px}
+.dropdown-panel button:hover,.dropdown-panel button:focus-visible{background:var(--teal-tint);outline:none}
+.dropdown-panel small{display:block;color:var(--muted);font-size:12.5px;padding:4px 12px 6px;line-height:1.7}
+
+/* shell */
+.shell{display:grid;grid-template-columns:290px minmax(0,1fr);max-width:1260px;margin:0 auto}
+.toc{position:sticky;top:calc(58px + env(safe-area-inset-top,0px));align-self:start;max-height:calc(100dvh - 58px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;padding:22px 16px 48px;border-inline-end:1px solid var(--border)}
+.overall{padding:4px 10px 10px}
+.overall .lbl{font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
+.overall .bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:6px}
+.overall .bar i{display:block;height:100%;background:var(--teal);transition:width .3s}
+.stage-title{font-size:13px;color:var(--brass);font-weight:700;margin:20px 10px 4px;line-height:1.6}
+.toc a{display:flex;gap:9px;align-items:center;padding:6px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14.5px;line-height:1.6}
+.toc a:hover{background:var(--note-tint)}
+.toc a.active{background:var(--teal-tint);color:var(--teal);font-weight:700}
+.toc .n{width:22px;flex:none;color:var(--muted);font-weight:700;text-align:center;font-size:13.5px}
+.toc a.active .n{color:var(--teal)}
+.toc .pg{margin-inline-start:auto;flex:none;width:26px;height:4px;border-radius:2px;background:var(--border);overflow:hidden}
+.toc .pg i{display:block;height:100%;background:var(--teal)}
+.toc .pg.done{background:var(--teal)}
+main{padding:40px 28px 120px;min-width:0}
+.page{max-width:740px;margin:0 auto}
+.scrim{display:none}
+@media (max-width:920px){
+  .shell{grid-template-columns:1fr}
+  .menu-btn{display:inline-flex}
+  .toc{position:fixed;top:0;bottom:0;right:0;width:min(330px,88vw);max-height:none;background:var(--surface);z-index:60;transform:translateX(105%);transition:transform .25s ease;padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));border:0;box-shadow:-10px 0 40px rgba(0,0,0,.18)}
+  body.nav-open .toc{transform:none}
+  body.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55}
+  main{padding:28px 18px 110px}
+  .brand span{display:none}
+}
+@media (max-width:520px){ .status .txt{display:none} .topbar{padding:10px 12px;gap:8px} }
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+
+/* chapter head */
+.stage-label{font-size:14px;color:var(--brass);font-weight:700;margin-bottom:10px}
+.chap-head{display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--teal);padding-bottom:18px;margin-bottom:26px}
+.chap-num{background:var(--teal);color:var(--on-teal);min-width:52px;height:52px;padding:0 10px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:21px;flex:none}
+h1{font-size:30px;line-height:1.5;margin:0;font-weight:800;letter-spacing:-.2px}
+h2.sub{font-size:20px;font-weight:800;color:var(--teal);margin:38px 0 6px;line-height:1.6}
+.lead{font-weight:600;font-size:18px;line-height:2;margin:0 0 16px}
+.page p{margin:0 0 14px}
+.page ol,.page ul{padding-inline-start:26px;margin:8px 0 16px}
+.page li{margin:4px 0}
+.page ul li::marker{color:var(--brass)}
+.page ol{list-style-type:persian}
+.page ol li::marker{color:var(--teal);font-weight:800}
+
+/* boxes */
+.box{border-radius:10px;padding:16px 20px;margin:24px 0;border-inline-start:4px solid var(--note);background:var(--note-tint);line-height:2}
+.box .bt{font-size:13.5px;font-weight:800;margin-bottom:4px;color:var(--note)}
+.box.example{background:var(--teal-tint);border-color:var(--teal)}
+.box.example .bt{color:var(--teal)}
+.box.example b{color:var(--teal)}
+.box.pause{background:var(--brass-tint);border-color:var(--brass)}
+.box.pause .bt{color:var(--brass)}
+.box.trap{background:var(--rose-tint);border-color:var(--rose)}
+.box.trap .bt{color:var(--rose)}
+.box em{font-style:normal;font-weight:700;color:var(--teal)}
+
+/* fields */
+.field{margin:26px 0}
+.qlabel{display:block;font-weight:700;line-height:1.8;margin-bottom:2px}
+.hint{display:block;color:var(--muted);font-size:14.5px;line-height:1.85;margin-bottom:4px}
+textarea.ruled{display:block;width:100%;border:0;background-color:transparent;background-image:linear-gradient(to bottom,transparent 33px,var(--line) 33px,var(--line) 34px);background-size:100% 34px;background-attachment:local;line-height:34px;font-size:17px;resize:none;padding:0 4px;outline:none;overflow:hidden;border-radius:4px;field-sizing:content}
+textarea.ruled:focus{background-image:linear-gradient(to bottom,transparent 33px,var(--teal) 33px,var(--teal) 34px)}
+textarea.ruled:focus-visible{outline:2px solid color-mix(in srgb,var(--teal) 35%,transparent);outline-offset:6px}
+input.line{display:block;width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;height:40px;padding:0 4px;font-size:17px;outline:none}
+input.line:focus{border-bottom-color:var(--teal);border-bottom-width:2px}
+::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}
+.take{background:var(--teal-tint);border-inline-start:4px solid var(--teal);border-radius:10px;padding:16px 20px 18px;margin:30px 0}
+.take .bt{font-size:13.5px;font-weight:800;color:var(--teal)}
+.free .bt{font-size:14px;font-weight:800;color:var(--brass);margin-bottom:2px}
+.free{border-top:1px solid var(--line);padding-top:16px;margin-top:34px}
+
+/* tables */
+.tbl{overflow-x:auto;margin:20px 0;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th{background:var(--teal);color:var(--on-teal);font-weight:700;font-size:14.5px;text-align:right;padding:11px 14px;line-height:1.7}
+td{border-top:1px solid var(--border);padding:0;vertical-align:top;font-size:15.5px;line-height:1.9}
+td + td, th + th{border-inline-start:1px solid var(--border)}
+tr:nth-child(even) td{background:var(--row-alt)}
+td.txt{padding:11px 14px}
+td.lbl{padding:11px 14px;font-weight:700;color:var(--teal);white-space:nowrap}
+td.lbl small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+textarea.cell{display:block;width:100%;min-height:50px;border:0;background:transparent;resize:none;padding:11px 14px;line-height:1.8;font-size:15.5px;outline:none;overflow:hidden;field-sizing:content}
+textarea.cell:focus,input.cellin:focus{background:var(--teal-tint)}
+input.cellin{display:block;width:100%;height:50px;border:0;background:transparent;padding:0 14px;font-size:15.5px;outline:none}
+td.chk{text-align:center;vertical-align:middle;width:80px}
+td.chk input{width:22px;height:22px;accent-color:var(--teal);cursor:pointer;margin:13px 0}
+
+/* numbered list */
+.numlist .row{display:flex;align-items:flex-end;gap:12px}
+.numlist .row b{color:var(--teal);width:22px;flex:none;text-align:center;line-height:40px}
+
+/* three */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.three .c{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px 6px}
+.three .c b{color:var(--brass);font-size:14px}
+@media (max-width:560px){.three{grid-template-columns:1fr}}
+
+/* recall */
+.recall{border:1px dashed var(--teal);border-radius:10px;padding:12px 16px;margin:20px 0;font-size:15px}
+.recall .bt{color:var(--muted);font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{background:var(--teal);color:var(--on-teal);border-radius:20px;padding:3px 14px;font-weight:700;font-size:14.5px}
+.linkbtn{background:none;border:0;color:var(--teal);text-decoration:underline;cursor:pointer;padding:0;font-size:inherit}
+.quote{font-size:17px;font-weight:600;margin-top:4px;white-space:pre-wrap}
+
+/* scale */
+.scale{margin:10px 0 0}
+.scale .sl{font-size:14px;color:var(--muted);margin-bottom:6px}
+.scale .opts{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.scale .end{font-size:13.5px;color:var(--muted);padding:0 4px}
+.scale label{position:relative}
+.scale input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.scale span{display:grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-weight:700;font-size:15px;cursor:pointer}
+.scale input:checked + span{background:var(--teal);color:var(--on-teal);border-color:var(--teal)}
+.scale input:focus-visible + span{outline:2px solid var(--teal);outline-offset:2px}
+.scale .clear{margin-inline-start:6px}
+
+/* value checks */
+.vgroup{margin:28px 0 8px}
+.vhead{display:flex;justify-content:space-between;align-items:center;gap:10px;border-radius:9px;padding:9px 16px;color:#fff;font-weight:700}
+.vhead small{font-weight:500;opacity:.85;font-size:12.5px;direction:ltr}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media (max-width:600px){.vgrid{grid-template-columns:1fr}}
+.vcard{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:12px 14px;cursor:pointer;line-height:1.8}
+.vcard input{width:20px;height:20px;accent-color:var(--teal);margin-top:4px;flex:none;cursor:pointer}
+.vcard .en{font-size:12px;color:var(--muted);direction:ltr;text-align:right}
+.vcard .fa{font-weight:800;color:var(--teal)}
+.vcard .df{font-size:14.5px}
+.vcard:has(input:checked){border-color:var(--teal);background:var(--teal-tint)}
+
+/* wheel */
+.wheel-wrap{display:flex;justify-content:center;margin:12px 0}
+.wheel{width:100%;max-width:420px;height:auto}
+.wheel .seg{cursor:pointer}
+.wheel .seg path{stroke-width:1.2;transition:fill .15s}
+.wheel .seg text{font-family:Vazirmatn,Tahoma,sans-serif;font-weight:800;font-size:15px;pointer-events:none}
+.wheel .seg:focus{outline:none}
+.wheel .seg:focus-visible path{stroke-width:3.5}
+.wheel .ctr{font-family:Vazirmatn,Tahoma,sans-serif;fill:var(--muted);font-size:12px}
+.wheel .ctr.b{font-weight:800;font-size:13px}
+.legend{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(10,auto);grid-auto-flow:column;gap:4px 22px;font-size:14.5px;margin:10px 0 18px}
+.legend div{display:flex;gap:9px;align-items:center}
+.legend b{display:grid;place-items:center;min-width:24px;height:22px;border-radius:5px;color:#fff;font-size:12.5px}
+.legend .on{font-weight:800}
+.wcount{text-align:center;color:var(--muted);font-size:14px}
+
+/* conflict line */
+.conflict{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px;font-weight:700}
+.conflict input.line{width:auto;flex:1 1 140px}
+
+/* cover */
+.cover{padding-top:10px}
+.cover .org{color:var(--brass);font-weight:800;font-size:15px}
+.cover h1{font-size:44px;line-height:1.35;margin:10px 0 6px}
+.cover .subt{font-size:20px;font-weight:600;color:var(--teal);margin:0 0 18px}
+.cover .tag{font-size:17px;color:var(--muted);max-width:560px;border-inline-start:3px solid var(--brass);padding-inline-start:14px;margin:0 0 30px}
+.cover .meta{display:grid;grid-template-columns:1fr 1fr;gap:16px 28px;margin-bottom:28px}
+@media (max-width:560px){.cover .meta{grid-template-columns:1fr}.cover h1{font-size:34px}}
+.startbtn{background:var(--teal);color:var(--on-teal);border:0;border-radius:10px;padding:11px 26px;font-weight:700;cursor:pointer;font-size:16px}
+.startbtn:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.saveinfo{font-size:14px;color:var(--muted);margin-top:12px}
+
+/* bottom nav */
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:60px;border-top:1px solid var(--border);padding-top:22px}
+.navbtn{flex:1;max-width:48%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;text-align:right;line-height:1.6}
+.navbtn small{display:block;color:var(--muted);font-size:12.5px}
+.navbtn b{font-size:15px}
+.navbtn.next{text-align:left;margin-inline-start:auto}
+.navbtn:hover{border-color:var(--teal)}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 18px;border-radius:9px;font-size:14px;z-index:80;display:none}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="btn menu-btn" id="menuBtn" aria-label="فهرست فصل‌ها" aria-controls="toc">فهرست</button>
+  <div class="brand"><b>آنچه واقعاً برایم مهم است</b><span>کتاب کار کشف ارزش‌های شخصی — آکادمی تایم کوچ</span></div>
+  <div class="spacer"></div>
+  <div class="status" id="status" data-s="loading" title=""><i></i><span class="txt">در حال آماده‌سازی…</span></div>
+  <div class="dropdown" id="exportDd">
+    <button class="btn" id="exportBtn" aria-haspopup="true" aria-expanded="false">خروجی</button>
+    <div class="dropdown-panel" role="menu">
+      <button role="menuitem" data-act="md">دانلود پاسخ‌ها (Markdown)</button>
+      <button role="menuitem" data-act="json">دانلود نسخهٔ پشتیبان</button>
+      <button role="menuitem" data-act="import">بازگردانی از نسخهٔ پشتیبان</button>
+      <small>نسخهٔ پشتیبان یک فایل JSON است که همهٔ پاسخ‌هایت را نگه می‌دارد.</small>
+    </div>
+  </div>
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
+</header>
+<div class="shell">
+  <nav class="toc" id="toc" aria-label="فصل‌ها"></nav>
+  <main id="main"><div class="page" id="page"></div></main>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- helpers ---------- */
+const FA='۰۱۲۳۴۵۶۷۸۹';
+const fa=n=>String(n).replace(/\d/g,d=>FA[d]);
+const P=x=>({t:'p',x}), LEAD=x=>({t:'lead',x}), H=x=>({t:'h',x});
+const BOX=(k,x,title)=>({t:'box',k,x,title});
+const Q=(x,o={})=>({t:'q',x,rows:2,...o});
+const L=(x,o={})=>({t:'line',x,...o});
+const TAKE=(x,o={})=>({t:'take',x,...o});
+const FREE=(rows=8)=>({t:'free',rows});
+const LIST=(items,ordered=false)=>({t:'list',items,ordered});
+const STATIC=(cols,rows)=>({t:'static',cols,rows});
+const TABLE=(cols,n,o={})=>({t:'table',cols,n,...o});
+const NUM=(n,o={})=>({t:'num',n,...o});
+const SCALE=()=>({t:'scale'});
+const THREE=(labels,o={})=>({t:'three',labels,...o});
+const RECALL3=()=>({t:'recall3'});
+const RECALL1=(key,label)=>({t:'recall1',key,label});
+const BOXTITLE={example:'نمونه',pause:'مکث',trap:'دام رایج',note:'یادداشت'};
+
+/* ---------- the 19 values ---------- */
+const GROUPS={
+  open:{t:'گشودگی به تغییر',s:'آزادی، تازگی و پیروی از انگیزه خود',en:'Openness to Change',c:'--teal'},
+  enh:{t:'خودارتقایی',s:'کامیابی، منزلت و توان اثرگذاری',en:'Self-Enhancement',c:'--red'},
+  sec:{t:'امنیت',s:'ایمنی و پیش‌بینی‌پذیری',en:'Security',c:'--gold'},
+  cons:{t:'پایداری',s:'نظم، پایبندی و پاسداشت آنچه هست',en:'Conservation',c:'--gold'},
+  trans:{t:'خودفراروی',s:'بهروزی دیگران، فراتر از منفعت خود',en:'Self-Transcendence',c:'--green'}
+};
+const VALUES=[
+ [1,'خودراهبری ـ اندیشه','Self-Direction — Thought','آزادی برای پروراندن ایده‌ها و توانایی‌های خود.','open'],
+ [2,'خودراهبری ـ عمل','Self-Direction — Action','آزادی برای تعیین اعمال خود.','open'],
+ [3,'برانگیختگی','Stimulation','هیجان، تازگی و تغییر.','open'],
+ [4,'لذت‌جویی','Hedonism','لذت و کام‌جویی حسی. (بر مرز گشودگی و خودارتقایی)','open'],
+ [5,'موفقیت','Achievement','کامیابی بر پایه معیارهای اجتماعی.','enh'],
+ [6,'قدرت ـ سلطه','Power — Dominance','قدرت از راه اعمال کنترل بر افراد.','enh'],
+ [7,'قدرت ـ منابع','Power — Resources','قدرت از راه کنترل منابع مادی و اجتماعی.','enh'],
+ [8,'آبرو و وجهه','Face','امنیت و قدرت از راه حفظ وجهه عمومی و پرهیز از تحقیر شدن.','enh'],
+ [9,'امنیت شخصی','Security — Personal','ایمنی در محیط نزدیک خود.','sec'],
+ [10,'امنیت اجتماعی','Security — Societal','ایمنی و ثبات در جامعه گسترده‌تر.','sec'],
+ [11,'سنت','Tradition','نگه‌داشتن و پاسداشت سنت‌های فرهنگی، خانوادگی یا دینی.','cons'],
+ [12,'همنوایی ـ قواعد','Conformity — Rules','پایبندی به قوانین، مقررات و تعهدات رسمی.','cons'],
+ [13,'همنوایی ـ میان‌فردی','Conformity — Interpersonal','پرهیز از ناراحت‌کردن یا آزردن دیگران.','cons'],
+ [14,'فروتنی','Humility','به‌رسمیت‌شناختن کوچکی خود در نظم بزرگ‌تر هستی. (بر مرز پایداری و خودفراروی)','cons'],
+ [15,'جهان‌شمولی ـ طبیعت','Universalism — Nature','پاسداشت محیط طبیعی.','trans'],
+ [16,'جهان‌شمولی ـ دغدغه','Universalism — Concern','پایبندی به برابری، عدالت و حمایت از همه انسان‌ها.','trans'],
+ [17,'جهان‌شمولی ـ رواداری','Universalism — Tolerance','پذیرش و درک کسانی که با ما متفاوت‌اند.','trans'],
+ [18,'نیک‌خواهی ـ مراقبت','Benevolence — Caring','وقف‌شدن به بهروزی نزدیکان.','trans'],
+ [19,'نیک‌خواهی ـ اتکاپذیری','Benevolence — Dependability','عضوی قابل اعتماد و قابل اتکا بودن برای گروه نزدیک خود.','trans']
+];
+
+/* ---------- content ---------- */
+const three=(fn)=>[...fn('اول'),...fn('دوم'),...fn('سوم')];
+const S=[];
+function sec(id,stage,num,title,blocks){S.push({id,stage,num,title,blocks});}
+
+sec('cover','شروع',null,'صفحهٔ نخست',[{t:'cover'}]);
+
+sec('howto','شروع',null,'چگونه با این کتاب کار کنیم؟',[
+ LEAD('این کتاب به تو نمی‌گوید چه چیزی باید برایت مهم باشد. کاری که می‌کند این است که پرسش‌هایی جلوی تو می‌گذارد که خودت بتوانی ببینی چه چیزی واقعاً مهم بوده است.'),
+ H('شش قاعده که کیفیت کار را تعیین می‌کنند'),
+ LIST([
+  '<b>با دست بنویس.</b> نوشتن کندتر از فکر کردن است و همین کندی، چیزهایی را آشکار می‌کند که در ذهن از کنارشان رد می‌شوی. اگر جوابی در ذهنت «واضح» است، هنوز ننوشته‌ای.',
+  '<b>از مثال واقعی شروع کن، نه از مفهوم.</b> هر جا پرسش از تو یک موقعیت خواست، یک موقعیت مشخص بنویس: کِی، کجا، با چه کسی، چه اتفاقی. «معمولاً این‌طورم» داده نیست؛ خاطره است که داده است.',
+  '<b>ترتیب را رعایت کن و جلو نزن.</b> فهرست ۱۹ ارزش عمداً در مرحله پنجم آمده، نه اول. اگر از همان ابتدا آن را ببینی، به‌جای کشف، انتخاب می‌کنی — و معمولاً چیزی را انتخاب می‌کنی که دوست داری درباره‌ات درست باشد.',
+  '<b>پاسخ درست وجود ندارد.</b> هیچ ارزشی در این کتاب بهتر یا اخلاقی‌تر از دیگری نیست. قدرت، پول، لذت، امنیت و موفقیت به همان اندازه ارزش‌اند که مراقبت، عدالت و معنا.',
+  '<b>«نمی‌دانم» را بنویس.</b> ندانستن هم داده است. اگر جایی پاسخی نداشتی، همان را ثبت کن و برو جلو. شاید سه هفته بعد، پاسخش خودش بیاید.',
+  '<b>یک‌جا تمامش نکن.</b> اگر همه را در یک نشست پر کنی، پاسخ‌ها شبیه هم می‌شوند. تقویم پیشنهادی در پیوست «ت» آمده است.'
+ ],true),
+ BOX('trap','وسوسه بزرگ این کار، نوشتن پاسخ‌هایی است که <b>خوب به نظر می‌رسند</b> — پاسخ‌هایی که اگر کسی این دفتر را بخواند، آدم بهتری از تو بسازند. اگر این کار را بکنی، در پایان تصویری از یک آدم خیالی خواهی داشت، نه از خودت. این دفتر قرار نیست به کسی نشان داده شود مگر خودت بخواهی.','یک هشدار مهم'),
+ H('نشانه‌های راهنما در متن'),
+ BOX('example','نمونه‌ای از یک پاسخ خوب، برای اینکه بدانی عمق موردنظر چقدر است. نمونه‌ها متعلق به افراد فرضی‌اند؛ کپی نکن.'),
+ BOX('pause','جایی که بهتر است پیش از نوشتن، چند دقیقه فکر کنی — یا اصلاً امروز ننویسی و فردا برگردی.'),
+ BOX('trap','خطاهایی که بیشتر افراد در این تمرین مرتکب می‌شوند و نتیجه را بی‌اثر می‌کنند.'),
+ BOX('note','توضیح مفهومی کوتاه، یا ارجاع به بخش دیگری از کتاب.')
+]);
+
+sec('whatis','شروع',null,'ارزش چیست و چه چیزی نیست؟',[
+ LEAD('پیش از شروع، لازم است یک تمایز را روشن کنیم؛ چون بیشتر فهرست‌های «ارزش‌های من» که آدم‌ها می‌نویسند، در واقع فهرست هدف‌ها یا سلیقه‌هایشان است.'),
+ P('<b>ارزش، معیاری است که در طول زمان و در موقعیت‌های مختلف، انتخاب‌های تو را جهت می‌دهد.</b> ارزش به یک موقعیت خاص محدود نیست، با رسیدن به آن تمام نمی‌شود، و وقتی زیر پا گذاشته شود چیزی در تو به هم می‌ریزد.'),
+ STATIC(['این‌ها ارزش نیستند','نمونه','تفاوت با ارزش'],[
+  ['هدف','«می‌خواهم مدیر شوم.»','هدف تمام می‌شود؛ ارزش بعد از رسیدن هم باقی است.'],
+  ['سلیقه','«دوست دارم از خانه کار کنم.»','سلیقه تغییر می‌کند و برایش هزینه نمی‌دهی.'],
+  ['نیاز','«به درآمد بیشتر نیاز دارم.»','نیاز با تأمین‌شدن فروکش می‌کند.'],
+  ['احساس','«از این وضعیت ناراحتم.»','احساس گذراست؛ اما می‌تواند سرنخ یک ارزش باشد.'],
+  ['رفتار','«هر روز زیاد کار می‌کنم.»','یک رفتار می‌تواند از چند ارزش متفاوت بیاید.']]),
+ P('هیچ‌کدام از این‌ها بی‌ارزش نیستند؛ همه‌شان <b>سرنخ‌اند</b>. کار تو در این کتاب این است که از سرنخ به ارزش برسی: پشت آن هدف، پشت آن خشم، پشت آن انتخاب سخت، چه چیزی ایستاده بود؟'),
+ BOX('example','<b>رفتار:</b> «هر شب تا دیروقت کار می‌کنم.»<br><b>پرسش:</b> اگر امشب کار نکنم، چه چیزی را از دست می‌دهم؟<br><b>پاسخ:</b> «حس اینکه دارم جلو می‌روم. و اینکه کسی نتواند بگوید کم گذاشته‌ام.»<br><b>احتمال:</b> این می‌تواند به <em>موفقیت</em> اشاره کند، یا به <em>حفظ آبرو</em>، یا به <em>امنیت</em>. هنوز نمی‌دانیم — و همین «هنوز نمی‌دانیم» درست است.','نمونه | از سرنخ به ارزش'),
+ H('سه چهره یک ارزش'),
+ P('در تمام این کتاب، سه چیز را از هم جدا نگه می‌داریم. این تفکیک، مهم‌ترین ابزار صداقت در کار توست:'),
+ STATIC(['چهره','پرسش تشخیص'],[
+  ['اعلام‌شده<small>Stated</small>','اگر از من بپرسند چه چیزی برایم مهم است، چه می‌گویم؟'],
+  ['زیسته<small>Lived</small>','اگر کسی فقط انتخاب‌ها، تقویم و خرج من را نگاه کند، چه نتیجه‌ای می‌گیرد؟'],
+  ['آرمانی<small>Aspirational</small>','دوست دارم چه چیزی برایم مهم باشد، حتی اگر هنوز نیست؟']]),
+ P('فاصله بین این سه، نشانه بی‌صداقتی نیست؛ نشانه انسان‌بودن است. اما دیدن این فاصله، تقریباً همیشه مفیدترین چیزی است که از این کتاب بیرون می‌آید.'),
+ BOX('pause','پیش از رفتن به صفحه بعد، یک جمله بنویس — بدون فکر زیاد: «اگر کسی امروز از من بپرسد مهم‌ترین چیز در زندگی‌ام چیست، احتمالاً می‌گویم ...». این جمله را نگه دار. در پایان کتاب دوباره به آن برمی‌گردیم.'),
+ Q('جمله‌ای که امروز می‌نویسم:',{id:'first'})
+]);
+
+const G1='مرحله یک | دروازه‌های ورود';
+sec('c01',G1,1,'تصمیم‌های سخت',[
+ LEAD('ارزش‌ها در تصمیم‌های آسان دیده نمی‌شوند. وقتی همه گزینه‌ها خوب‌اند یا همه بد، چیزی درباره تو آشکار نمی‌شود. ارزش‌ها آنجا خودشان را نشان می‌دهند که مجبور شده‌ای یک چیز خوب را برای یک چیز خوب دیگر رها کنی.'),
+ P('به سه تصمیم سخت در زندگی‌ات فکر کن. لازم نیست تصمیم‌های بزرگ زندگی باشند؛ گاهی یک انتخاب کوچک اما دشوار، بیشتر از یک تصمیم بزرگ آشکار می‌کند. برای هر کدام، هر چهار پرسش را پاسخ بده.'),
+ BOX('example','<b>تصمیم:</b> پیشنهاد شغلی با حقوق دو برابر را رد کردم و در تیم فعلی ماندم.<br><b>بین چه چیزهایی گیر کرده بودم؟</b> پول و امنیت مالی، در برابر اینکه در کاری بمانم که خودم درباره‌اش تصمیم می‌گیرم.<br><b>چه چیزی را حاضر نبودم از دست بدهم؟</b> اینکه هر روز صبح خودم تصمیم بگیرم روی چه چیزی کار کنم.<br><b>هزینه‌ای که دادم:</b> دو سال درآمد کمتر و توضیح‌دادن به خانواده.'),
+ ...three(o=>[H('تصمیم '+o),Q('تصمیم چه بود؟ کِی و در چه موقعیتی؟'),Q('دقیقاً بین چه چیزهایی مجبور به انتخاب شدی؟'),Q('چه چیزی را حاضر نبودی از دست بدهی؟'),Q('برای این انتخاب چه هزینه‌ای دادی؟')]),
+ BOX('trap','نوشتن تصمیمی که <b>نتیجه‌اش خوب بوده</b> به‌جای تصمیمی که <b>گرفتنش سخت بوده</b>. اینجا دنبال داستان موفقیت نیستیم؛ دنبال لحظه‌ای هستیم که دو چیز مهم با هم جنگیدند.'),
+ TAKE('وقتی هر سه تصمیم را کنار هم می‌گذارم، چه چیز مشترکی می‌بینم؟'),
+ FREE()
+]);
+
+sec('c02',G1,2,'لحظه‌های رضایت عمیق',[
+ LEAD('لذت و رضایت یکی نیستند. لذت وقتی چیزی خوشایند اتفاق می‌افتد می‌آید و می‌رود. رضایت عمیق حسی است که بعدها هم وقتی به آن لحظه فکر می‌کنی، هنوز چیزی در تو روشن می‌شود.'),
+ P('به دو یا سه لحظه فکر کن که در آن‌ها احساس کردی «این همان چیزی است که باید باشم» یا «این کاری بود که ارزشش را داشت». می‌تواند یک لحظه بزرگ باشد یا یک بعدازظهر ساده.'),
+ BOX('pause','اگر هیچ لحظه‌ای به ذهنت نمی‌آید، فشار نیاور. به‌جای آن بپرس: «آخرین باری که وقت را از دست دادم و متوجه گذشتنش نشدم، مشغول چه کاری بودم؟»'),
+ H('لحظه اول'),
+ Q('چه اتفاقی افتاد؟ تا جای ممکن دقیق و جزئی بنویس.',{rows:3}),
+ Q('در آن لحظه چه چیزی حاضر بود که معمولاً نیست؟',{hint:'مثلاً: آزادی عمل، اعتماد، اینکه دیده شدم، اینکه به کسی کمک کردم، اینکه چیزی ساختم، اینکه در امنیت بودم...'}),
+ Q('اگر همان لحظه بود اما آن یک چیز نبود، آیا باز هم رضایت‌بخش می‌ماند؟'),
+ H('لحظه دوم'),Q('چه اتفاقی افتاد؟',{rows:3}),Q('در آن لحظه چه چیزی حاضر بود که معمولاً نیست؟'),
+ H('لحظه سوم'),Q('چه اتفاقی افتاد؟',{rows:3}),Q('در آن لحظه چه چیزی حاضر بود که معمولاً نیست؟'),
+ BOX('trap','نوشتن لحظه‌ای که <b>دیگران آن را تحسین کردند</b> به‌جای لحظه‌ای که <b>خودت در آن سیر بودی</b>. اگر بخش خوبِ خاطره، واکنش دیگران است، ممکن است ارزش زیرین «تأیید» باشد، نه خود آن کار — و این هم داده مهمی است، فقط باید صادقانه ثبت شود.'),
+ TAKE('چه چیزی در هر سه لحظه تکرار شده است؟'),
+ FREE()
+]);
+
+sec('c03',G1,3,'خشم و رنجش',[
+ LEAD('خشم یکی از دقیق‌ترین آشکارکننده‌های ارزش است. ما معمولاً وقتی عصبانی می‌شویم که چیزی که برایمان مهم است زیر پا گذاشته شده باشد. پشت هر خشم پایدار، تقریباً همیشه یک ارزش ایستاده است.'),
+ P('به موقعیت‌هایی فکر کن که رفتار کسی تو را واقعاً عصبانی یا دلخور کرد — نه دلخوری گذرا، بلکه چیزی که مدتی با تو ماند.'),
+ BOX('example','<b>موقعیت:</b> همکارم در جلسه، کاری را که با هم انجام داده بودیم به نام خودش گفت.<br><b>چه چیزی زیر پا گذاشته شد؟</b> اینکه حقیقتِ آنچه اتفاق افتاده گفته شود.<br><b>اگر او همان کار را می‌کرد ولی اسم من را هم می‌برد، باز عصبانی می‌شدم؟</b> نه.<br><b>پس مسئله دقیقاً چه بود؟</b> نه دیده‌شدن — بلکه اینکه واقعیت تحریف شد.'),
+ Q('موقعیت اول: چه اتفاقی افتاد و چه کسی چه کاری کرد؟',{rows:3}),
+ Q('در آن موقعیت، چه چیزی را زیر پا گذاشته‌شده دیدی؟'),
+ Q('اگر یک چیز در آن موقعیت فرق می‌کرد و دیگر عصبانی نمی‌شدی، آن یک چیز چه بود؟',{hint:'این پرسش، مهم‌ترین پرسش این صفحه است. آنچه می‌نویسی معمولاً خیلی به یک ارزش نزدیک است.'}),
+ Q('موقعیت دوم: چه اتفاقی افتاد؟',{rows:3}),Q('چه چیزی زیر پا گذاشته شد؟'),
+ Q('موقعیت سوم: چه اتفاقی افتاد؟',{rows:3}),Q('چه چیزی زیر پا گذاشته شد؟'),
+ H('آن چیزی که در دیگران تحمل نمی‌کنی'),
+ Q('کدام رفتار در آدم‌ها، حتی وقتی به من ربطی ندارد، حالم را بد می‌کند؟'),
+ Q('اگر بخواهم بگویم آن رفتار «خلافِ چه چیزی» است، آن چیز چیست؟'),
+ BOX('note','خشم گاهی از ارزش نمی‌آید، از خستگی، ترس یا زخم قدیمی می‌آید. اگر یک موقعیت را نوشتی و بعد دیدی «شاید فقط آن روز حالم بد بود»، همان را هم بنویس. تشخیص این تفاوت، خودش بخشی از کار است.'),
+ TAKE('اگر بخواهم در یک جمله بگویم چه چیزی را نمی‌توانم تحمل کنم:'),
+ FREE(4)
+]);
+
+sec('c04',G1,4,'افتخار',[
+ LEAD('افتخار با موفقیت یکی نیست. به بعضی موفقیت‌هایمان افتخار نمی‌کنیم و به بعضی کارهای کوچک که هیچ‌کس ندید، افتخار می‌کنیم. همین شکاف، جای خوبی برای جست‌وجوست.'),
+ Q('به چه چیزی در زندگی‌ات واقعاً افتخار می‌کنی؟ دو یا سه مورد بنویس.',{rows:3}),
+ Q('برای هر کدام: چه چیزی در آن، افتخارآور بود؟ خودِ نتیجه، یا کاری که برای رسیدن به آن کردی، یا کسی که در آن مسیر بودی؟',{rows:3}),
+ Q('آیا چیزی هست که دیگران آن را موفقیت تو می‌دانند، اما خودت به آن افتخار نمی‌کنی؟ چه چیزی در آن کم بود؟',{rows:3}),
+ Q('آیا کاری کرده‌ای که هیچ‌کس ندید و هیچ فایده‌ای برایت نداشت، اما هنوز به آن افتخار می‌کنی؟',{rows:3,hint:'این‌ها معمولاً خالص‌ترین نشانه‌های ارزش‌اند، چون هیچ پاداش بیرونی در کار نبوده است.'}),
+ BOX('trap','نوشتن مدرک، سِمت یا دستاورد به‌جای <b>لحظه</b>. «مدیر شدم» یک عنوان است. «آن ماهی که تیم داشت از هم می‌پاشید و نگذاشتم» یک لحظه است — و ارزش‌ها در لحظه‌ها زندگی می‌کنند.'),
+ TAKE('آنچه به آن افتخار می‌کنم، معمولاً از چه جنسی است؟'),
+ FREE()
+]);
+
+sec('c05',G1,5,'پشیمانی',[
+ LEAD('پشیمانی، ارزشی را نشان می‌دهد که در لحظه تصمیم ندیدیم یا دیدیم و نادیده گرفتیم. به همین دلیل یکی از صادق‌ترین منابع این کار است — و یکی از سخت‌ترین‌ها.'),
+ BOX('pause','این صفحه ممکن است ناراحتت کند. اگر امروز حالش را نداری، رهایش کن و بعداً برگرد. هدف این صفحه سرزنش خودت نیست؛ دیدن چیزی است که آن زمان برایت مهم بود اما صدایش را نشنیدی.'),
+ Q('از کدام تصمیم یا انتخاب بیشتر پشیمانی؟'),
+ Q('آن زمان بر اساس چه چیزی تصمیم گرفتی؟'),
+ Q('امروز که نگاه می‌کنی، چه چیزی مهم‌تر بود که آن موقع ندیدی؟',{hint:'پاسخ این پرسش تقریباً همیشه نام یک ارزش است، حتی اگر هنوز نامش را ندانی.'}),
+ H('پشیمانی از نکردن'),
+ P('بعضی پشیمانی‌ها از کاری است که کردیم؛ بعضی از کاری که نکردیم. دومی معمولاً بیشتر می‌ماند.'),
+ Q('چه کاری بود که نکردی و هنوز فکرش را می‌کنی؟'),
+ Q('چه چیزی جلویت را گرفت؟'),
+ Q('اگر آن کار را کرده بودی، از چه چیزی محافظت کرده بودی؟'),
+ TAKE('آنچه معمولاً در لحظه تصمیم نادیده می‌گیرم:'),
+ FREE()
+]);
+
+sec('c06',G1,6,'حسادت، بدون قضاوت',[
+ LEAD('حسادت در فرهنگ ما بار منفی دارد و به همین دلیل معمولاً پنهانش می‌کنیم. اما در این کار، حسادت فقط یک داده است — و اتفاقاً یکی از دقیق‌ترین‌ها. حسادت به ما می‌گوید چه چیزی را می‌خواهیم و نداریم.'),
+ BOX('note','قرار نیست درباره حسادتت قضاوت کنی یا از آن دفاع کنی. فقط دقیق نگاه کن: <b>دقیقاً</b> به چه چیزی حسادت می‌کنی؟ معمولاً به کل زندگی آن آدم حسادت نمی‌کنیم، به یک تکه مشخص از آن حسادت می‌کنیم.'),
+ Q('به زندگی چه کسی نگاه کرده‌ای و با خودت گفته‌ای «کاش من هم...»؟ لازم نیست نامش را بنویسی.'),
+ Q('دقیقاً کدام بخش از زندگی او؟ نه کل تصویر — همان یک تکه.'),
+ Q('اگر آن یک تکه را داشتی اما بقیه زندگی‌اش را نه، باز هم راضی بودی؟'),
+ Q('آن تکه، چه چیزی را برایت ممکن می‌کند که الان دشوار است؟'),
+ H('روی دیگر سکه'),
+ Q('چه کسی چیزی دارد که خیلی‌ها آرزویش را دارند، اما تو اصلاً نمی‌خواهی‌اش؟ چرا نه؟',{rows:3,hint:'این پرسش هم به‌اندازه پرسش قبلی مفید است: آنچه نمی‌خواهی، مرزهای ارزش‌هایت را نشان می‌دهد.'}),
+ TAKE('چیزی که می‌خواهم و هنوز ندارم:'),
+ FREE()
+]);
+
+sec('c07',G1,7,'خط‌های قرمز و غیرقابل‌مذاکره‌ها',[
+ LEAD('بعضی چیزها را به هیچ قیمتی انجام نمی‌دهیم و بعضی چیزها را به هیچ قیمتی از دست نمی‌دهیم. این‌ها لبه‌های بیرونی نقشه ارزش‌های ما هستند — و معمولاً روشن‌ترین بخش آن.'),
+ Q('چه کارهایی هستند که هر چقدر هم پول یا موقعیت در کار باشد، انجامشان نمی‌دهی؟ سه مورد.',{rows:3}),
+ Q('برای هر کدام: اگر انجامش بدهی، دقیقاً چه چیزی را در خودت از دست داده‌ای؟',{rows:3}),
+ H('آن‌ها که از دست نمی‌دهی'),
+ Q('چه چیزهایی در زندگی‌ات هستند که حاضر نیستی از دستشان بدهی، حتی اگر همه چیز عوض شود؟',{rows:3}),
+ H('آزمون فشار'),
+ P('هر کدام از این خط‌های قرمز را با این پرسش بسنج. هدف، کوچک‌کردن فهرست نیست؛ روشن‌کردن آن است.'),
+ Q('آیا موقعیتی وجود دارد که در آن، این خط قرمز را نگه ندارم؟ چه موقعیتی؟',{rows:3}),
+ BOX('trap','نوشتن خط قرمزهای <b>عمومی و بی‌هزینه</b> — «دروغ نمی‌گویم»، «به کسی خیانت نمی‌کنم». این‌ها ممکن است درست باشند، اما چون تقریباً همه آن‌ها را می‌نویسند، چیزی درباره تو نمی‌گویند. دنبال خط قرمزی باش که <b>واقعاً برایت هزینه داشته است</b>.'),
+ TAKE('غیرقابل‌مذاکره‌ترین چیز برای من:'),
+ FREE()
+]);
+
+const G2='مرحله دو | از تجربه به معنا';
+const ladder=(o,first)=>[H('نردبان '+o),...(first?[P('یکی از برداشت‌های مرحله یک را اینجا بنویس و سه پله بالا برو.')]:[]),L('ماده خام (از کدام دروازه؟):'),Q('پله ۱:'),Q('پله ۲:'),Q('پله ۳ — ته نردبان:')];
+sec('c08',G2,8,'نردبان معنا',[
+ LEAD('تا اینجا هفت دروازه را باز کرده‌ای و مواد خام جمع کرده‌ای. حالا باید از هر ماده خام، چند پله بالا بروی تا به چیزی برسی که زیرش دیگر چیزی نیست.'),
+ P('«چرا؟» به‌تنهایی کار نمی‌کند؛ بعد از دو بار، آدم را در موضع دفاعی می‌گذارد. به‌جای آن، از این ده پرسش استفاده کن. هر بار یکی را انتخاب کن — نه همه را.'),
+ LIST(['چه چیزی در این موضوع برایم مهم است؟','این برای من چه معنایی دارد؟','اگر این را داشته باشم، چه چیزی برایم ممکن می‌شود؟','نبودنش چه چیزی را از من می‌گیرد؟','چه چیزی باعث می‌شود حاضر نباشم از آن بگذرم؟','اگر مجبور نباشم کسی را راضی کنم، چه چیزی را انتخاب می‌کنم؟','پشت این انتخاب، چه چیزی برایم مهم‌تر است؟','اگر این را انتخاب کنم، از چه چیزی محافظت کرده‌ام؟','اگر انتخاب دیگری کنم، چه چیزی را از دست می‌دهم؟','ده سال دیگر، کدام بخش این ماجرا هنوز برایم مهم خواهد بود؟'],true),
+ BOX('example','<b>ماده خام:</b> «وقتی رئیسم بدون پرسیدن برنامه‌ام را عوض کرد، خیلی عصبانی شدم.»<br><b>پله ۱ — چه چیزی زیر پا گذاشته شد؟</b> «اینکه من روی کار خودم کنترل دارم.»<br><b>پله ۲ — اگر آن کنترل را داشته باشم، چه چیزی ممکن می‌شود؟</b> «می‌توانم طوری کار کنم که خودم درست می‌دانم.»<br><b>پله ۳ — چرا این مهم است؟</b> «چون اگر نتوانم، دیگر کارِ من نیست؛ فقط دارم دستور اجرا می‌کنم.»<br><b>ته نردبان:</b> چیزی نزدیک به «خودتصمیم‌گیری» — اما هنوز نامش را نمی‌گذاریم.','نمونه | سه پله بالا رفتن'),
+ BOX('note','وقتی به پاسخی می‌رسی که دیگر نمی‌توانی برایش دلیل بیاوری و فقط می‌توانی بگویی «چون همین‌طوری برایم مهم است» — رسیده‌ای. ارزش‌ها ته زنجیره دلیل‌اند، نه وسط آن.','یادداشت | کِی به ته نردبان رسیده‌ای؟'),
+ ...ladder('اول',true),...ladder('دوم'),...ladder('سوم'),...ladder('چهارم'),
+ BOX('trap','پریدن از پله اول به یک کلمه بزرگ. «عصبانی شدم» ← «پس آزادی برایم مهم است» یک پرش است، نه یک نردبان. پله‌های میانی همان جایی‌اند که <b>معنای شخصی</b> تو ساخته می‌شود.')
+]);
+
+const word=(o,first)=>[H('کلمه '+o),L('کلمه:'),Q('این کلمه برای من دقیقاً یعنی چه؟'+(o!=='سوم'?' (بدون استفاده از خود کلمه)':'')),Q('یک موقعیت واقعی که این را داشتم:'),Q(first?'یک موقعیت واقعی که این را نداشتم و چه احساسی داشت:':'یک موقعیت واقعی که این را نداشتم:')];
+sec('c09',G2,9,'عبور از واژه‌های کلی',[
+ LEAD('تا اینجا احتمالاً چند کلمه بزرگ نوشته‌ای: آزادی، عشق، امنیت، رشد، احترام. این کلمه‌ها هنوز خالی‌اند. دو نفر که هر دو می‌گویند «آزادی برایم مهم است» ممکن است دو چیز کاملاً متفاوت بگویند.'),
+ BOX('example','<b>«آزادی» برای الف:</b> اینکه کسی به من نگوید چه کار کنم. (نزدیک به خودتصمیم‌گیری)<br><b>«آزادی» برای ب:</b> اینکه هر وقت خواستم بتوانم بروم. (نزدیک به هیجان و تازگی)<br><b>«آزادی» برای ج:</b> اینکه به کسی بدهکار نباشم. (نزدیک به امنیت شخصی)','نمونه | یک کلمه، سه معنای متفاوت'),
+ P('برای هر کلمه کلی که نوشته‌ای، این سه پرسش را پر کن. تا وقتی نتوانی یک <b>موقعیت واقعی</b> برایش بنویسی، آن کلمه هنوز خالی است.'),
+ ...word('اول',true),...word('دوم'),...word('سوم'),
+ BOX('trap','تعریف‌کردن کلمه با کلمه‌های بزرگ دیگر: «آزادی یعنی استقلال و اختیار.» این تعریف نیست، جابه‌جایی است. تعریف واقعی وقتی ساخته می‌شود که بتوانی بگویی «یعنی صبح‌ها بدون اینکه به کسی گزارش بدهم تصمیم بگیرم روی چه کار کنم.»')
+]);
+
+sec('c10',G2,10,'جمله‌های تکرارشونده تو',[
+ LEAD('حالا به عقب برگرد. تمام صفحه‌هایی را که تا اینجا پر کرده‌ای دوباره بخوان — این بار نه برای پاسخ‌دادن، بلکه برای شکار الگو.'),
+ P('دنبال جمله‌هایی بگرد که بیش از یک بار، در دروازه‌های مختلف، به شکل‌های مختلف نوشته‌ای. این‌ها ردّ پای ارزش‌های تو هستند.'),
+ H('فرم‌های زبانی که باید علامت بزنی'),
+ LIST(['«برای من خیلی مهم است که...»','«نمی‌توانم تحمل کنم که...»','«حاضرم هر کاری بکنم تا...»','«اصلاً برایم قابل قبول نیست که...»','«من همیشه...»','«اگر این را نداشته باشم...»','«مهم نیست چقدر...، ولی...»','«حاضر نیستم به خاطرِ... از ... بگذرم»','«بیشتر از هر چیزی می‌خواهم...»','«کاش می‌توانستم...»','«برای من غیرقابل مذاکره است که...»']),
+ P('در صفحه‌های قبل، هر جا چنین جمله‌ای دیدی، آن را اینجا جمع کن.'),
+ TABLE([{h:'از کدام دروازه',w:'26%'},{h:'جمله‌ای که تکرار شده (به زبان خودت)'},{h:'چند بار؟',w:'14%',type:'short'}],7),
+ H('فهرست کاری من'),
+ P('حالا، فقط بر اساس آنچه خودت نوشته‌ای — نه بر اساس هیچ فهرست بیرونی — بین پنج تا هشت چیز بنویس که به نظر می‌رسد برایت مهم‌اند. از زبان خودت استفاده کن، حتی اگر عبارتت چند کلمه‌ای و ناجور باشد.'),
+ BOX('note','این فهرست موقتی است و قرار نیست درست باشد. در مرحله سه آن را با رفتار واقعی‌ات آزمایش می‌کنیم و در مرحله پنج نامش را دقیق‌تر می‌کنیم. هر چیزی را که شواهدش را در صفحه‌های قبل داری بنویس — و هر چیزی را که فقط «باید مهم باشد» ننویس.'),
+ NUM(8,{id:'work'}),
+ BOX('pause','این فهرست را کنار بگذار و دست‌کم یک روز به آن دست نزن. مرحله سه، آزمون سختی برای این فهرست است.')
+]);
+
+const G3='مرحله سه | آزمون واقعیت';
+sec('c11',G3,11,'آزمون هزینه',[
+ LEAD('ساده‌ترین راه تشخیص اینکه چیزی واقعاً ارزش توست یا فقط حرف خوبی است، یک پرسش است: برایش چه داده‌ای؟'),
+ P('ارزش‌ها رایگان نیستند. هر ارزشی که واقعاً در زندگی‌ات فعال باشد، جایی برایت هزینه داشته است: پول، وقت، رابطه، موقعیت، آبرو، راحتی. اگر برای چیزی هیچ‌وقت هیچ هزینه‌ای نداده‌ای، احتمالاً یا هنوز آزمایش نشده است، یا ارزش آرمانی توست، نه ارزش زیسته‌ات.'),
+ BOX('note','«هزینه نداده‌ام» به معنای «دروغ می‌گویم» نیست. ممکن است موقعیتش پیش نیامده باشد. اما هم‌زمان صادقانه است که بپذیریم: تا وقتی آزمایش نشده، فقط یک فرضیه است.'),
+ P('فهرست هشت‌تایی مرحله دو را بیاور و برای هر مورد این جدول را پر کن. موارد فهرستت به‌صورت کم‌رنگ در ستون اول نشان داده می‌شوند.'),
+ TABLE([{h:'آنچه می‌گویم مهم است',w:'28%'},{h:'آخرین باری که برایش هزینه دادم'},{h:'هزینه چه بود؟',w:'26%'}],8,{prefill:'c10.work'}),
+ Q('کدام مورد در فهرست، هیچ ستون دومی نداشت؟'),
+ Q('وقتی این را می‌بینم، چه چیزی برایم جالب می‌شود؟',{hint:'توجه: «جالب»، نه «بد». اینجا جای سرزنش خود نیست.'}),
+ FREE()
+]);
+
+const against=(o,hint)=>[H('مورد '+o),L('ارزشی که می‌گویم برایم مهم است:'),Q('موقعیتی که برخلافش رفتار کردم:'),Q('در آن لحظه، چه چیزی مهم‌تر شد؟',hint?{hint:'این پاسخ معمولاً نام یک ارزش دیگر است — ارزشی که شاید فهرستت آن را نداشته باشد.'}:{}),Q('بعدش چه احساسی داشتم؟',{rows:1})];
+sec('c12',G3,12,'جایی که برخلافش رفتار کردی',[
+ LEAD('این صفحه، سخت‌ترین صفحه کتاب است. هدفش این نیست که خودت را محکوم کنی؛ این است که ببینی وقتی ارزشی زیر فشار قرار می‌گیرد، چه چیزی بر آن غلبه می‌کند.'),
+ P('برای دو مورد از فهرست خودت، موقعیتی را به یاد بیاور که برخلاف آن رفتار کردی.'),
+ ...against('اول',true),...against('دوم'),
+ BOX('example','<b>ارزش اعلام‌شده:</b> صداقت.<br><b>موقعیت:</b> به دوستم نگفتم که کارش را ضعیف دیدم.<br><b>چه چیزی مهم‌تر شد؟</b> اینکه رابطه‌مان به هم نخورد و او ناراحت نشود.<br><b>نکته:</b> اینجا صداقت شکست نخورده — با <em>حفظ رابطه</em> رقابت کرده و باخته. این یک تعارض ارزش است، نه یک ضعف اخلاقی.'),
+ BOX('note','اگر بعد از این صفحه احساس بدی داری، طبیعی است. اما یک نکته را نگه دار: <b>هیچ‌کس همیشه بر اساس ارزش‌هایش زندگی نمی‌کند.</b> آنچه این صفحه نشان می‌دهد، نقص شخصیت تو نیست؛ ساختار اولویت توست وقتی دو چیز مهم با هم می‌جنگند. در مرحله چهار دقیقاً روی همین کار می‌کنیم.','یادداشت مهم'),
+ FREE()
+]);
+
+sec('c13',G3,13,'تقویم و حساب؛ دو شاهد صادق',[
+ LEAD('حافظه ما سوگیری دارد؛ تقویم و صورت‌حساب ندارند. این دو، صادق‌ترین شاهدهای ارزش‌های زیسته‌اند، چون هیچ تصویری از خودشان نمی‌سازند.'),
+ BOX('pause','پیش از پرکردن این صفحه، تقویم چهار هفته گذشته و تراکنش‌های سه ماه اخیرت را باز کن و واقعاً نگاه کن. از حافظه ننویس.'),
+ H('شاهد اول | وقت'),
+ Q('بیرون از کار و خواب، بیشترین ساعت‌های من صرف چه چیزی شده است؟ سه مورد اول.',{rows:3}),
+ Q('چه چیزی در فهرست ارزش‌هایم هست که تقریباً هیچ ساعتی به آن اختصاص نداده‌ام؟'),
+ Q('چه چیزی زیاد وقت گرفته که اصلاً در فهرست من نبود؟'),
+ H('شاهد دوم | خرج اختیاری'),
+ P('فقط خرج‌هایی که انتخابی بوده‌اند؛ اجاره و قبض و بدهی را کنار بگذار. مبلغ لازم نیست — فقط موضوع.'),
+ Q('پول اختیاری من بیشتر صرف چه چیزهایی شده است؟',{rows:3}),
+ Q('اگر کسی فقط این فهرست را ببیند، فکر می‌کند چه چیزی برای من مهم است؟'),
+ H('شاهد سوم | توجه'),
+ Q('ذهنم بیشتر وقت‌ها درگیر چه چیزی است، حتی وقتی کاری با آن ندارم؟'),
+ BOX('trap','توضیح‌دادن و توجیه‌کردن به‌جای ثبت‌کردن. «آن ماه شرایط خاصی بود» ممکن است درست باشد، اما اگر برای هر داده‌ای توضیحی داشته باشی، در پایان هیچ داده‌ای نخواهی داشت. اول ثبت کن؛ تفسیر بماند برای بعد.'),
+ FREE()
+]);
+
+sec('c14',G3,14,'اعلام‌شده، زیسته، آرمانی',[
+ LEAD('حالا هر چیزی که در فهرستت هست را در یکی از سه ستون بگذار. یک ارزش می‌تواند در بیش از یک ستون باشد — آن‌ها که در هر سه ستون‌اند، هسته واقعی تو هستند.'),
+ STATIC(['ستون','معیار قرارگرفتن در این ستون'],[
+  ['اعلام‌شده','اگر از من بپرسند، این را می‌گویم.'],
+  ['زیسته','در فصل ۱۱ برایش هزینه‌ای پیدا کردم و در فصل ۱۳ ردّش را در وقت یا خرجم دیدم.'],
+  ['آرمانی','دوست دارم برایم مهم باشد، اما هنوز شواهد رفتاری ندارم.']]),
+ TABLE([{h:'ارزش (به زبان خودم)'},{h:'اعلام‌شده',type:'check'},{h:'زیسته',type:'check'},{h:'آرمانی',type:'check'}],8,{prefill:'c10.work'}),
+ H('آنچه این جدول نشان می‌دهد'),
+ Q('کدام ارزش‌ها در هر سه ستون هستند؟',{hint:'این‌ها احتمالاً هسته ارزش‌های تو هستند.'}),
+ Q('کدام ارزش «اعلام‌شده» است اما «زیسته» نیست؟'),
+ Q('درباره این فاصله، صادقانه‌ترین جمله‌ای که می‌توانم بنویسم چیست؟',{rows:3,hint:'شاید موقعیتش پیش نیامده. شاید آرمان است، نه ارزش. شاید ارزشِ کسی دیگر است که من به ارث برده‌ام. شاید هم دارم چیزی را قربانی می‌کنم. هر کدام که هست، بنویس.'}),
+ Q('آیا چیزی هست که «زیسته» است اما هرگز آن را اعلام نکرده‌ام؟',{hint:'این‌ها معمولاً جالب‌ترین کشف این کتاب‌اند — ارزش‌هایی که در عمل هستند اما در تصویر ما از خودمان جایی ندارند.'}),
+ BOX('note','ارزش آرمانی بی‌ارزش نیست. بسیاری از تغییرهای مهم زندگی از یک ارزش آرمانی شروع می‌شوند که فرد تصمیم می‌گیرد آن را زیسته کند. تنها چیزی که مهم است این است که آن را با ارزش زیسته اشتباه نگیریم.'),
+ FREE(5)
+]);
+
+const G4='مرحله چهار | تعارض‌ها';
+sec('c15',G4,15,'تعارض ارزش‌ها؛ نشانه خرابی نیست',[
+ LEAD('اگر تا اینجا احساس کرده‌ای فهرست ارزش‌هایت با خودش جور درنمی‌آید، اشتباهی نکرده‌ای. ارزش‌های انسانی ذاتاً با هم در کشش‌اند؛ همین کشش است که تصمیم‌ها را سخت می‌کند.'),
+ P('وقتی دو ارزش با هم در تعارض‌اند، مسئله این نیست که یکی‌شان قلابی است. مسئله این است که هر دو واقعی‌اند و در یک موقعیت مشخص، فقط یکی می‌تواند برنده شود. آنچه تو را می‌سازد، نه فهرست ارزش‌هایت، که <b>الگوی انتخاب تو در همین لحظه‌هاست</b>.'),
+ H('جفت‌های پرتکرار'),
+ P('این‌ها را به‌عنوان فهرست انتخاب نگاه نکن؛ فقط برای اینکه ببینی این کشش‌ها چه شکلی‌اند.'),
+ STATIC(['این','در برابر این'],[['آزادی','امنیت'],['استقلال','تعلق'],['موفقیت','آرامش'],['رشد','ثبات'],['اصالت','پذیرش دیگران'],['لذت','مسئولیت'],['عدالت','وفاداری'],['مراقبت از دیگران','مراقبت از خود'],['کنترل','اعتماد'],['دستاورد','حضور'],['سنت','نوآوری'],['رقابت','همکاری']]),
+ BOX('note','در چارچوبی که در مرحله پنج می‌بینیم، این کشش‌ها تصادفی نیستند: ارزش‌هایی که روی یک دایره روبه‌روی هم قرار می‌گیرند، معمولاً با هم در تعارض‌اند و ارزش‌های همسایه با هم هم‌افزا هستند. اما فعلاً به تجربه خودت بچسب، نه به مدل.'),
+ FREE()
+]);
+
+const conflictB=o=>[H('تعارض '+o),L('ارزش الف:'),L('ارزش ب:'),Q('در چه موقعیتی این دو به هم می‌رسند؟'),L('معمولاً کدام را انتخاب می‌کنم؟'),Q('هزینه این انتخاب چیست؟')];
+sec('c16',G4,16,'نقشه تعارض‌های من',[
+ LEAD('سه تعارض واقعی خودت را بنویس — نه از فهرست بالا، بلکه از موقعیت‌هایی که واقعاً در آن‌ها گیر کرده‌ای.'),
+ ...conflictB('اول'),...conflictB('دوم'),...conflictB('سوم'),
+ H('آزمون انتخاب اجباری'),
+ P('برای هر تعارض، این پرسش را از خودت بپرس و پاسخ را بنویس. پاسخِ «هر دو» اینجا مجاز نیست — نه چون واقعی نیست، بلکه چون چیزی به تو یاد نمی‌دهد.'),
+ Q('اگر مجبور شوم فقط یکی را نگه دارم، کدام؟ و از دست دادن کدام سخت‌تر است؟',{rows:4}),
+ BOX('example','<b>الف:</b> نزدیک بودن به خانواده — <b>ب:</b> مسیر حرفه‌ای که می‌خواهم<br><b>موقعیت:</b> پیشنهاد کار در شهر دیگر.<br><b>معمولاً کدام؟</b> خانواده.<br><b>هزینه:</b> پنج سال است در نقشی مانده‌ام که دیگر چیزی یاد نمی‌گیرم.<br><b>سخت‌تر:</b> از دست دادن خانواده. و همین یعنی ترتیب اولویتم روشن است، حتی اگر از هزینه‌اش راضی نباشم.')
+]);
+
+sec('c17',G4,17,'آنچه معمولاً قربانی می‌کنم',[
+ LEAD('در هر تعارض، یک طرف معمولاً می‌بازد. اگر همیشه یک چیز ببازد، آن چیز به‌مرور از زندگی‌ات حذف می‌شود — بدون اینکه هیچ‌وقت تصمیم گرفته باشی حذفش کنی.'),
+ Q('به سه تعارض صفحه قبل نگاه کن. چه چیزی در هر سه، طرف بازنده بوده است؟'),
+ Q('این چیز در سال‌های اخیر چقدر از زندگی‌ام کم شده است؟'),
+ Q('اگر پنج سال دیگر هم همین‌طور ادامه پیدا کند، چه اتفاقی می‌افتد؟',{rows:3}),
+ H('قربانی‌کردن آگاهانه، قربانی‌کردن ناآگاهانه'),
+ P('گاهی چیزی را آگاهانه و برای دوره‌ای مشخص کنار می‌گذاریم؛ این انتخاب است. گاهی چیزی سال‌هاست کنار گذاشته شده و هیچ‌وقت درباره‌اش تصمیم نگرفته‌ایم؛ این عادت است.'),
+ Q('آنچه قربانی می‌کنم، انتخاب من است یا عادتی که در آن افتاده‌ام؟'),
+ Q('اگر انتخاب است، تا کِی؟ چه چیزی نشان می‌دهد که دوره‌اش تمام شده؟'),
+ BOX('trap','تبدیل این صفحه به فهرست اتهام علیه خودت. توجه کن که «قربانی‌کردن» در اینجا یک واژه خنثی است: هر انتخابی به معنای کنارگذاشتن چیز دیگری است. مسئله این نیست که قربانی می‌کنی؛ مسئله این است که <b>بدانی داری چه چیزی را قربانی می‌کنی</b>.')
+]);
+
+const G5='مرحله پنج | نام‌گذاری';
+sec('c18',G5,18,'نقشه ۱۹ ارزش بنیادین',[
+ LEAD('تا اینجا عمداً هیچ فهرستی به تو نشان ندادیم. حالا که مواد خودت را داری، یک نقشه بیرونی می‌تواند کمک کند دقیق‌تر ببینی — نه اینکه جای دیده‌های تو را بگیرد.'),
+ P('این نقشه از پژوهش شالوم شوارتز و همکارانش می‌آید که ارزش‌های انسانی را در فرهنگ‌های بسیار مختلف بررسی کردند و به الگویی رسیدند که در همه آن‌ها تکرار می‌شد. در نسخه بازنگری‌شده (۲۰۱۲)، این الگو به ۱۹ ارزش تفکیک شده است.'),
+ H('دو نکته که نقشه را قابل استفاده می‌کنند'),
+ LIST(['<b>ارزش‌ها روی یک دایره‌اند، نه در جعبه‌های جدا.</b> ارزش‌های همسایه با هم هم‌افزا هستند و ارزش‌های روبه‌رو معمولاً با هم در کشش. به همین دلیل است که تعارض‌هایی که در مرحله چهار نوشتی، تصادفی نبودند.','<b>هیچ ارزشی بهتر از دیگری نیست.</b> این یک نقشه توصیفی است، نه اخلاقی. قدرت و لذت به همان اندازه ارزش‌اند که نیک‌خواهی و عدالت.'],true),
+ BOX('note','پژوهشگران این دایره را با دو محور دیگر هم توصیف می‌کنند: <b>تمرکز بر خود ↔ تمرکز بر دیگران</b>، و <b>رشد و آسودگی از اضطراب ↔ خودحفاظتی و پرهیز از اضطراب</b>. ارزش‌های نیمه پایین دایره بیشتر از جنس محافظت‌اند و نیمه بالا بیشتر از جنس گشودگی و رشد.','یادداشت | دو محور بزرگ‌تر'),
+ H('چگونه از این صفحه استفاده کنی'),
+ P('هر ۱۹ ارزش با تعریف کوتاهشان آمده‌اند. یک بار همه را آرام بخوان. کنار هر کدام که با چیزی در نوشته‌های خودت هم‌خوانی دارد، علامت بزن.'),
+ BOX('trap','علامت‌زدن ارزش‌هایی که <b>دوست داری داشته باشی</b>. معیار علامت‌زدن یک چیز است و فقط یک چیز: <b>آیا در صفحه‌های قبلی، شواهدی برای این پیدا می‌کنم؟</b> اگر نمی‌توانی به صفحه مشخصی اشاره کنی، علامت نزن.','دام رایج — مهم‌ترین دام این کتاب'),
+ {t:'checks'},
+ BOX('note','اگر واژه فارسی هیچ‌کدام برایت غریبه بود، به تعریفش تکیه کن نه به نامش. نام‌ها ترجمه‌اند؛ آنچه اهمیت دارد همان یک جمله تعریف است.')
+]);
+
+sec('c19',G5,19,'ترجمه زبان خودت به این نقشه',[
+ LEAD('حالا فهرست خودت را کنار نقشه بگذار. توجه کن که این کار ترجمه است، نه جایگزینی: عبارت خودت باقی می‌ماند و نام روی نقشه فقط کمک می‌کند دقیق‌تر درباره‌اش فکر کنی.'),
+ BOX('example','<b>عبارت من:</b> «نمی‌خواهم کسی برایم تصمیم بگیرد.»<br><b>احتمالاً نزدیک به:</b> خودراهبری ـ عمل<br><b>شاهد من:</b> فصل ۱، تصمیم اول؛ فصل ۳، موقعیت دوم<br><b>چقدر هم‌خوان است؟</b> ۸ از ۱۰ — ولی بخشی از آن به «آبرو» هم مربوط است: نمی‌خواهم جلوی بقیه کوچک شوم.','نمونه | ترجمه'),
+ P('برای هر مورد فهرست خودت، این جدول را پر کن. ستون «شاهد» را خالی نگذار؛ اگر شاهدی نداری، آن سطر یک فرضیه ضعیف است. در ستون دوم می‌توانی از فهرست ۱۹ ارزش انتخاب کنی یا خودت بنویسی.'),
+ TABLE([{h:'عبارت من',w:'34%'},{h:'احتمالاً نزدیک به',type:'value',w:'30%'},{h:'شاهد (کدام فصل؟)'}],8,{prefill:'c10.work'}),
+ BOX('trap','فشاردادن یک عبارت شخصی داخل یک نام رسمی. اگر عبارتت در هیچ‌کدام از ۱۹ خانه جا نمی‌شود، ممکن است دو ارزش را با هم گفته باشی، یا نقشه برای تجربه تو کافی نباشد. هر دو حالت ممکن است — <b>عبارت خودت را به‌خاطر نقشه تغییر نده</b>.')
+]);
+
+const hyp=o=>[H('فرضیه '+o),L('فرضیه:'),Q('شواهد موافق:'),Q('شواهد مخالف:'),SCALE()];
+sec('c20',G5,20,'اعتبارسنجی فرضیه‌ها',[
+ LEAD('هر سطر جدول قبل یک فرضیه است، نه یک نتیجه. این صفحه، فرضیه‌ها را می‌سنجد.'),
+ P('برای هر فرضیه، این سه پرسش را جواب بده و بعد به آن نمره هم‌خوانی بده.'),
+ LIST(['کجای زندگی‌ام این را در انتخاب‌هایم می‌بینم؟','آخرین باری که برای حفظش هزینه‌ای دادم کِی بود؟','موقعیتی هست که برخلافش رفتار کرده باشم؟ چه چیزی آنجا برنده شد؟'],true),
+ ...hyp('اول'),...hyp('دوم'),...hyp('سوم'),...hyp('چهارم'),
+ BOX('pause','هر فرضیه‌ای که نمره‌اش زیر ۶ شد، حذفش نکن — کنارش بنویس «هنوز روشن نیست». بعضی ارزش‌ها فقط در موقعیت‌هایی آشکار می‌شوند که هنوز پیش نیامده‌اند.')
+]);
+
+const G6='مرحله شش | اولویت';
+sec('c21',G6,21,'از فهرست به سه ارزش',[
+ LEAD('یک فهرست ده‌تایی از ارزش‌ها تقریباً هیچ کاری نمی‌کند. در لحظه تصمیم، تو هیچ‌وقت بین ده چیز انتخاب نمی‌کنی؛ بین دو چیز انتخاب می‌کنی. برای همین باید فهرست را کوچک کنیم.'),
+ H('گام یک | از همه به شش'),
+ P('از میان هر آنچه تا اینجا نوشته‌ای، شش موردی را انتخاب کن که <b>در این مرحله از زندگی‌ات</b> بیشترین اهمیت را دارند. تأکید روی «این مرحله» است؛ ارزش‌ها ثابت‌اند اما اولویتشان با دوره‌های زندگی جابه‌جا می‌شود.'),
+ NUM(6,{id:'six'}),
+ H('گام دو | از شش به سه'),
+ P('حالا سه تا را حذف کن. این کار عمداً ناخوشایند است. برای انتخاب، از این پرسش استفاده کن: <b>اگر این یکی از زندگی‌ام حذف شود، کدام بیشتر مرا از خودم دور می‌کند؟</b>'),
+ THREE(['یک','دو','سه'],{id:'top3'}),
+ Q('حذف کدام مورد سخت‌ترین بود، و چرا؟'),
+ BOX('trap','نگه‌داشتن سه ارزشی که با هم هم‌جنس‌اند (مثلاً موفقیت، رشد، یادگیری) و حذف‌کردن هر چیزی که با آن‌ها ناجور است. اگر هر سه ارزشت از یک ناحیه نقشه‌اند، احتمالاً داری یک <b>تصویر</b> از خودت می‌سازی، نه یک نقشه.'),
+ FREE()
+]);
+
+sec('c22',G6,22,'ساختار اولویت در لحظه تعارض',[
+ LEAD('داشتن سه ارزش کافی نیست. سؤال واقعی این است: وقتی این سه با هم درگیر می‌شوند، معمولاً کدام برنده می‌شود؟ پاسخ این پرسش، «ساختار اولویت» توست — و همان چیزی است که رفتار واقعی‌ات را پیش‌بینی می‌کند.'),
+ RECALL3(),
+ H('سه دوئل'),
+ P('برای هر جفت، یک موقعیت واقعی بنویس که در آن این دو با هم درگیر شده‌اند، و بگو کدام برنده شد.'),
+ Q('ارزش یک در برابر ارزش دو — موقعیت:'),L('کدام برنده شد؟'),
+ Q('ارزش یک در برابر ارزش سه — موقعیت:'),L('کدام برنده شد؟'),
+ Q('ارزش دو در برابر ارزش سه — موقعیت:'),L('کدام برنده شد؟'),
+ H('ترتیب واقعی من'),
+ L('بر اساس این سه دوئل، ترتیب واقعی من این است:'),
+ Q('آیا این ترتیب همان است که دوست داشتم باشد؟ اگر نه، تفاوت کجاست؟'),
+ BOX('note','اگر در سه دوئل، هر بار یکی برنده شد و ترتیب روشنی درنیامد، اشکالی ندارد. بنویس: «هنوز ترتیب روشنی ندارم» و برو جلو. حدس‌زدن ترتیب بدتر از نداشتن آن است.'),
+ FREE()
+]);
+
+sec('c23',G6,23,'ارزش‌ها در حوزه‌های مختلف زندگی',[
+ LEAD('ممکن است در کار یک آدم باشی و در خانه آدمی دیگر. این لزوماً تناقض نیست؛ اما دیدنش مهم است. ارزشی که در همه حوزه‌ها تکرار می‌شود، احتمالاً از هسته توست.'),
+ RECALL3(),
+ P('برای هر حوزه، بنویس چه چیزی در آنجا بیشترین اهمیت را برایت دارد. اگر حوزه‌ای در زندگی‌ات فعال نیست، خالی بگذار.'),
+ TABLE([{h:'حوزه',type:'fixed',w:'20%'},{h:'مهم‌ترین چیز برای من در این حوزه'},{h:'آیا با سه ارزش اصلی‌ام می‌خواند؟',w:'24%'}],8,{fixed:['کار','رابطه نزدیک','خانواده','دوستی','پول','سلامت و بدن','یادگیری','جامعه و دیگران']}),
+ Q('کدام ارزش در بیشتر سطرها تکرار شد؟'),
+ Q('در کدام حوزه، آدمِ متفاوتی هستم؟ و آنجا چه چیزی جای ارزش‌های اصلی‌ام را گرفته است؟'),
+ Q('این تفاوت، انتخاب آگاهانه است یا چیزی که در آن افتاده‌ام؟')
+]);
+
+const G7='مرحله هفت | زندگی‌کردن';
+sec('c24',G7,24,'فاصله؛ کدام انتخاب دورترین است؟',[
+ LEAD('کشف ارزش‌ها به‌خودی‌خود چیزی را عوض نمی‌کند. آنچه چیزی را عوض می‌کند، دیدن فاصله بین ارزش‌ها و زندگی واقعی است — و بعد، یک تصمیم.'),
+ P('به زندگی امروزت نگاه کن: کارت، رابطه‌هایت، جایی که زندگی می‌کنی، چیزی که هر روز وقتت را می‌گیرد، تعهدهایی که پذیرفته‌ای.'),
+ RECALL3(),
+ Q('کدام بخش از زندگی فعلی‌ام بیشترین فاصله را با سه ارزش اصلی‌ام دارد؟'),
+ L('این فاصله چند وقت است وجود دارد؟'),
+ Q('هزینه‌ای که این فاصله برایم دارد چیست؟ در بدنم، خلقم، رابطه‌هایم، انرژی‌ام.',{rows:3}),
+ Q('چه چیزی این فاصله را تا امروز قابل تحمل کرده است؟',{hint:'پاسخ این پرسش معمولاً نام یک ارزش دیگر است — همان که برنده می‌شود.'}),
+ H('جایی که نزدیک‌ترم'),
+ Q('کدام بخش از زندگی‌ام بیشترین هم‌خوانی را با ارزش‌هایم دارد؟ چه چیزی آنجا را ممکن کرده است؟',{rows:3,hint:'این پرسش به‌اندازه پرسش قبلی مهم است: معمولاً چیزی که آنجا کار می‌کند، قابل انتقال به جای دیگر است.'})
+]);
+
+sec('c25',G7,25,'یک تغییر کوچک',[
+ LEAD('وسوسه پایان چنین کتابی این است که تصمیم بزرگ بگیری: شغلت را عوض کنی، شهرت را عوض کنی، آدم دیگری شوی. تصمیم‌های بزرگ معمولاً اجرا نمی‌شوند. آنچه اجرا می‌شود، تغییر کوچکی است که فردا صبح قابل انجام باشد.'),
+ BOX('note','مشخص باشد (نه «بیشتر وقت بگذارم»)، در هفته آینده قابل انجام باشد، به یکی از سه ارزش اصلی‌ات وصل باشد، و انجامش کاملاً در اختیار خودت باشد — نه وابسته به تصمیم کس دیگری.','معیار یک تغییر خوب'),
+ BOX('example','<b>ارزش:</b> نیک‌خواهی ـ مراقبت<br><b>تغییر بد:</b> «بیشتر به خانواده‌ام برسم.»<br><b>تغییر خوب:</b> «سه‌شنبه‌ها ساعت ۷ لپ‌تاپ را می‌بندم و شام را با هم می‌خوریم.»'),
+ RECALL3(),
+ L('ارزشی که این تغییر به آن وصل است:'),
+ Q('تغییر مشخص من در هفته آینده — چه کاری، کِی، با چه کسی:'),
+ L('اولین بار کِی انجامش می‌دهم؟ تاریخ و ساعت:'),
+ Q('از چه چیزی باید بگذرم تا این ممکن شود؟',{hint:'هر تغییری هزینه‌ای دارد. اگر هزینه‌ای ندارد، احتمالاً تغییر نیست.'}),
+ L('از کجا می‌فهمم که انجامش داده‌ام؟'),
+ H('یک چیز که باید متوقف شود'),
+ P('گاهی مؤثرترین تغییر، اضافه‌کردن نیست؛ برداشتن است.'),
+ Q('چه کاری را باید کم کنم یا متوقف کنم، چون مستقیماً با ارزش‌هایم می‌جنگد؟'),
+ FREE()
+]);
+
+sec('c26',G7,26,'موانع',[
+ LEAD('اگر زندگی‌کردن بر اساس ارزش‌ها ساده بود، همه این کار را می‌کردند. مانع‌ها واقعی‌اند و اسم‌بردن از آن‌ها، بخشی از کار است — نه نشانه ضعف اراده.'),
+ Q('چه چیزی احتمالاً جلوی این تغییر را می‌گیرد؟'),
+ H('سه نوع مانع'),
+ STATIC(['نوع','نمونه'],[['بیرونی','شرایط مالی، تعهد کاری، وضعیت خانوادگی، محدودیت زمان.'],['رابطه‌ای','انتظار دیگران، ترس از ناامیدکردن کسی، نقشی که برایم تعریف شده.'],['درونی','عادت، ترس، تصویری که از خودم دارم، ارزشی دیگر که پنهانی برنده می‌شود.']]),
+ Q('مانع بیرونی من:'),Q('مانع رابطه‌ای من:'),Q('مانع درونی من:'),
+ Q('کدام‌یک از این‌ها واقعاً بیرون از کنترل من است، و کدام فقط این‌طور به نظر می‌رسد؟'),
+ Q('کوچک‌ترین قدمی که با وجود این مانع هنوز ممکن است چیست؟'),
+ BOX('trap','گذاشتن همه موانع در ستون «بیرونی». معمولاً دست‌کم یکی از موانع، ارزش دیگری از خودِ توست که ترجیح می‌دهی نامش را نبری — مثلاً امنیت، یا آبرو. اسم‌بردن از آن، بی‌رحمی با خودت نیست؛ دقت است.'),
+ FREE()
+]);
+
+const review=o=>[H('بازنگری '+o),L('تاریخ:'),Q('کجا این فصل بر اساس ارزش‌هایم زندگی کردم؟'),Q('کجا از آن‌ها فاصله گرفتم و چه چیزی برنده شد؟'),L('آیا ترتیب سه ارزش اصلی‌ام تغییر کرده است؟'),L('تغییر کوچک این فصل:')];
+sec('c27',G7,27,'بازنگری فصلی',[
+ LEAD('ارزش‌ها سریع تغییر نمی‌کنند، اما اولویتشان با هر مرحله زندگی جابه‌جا می‌شود: بعد از یک تغییر شغلی، تولد یک فرزند، یک از دست دادن، یک نقل‌مکان. هر سه ماه یک بار، این چهار پرسش کافی است.'),
+ ...review('اول'),...review('دوم'),...review('سوم'),...review('چهارم')
+]);
+
+const GE='جمع‌بندی و پیوست‌ها';
+sec('profile',GE,'✦','پروفایل ارزش‌های من',[
+ LEAD('این صفحه، جمع‌بندی همه چیزی است که در این کتاب نوشته‌ای. اگر روزی فقط یک صفحه از این کتاب را نگه داری، همین است.'),
+ H('سه ارزش اصلی'),
+ TABLE([{h:'ارزش',w:'24%'},{h:'برای من یعنی'},{h:'شاهد اصلی',w:'26%'}],3,{prefill:'c21.top3'}),
+ H('ارزش‌های مهم دیگر'),Q(''),
+ H('تعارض اصلی من'),{t:'conflict'},
+ H('آنچه بیشتر می‌گویم تا زندگی می‌کنم'),Q(''),
+ H('آنچه زندگی می‌کنم اما هرگز نگفته‌ام'),Q(''),
+ H('تغییر کوچک فعلی من'),Q(''),
+ BOX('pause','حالا به جمله‌ای برگرد که در ابتدای این کتاب نوشتی — پاسخت به «مهم‌ترین چیز در زندگی‌ام چیست». آن جمله را کنار این صفحه بگذار. چه چیزی فرق کرده است؟ و چه چیزی، با وجود همه این کار، همان ماند؟','آخرین مکث'),
+ RECALL1('whatis.first','جمله‌ای که در ابتدای کتاب نوشتی'),
+ Q('پاسخ من:',{rows:3}),
+ FREE()
+]);
+
+sec('apA',GE,'الف','نقشه دایره‌ای ارزش‌ها',[
+ LEAD('این دایره نشان می‌دهد چرا بعضی ارزش‌ها به‌راحتی کنار هم می‌نشینند و بعضی همیشه با هم می‌جنگند: ارزش‌های همسایه هم‌افزا هستند و ارزش‌های روبه‌رو، در کشش.'),
+ {t:'wheel'},
+ BOX('note','سه ارزش اصلی خودت را روی دایره پیدا کن و با لمس هر بخش علامت بزن. اگر هر سه در یک ناحیه‌اند، احتمالاً تصویری یکدست از خودت ساخته‌ای و لازم است دوباره به فصل ۱۲ برگردی. اگر دو تا از آن‌ها تقریباً روبه‌روی هم‌اند، تعارض اصلی زندگی‌ات را پیدا کرده‌ای — و آن تعارض، احتمالاً همان چیزی است که بیشتر تصمیم‌های سختت را ساخته است.','چگونه از این نقشه استفاده کنی'),
+ BOX('trap','این ساختار از پژوهش‌های بین‌فرهنگی گسترده‌ای به دست آمده، اما یک الگوی آماری است، نه قانون. اگر تجربه تو با آن نمی‌خواند، تجربه تو معتبرتر است. نقشه ابزار فکرکردن است، نه داور.','یک تذکر درباره این نقشه')
+]);
+
+sec('apB',GE,'ب','بانک پرسش‌های عمیق‌کننده',[
+ LEAD('هر بار که به این کتاب برمی‌گردی، یا وقتی در یک موقعیت گیر کرده‌ای، از این پرسش‌ها استفاده کن. لازم نیست همه را بپرسی؛ یکی که در آن لحظه زنده است، کافی است.'),
+ H('برای رفتن به عمق یک تجربه'),
+ LIST(['چه چیزی در این موضوع برایم مهم است؟','این برای من چه معنایی دارد؟','اگر این را داشته باشم، چه چیزی برایم ممکن می‌شود؟','نبودنش چه چیزی را از من می‌گیرد؟','اگر مجبور نباشم کسی را راضی کنم، چه چیزی را انتخاب می‌کنم؟','ده سال دیگر، کدام بخش این ماجرا هنوز برایم مهم خواهد بود؟']),
+ H('برای دیدن یک انتخاب'),
+ LIST(['بین چه چیزهایی واقعاً انتخاب می‌کنم؟','اگر این را انتخاب کنم، از چه چیزی محافظت کرده‌ام؟','اگر آن یکی را انتخاب کنم، چه چیزی را از دست می‌دهم؟','کدامش را حاضر نیستم از دست بدهم، حتی اگر گران تمام شود؟','اگر هیچ‌کس هیچ‌وقت از این تصمیم خبردار نشود، باز هم همین را انتخاب می‌کنم؟']),
+ H('برای آزمودن یک ارزش'),
+ LIST(['کجای زندگی‌ام این را در انتخاب‌هایم می‌بینم؟','آخرین باری که برای حفظش هزینه دادم کِی بود؟','موقعیتی هست که برخلافش رفتار کرده باشم؟ آنجا چه چیزی برنده شد؟','اگر کسی فقط تقویم و خرج من را ببیند، این را در فهرستم می‌گذارد؟','این ارزش من است، یا ارزشی که از کسی به ارث برده‌ام؟']),
+ H('برای کار با تعارض'),
+ LIST(['هر دو مهم‌اند؛ اگر فقط یکی را بتوانم نگه دارم، کدام؟','از دست دادن کدام سخت‌تر است؟','در این موقعیت، کدامشان را موقتاً در اولویت می‌گذارم و برای چه مدت؟','آیا راهی هست که هر دو را کمی داشته باشم، یا این فقط تعویق تصمیم است؟']),
+ H('برای مواقعی که پاسخ نداری'),
+ LIST(['اگر می‌دانستم، پاسخ چه بود؟','چه چیزی نمی‌خواهم ببینم؟','اگر این را به کسی که کاملاً به او اعتماد دارم می‌گفتم، چه می‌گفتم؟','کدام بخش پرسش، پاسخ‌دادن را سخت کرده است؟'])
+]);
+
+sec('apC',GE,'پ','اگر با یک کوچ کار می‌کنی',[
+ LEAD('این کتاب برای کار فردی طراحی شده و بدون هیچ همراهی هم کار می‌کند. اما اگر کوچی داری، چند نکته کیفیت کار را بالا می‌برد.'),
+ H('چه چیزی را با کوچ ببر'),
+ LIST(['<b>جاهایی که گیر کردی</b> — نه صفحه‌هایی که راحت پر شدند. صفحه‌ای که نتوانستی پرش کنی، معمولاً پربارترین گفت‌وگو را می‌سازد.','<b>تعارض‌ها</b> (فصل ۱۶) — این‌ها معمولاً در گفت‌وگو خیلی زودتر از نوشتن روشن می‌شوند.','<b>فاصله بین اعلام‌شده و زیسته</b> (فصل ۱۴) — دیدن این فاصله با کمک کسی که قضاوت نمی‌کند، آسان‌تر است.','<b>فرضیه‌هایی که نمره پایین گرفتند</b> (فصل ۲۰).']),
+ H('آنچه از کوچ انتظار داشته باش — و آنچه نه'),
+ STATIC(['این در نقش کوچ هست','این در نقش کوچ نیست'],[['پرسیدن پرسش‌هایی که خودت به آن‌ها نرسیده‌ای','گفتن اینکه ارزش واقعی تو چیست'],['بازتاب‌دادن آنچه در حرف‌هایت تکرار می‌شود','تفسیر روان‌شناختی یا تشخیص'],['نشان‌دادن فاصله‌ای که خودت نمی‌بینی','قضاوت درباره ارزش‌های تو'],['ماندن با تو در ابهام، بدون شتاب برای حل','تصمیم‌گرفتن به‌جای تو']]),
+ BOX('note','اگر کوچت به تو گفت «ارزش تو فلان چیز است»، از او بخواه شواهدش را در حرف‌های خودت نشان بدهد. اگر نتوانست، آن یک فرضیه است — و تو حق داری با آن موافق نباشی.'),
+ H('اگر کوچ نداری'),
+ P('می‌توانی از یک دوست بخواهی نقش «شنونده» را بازی کند: بدون نظر دادن، فقط بپرسد «چه چیزی در این برایت مهم بود؟» و بعد ساکت بماند. سکوت او، بیشتر از نظرش به تو کمک می‌کند.')
+]);
+
+sec('apD',GE,'ت','تقویم شش‌هفته‌ای',[
+ LEAD('این کتاب در شش هفته بهتر جواب می‌دهد تا در شش ساعت. بین بخش‌ها فاصله بگذار؛ ذهن در فاصله‌ها کار می‌کند.'),
+ P('عقب‌افتادن از این تقویم شکست نیست؛ اما اگر بیش از دو هفته دست نزدی، به‌جای ادامه‌دادن از همان‌جا، صفحه‌های قبلی را یک بار بخوان.'),
+ STATIC(['هفته','چه کار می‌کنم','نکته'],[['هفته ۱','پیش از شروع + فصل‌های ۱ تا ۳','سه دروازه اول، هر کدام در یک نشست جدا. عجله نکن.'],['هفته ۲','فصل‌های ۴ تا ۷','فصل ۵ (پشیمانی) و ۶ (حسادت) را در روزی بنویس که حالت خوب است.'],['هفته ۳','فصل‌های ۸ تا ۱۰','بین نوشتن فهرست هشت‌تایی و مرحله بعد، دست‌کم دو روز فاصله بگذار.'],['هفته ۴','فصل‌های ۱۱ تا ۱۴','پیش از فصل ۱۳، تقویم و تراکنش‌هایت را واقعاً باز کن.'],['هفته ۵','فصل‌های ۱۵ تا ۲۰','نقشه ۱۹ ارزش را آرام و در یک نشست جدا بخوان.'],['هفته ۶','فصل‌های ۲۱ تا ۲۷ و پروفایل','پروفایل را همان روزی پر نکن که فصل ۲۱ را نوشته‌ای.']]),
+ H('ثبت پیشرفت'),
+ TABLE([{h:'هفته',type:'fixed',w:'12%'},{h:'تاریخ',w:'22%',type:'short'},{h:'یک چیزی که این هفته دیدم'}],6,{fixed:['۱','۲','۳','۴','۵','۶']})
+]);
+
+sec('src',GE,null,'مبنای تدوین',[
+ LIST([
+  '<span dir="ltr">Schwartz, S. H., et al. (2012). Refining the theory of basic individual values. <i>Journal of Personality and Social Psychology</i>, 103(4), 663–688.</span><br>منبع نظریه بازنگری‌شده و تعریف ۱۹ ارزش بنیادین؛ تعریف‌های فصل ۱۸ ترجمه مستقیم از همین منبع‌اند.',
+  '<span dir="ltr">Schwartz, S. H. (1992). Universals in the content and structure of values.</span><br>نظریه اولیه ده ارزش و ساختار دایره‌ای که پایه مدل بازنگری‌شده است.',
+  'صلاحیت‌های کوچینگ فدراسیون بین‌المللی کوچینگ (ICF Core Competencies) — به‌ویژه «ایجاد آگاهی» و «گوش‌دادن فعال»، به‌عنوان چارچوب طراحی پرسش‌های این کتاب.',
+  '«اول ارتباط، بعد گفت‌وگو» — ایمان ابریشمچی، آکادمی تایم کوچ.']),
+ H('یک یادآوری آخر'),
+ P('این کتاب هیچ نمره‌ای به تو نمی‌دهد و هیچ تیپی برایت نمی‌سازد. آنچه در دستت داری، فقط تصویری است که خودت از خودت ساخته‌ای — با شواهدی که خودت جمع کرده‌ای.'),
+ P('اگر شش ماه دیگر این صفحه‌ها را باز کنی و چیزی در آن‌ها عوض شده باشد، اشکالی ندارد. ارزش‌ها ثابت‌اند، اما فهم ما از آن‌ها عمیق‌تر می‌شود.'),
+ P('<span style="color:var(--muted)">آکادمی تایم کوچ — ویرایش اول، شهریور ۱۴۰۵</span>')
+]);
+
+/* ---------- assign keys & units ---------- */
+const UNITS={}; // sec -> array of arrays of keys
+const SECBY={}; S.forEach((s,i)=>{SECBY[s.id]=s;s.idx=i;});
+S.forEach(s=>{
+  let n=0; const units=[];
+  s.blocks.forEach(b=>{
+    const base=s.id+'.'+(b.id||('f'+(++n)));
+    switch(b.t){
+      case 'q': case 'line': case 'take': case 'free': case 'scale':
+        b.key=base; units.push([base]); break;
+      case 'table': b.key=base; for(let r=0;r<b.n;r++){const u=[];b.cols.forEach((c,j)=>{if(c.type!=='fixed')u.push(base+'.r'+r+'.c'+j)});units.push(u);} break;
+      case 'num': b.key=base; for(let i=0;i<b.n;i++) units.push([base+'.'+i]); break;
+      case 'three': b.key=base; b.labels.forEach((_,i)=>units.push([base+'.'+i])); break;
+      case 'checks': b.key=s.id+'.chk'; units.push(VALUES.map(v=>b.key+'.'+v[0])); break;
+      case 'wheel': b.key=s.id+'.wheel'; units.push([b.key]); break;
+      case 'conflict': b.key=s.id+'.conf'; units.push([b.key+'.0',b.key+'.1',b.key+'.2']); break;
+      case 'cover': units.push(['cover.name'],['cover.date']); break;
+    }
+  });
+  UNITS[s.id]=units;
+});
+
+/* ---------- storage ---------- */
+const LS_KEY='tc-values-workbook-v1', LS_POS='tc-values-workbook-pos';
+let store={v:{},t:{}};
+try{const s=localStorage.getItem(LS_KEY);if(s){const o=JSON.parse(s);if(o&&o.v)store={v:o.v||{},t:o.t||{}};}}catch(e){}
+let lsTimer;
+function saveLocalSoon(){clearTimeout(lsTimer);lsTimer=setTimeout(()=>{try{localStorage.setItem(LS_KEY,JSON.stringify(store));}catch(e){}},250);}
+const get=k=>store.v[k]||'';
+
+let cloud=null, colPath='', cloudMode='pending';
+const dirty=new Set(), inflight={};
+let cloudTimer;
+function setVal(key,val){
+  if(val) store.v[key]=val; else delete store.v[key];
+  const sec=key.split('.')[0];
+  store.t[sec]=Date.now();
+  saveLocalSoon();
+  dirty.add(sec);
+  if(cloud){setStatus('saving');clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,1200);}
+  else if(cloudMode!=='pending'){setStatus('local');}
+  refreshProgress();
+}
+function secEntries(sec){const p=sec+'.',e=[];for(const k in store.v)if(k.startsWith(p))e.push([k.slice(p.length),store.v[k]]);return e;}
+async function writeSec(sec){
+  if(inflight[sec]){inflight[sec].again=true;return inflight[sec].p;}
+  const st={again:false};inflight[sec]=st;
+  st.p=(async()=>{try{do{st.again=false;await cloud.col.doc(sec).set({e:secEntries(sec),t:store.t[sec]||Date.now()});}while(st.again);}finally{delete inflight[sec];}})();
+  return st.p;
+}
+async function flushCloud(){
+  if(!cloud)return;
+  const secs=[...dirty];dirty.clear();
+  try{for(const s of secs){await writeSec(s);} if(!dirty.size)setStatus('synced');}
+  catch(e){
+    secs.forEach(s=>dirty.add(s));
+    const c=e&&e.code;
+    if(c==='unavailable'||c==='resource_exhausted'){setStatus('saving');clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,4000+Math.random()*2000);}
+    else if(c==='quota_exceeded'){setStatus('error','فضای ذخیره در حساب پر است؛ پاسخ‌ها روی همین دستگاه نگه داشته می‌شوند.');}
+    else{cloud=null;cloudMode='local';setStatus('local');}
+  }
+}
+function applyRemote(docs){
+  let changed=false;
+  for(const d of docs){
+    const b=d.data();if(!b)continue;const sec=d.id;const rt=+b.t||0;
+    if(rt>(store.t[sec]||0)&&!dirty.has(sec)&&!inflight[sec]){
+      const p=sec+'.';for(const k of Object.keys(store.v))if(k.startsWith(p))delete store.v[k];
+      for(const pair of (b.e||[])){if(Array.isArray(pair)&&pair[1])store.v[p+pair[0]]=pair[1];}
+      store.t[sec]=rt;changed=true;
+    }
+  }
+  if(changed){saveLocalSoon();syncDom();refreshProgress();}
+}
+async function initCloud(){
+  try{
+    if(!window.claude||typeof window.claude.use!=='function'){cloudMode='local';return setStatus('local');}
+    const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+    if(!db||!user){cloudMode='local';return setStatus('local');}
+    const uid=await user.id();
+    if(!uid){cloudMode='local';return setStatus('local');}
+    colPath='data/users/'+uid;
+    const col=db.collection(colPath);
+    const snap=await col.limit(200).get();
+    const remoteT={};snap.docs.forEach(d=>{const b=d.data();remoteT[d.id]=b&&+b.t||0;});
+    applyRemote(snap.docs);
+    cloud={col};cloudMode='cloud';
+    for(const sec in store.t){if((store.t[sec]||0)>(remoteT[sec]||0))dirty.add(sec);}
+    if(dirty.size){setStatus('saving');await flushCloud();}else setStatus('synced');
+    col.limit(200).onSnapshot(qs=>applyRemote(qs.docs),()=>{});
+  }catch(e){cloud=null;cloudMode='local';setStatus('local');}
+}
+
+/* ---------- status ---------- */
+const statusEl=document.getElementById('status');
+const STXT={loading:'در حال آماده‌سازی…',saving:'در حال ذخیره…',synced:'ذخیره شد',local:'ذخیره روی همین دستگاه',error:'ذخیره در حساب ممکن نشد'};
+const STIP={synced:'پاسخ‌هایت در حساب تو ذخیره می‌شوند و روی دستگاه‌های دیگر هم در دسترس‌اند. فقط خودت آن‌ها را می‌بینی.',local:'پاسخ‌هایت روی همین مرورگر ذخیره می‌شوند. برای اطمینان، گاهی از «خروجی» نسخهٔ پشتیبان بگیر.',saving:'',loading:''};
+function setStatus(s,tip){statusEl.dataset.s=s;statusEl.querySelector('.txt').textContent=STXT[s]||'';statusEl.title=tip||STIP[s]||'';}
+
+/* ---------- rendering ---------- */
+const pageEl=document.getElementById('page'), tocEl=document.getElementById('toc');
+let current=null;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let uid=0;
+function ta(key,rows,label){const id='q'+(++uid);return {id,html:`<textarea class="ruled" rows="${rows}" data-key="${key}" id="${id}" ${label?`aria-labelledby="${label}"`:''}></textarea>`};}
+
+function blockHTML(b,s){
+  switch(b.t){
+    case 'p': return `<p>${b.x}</p>`;
+    case 'lead': return `<p class="lead">${b.x}</p>`;
+    case 'h': return `<h2 class="sub">${b.x}</h2>`;
+    case 'box': return `<div class="box ${b.k}"><div class="bt">${b.title||BOXTITLE[b.k]}</div><div>${b.x}</div></div>`;
+    case 'list': {const tag=b.ordered?'ol':'ul';return `<${tag}>${b.items.map(i=>`<li>${i}</li>`).join('')}</${tag}>`;}
+    case 'q': {const lid='l'+(++uid);const t=ta(b.key,b.rows||2,b.x?lid:'');return `<div class="field">${b.x?`<label class="qlabel" id="${lid}" for="${t.id}">${b.x}</label>`:''}${b.hint?`<span class="hint">${b.hint}</span>`:''}${t.html}</div>`;}
+    case 'line': {const id='q'+(++uid);return `<div class="field"><label class="qlabel" for="${id}">${b.x}</label><input class="line" id="${id}" data-key="${b.key}" autocomplete="off"></div>`;}
+    case 'take': {const lid='l'+(++uid);const t=ta(b.key,2,lid);return `<div class="take"><div class="bt">برداشت من از این دروازه</div><label class="qlabel" id="${lid}" for="${t.id}">${b.x}</label>${t.html}</div>`;}
+    case 'free': {const lid='l'+(++uid);const t=ta(b.key,b.rows,lid);return `<div class="free"><div class="bt" id="${lid}">فضای نوشتن</div>${t.html}</div>`;}
+    case 'static': return `<div class="tbl"><table><thead><tr>${b.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map((c,j)=>j===0?`<td class="lbl">${c}</td>`:`<td class="txt">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    case 'table': {
+      let h=`<div class="tbl"><table><thead><tr>${b.cols.map(c=>`<th${c.w?` style="width:${c.w}"`:''}>${c.h}</th>`).join('')}</tr></thead><tbody>`;
+      for(let r=0;r<b.n;r++){
+        h+='<tr>';
+        b.cols.forEach((c,j)=>{
+          const k=b.key+'.r'+r+'.c'+j, lab=esc(c.h.replace(/<[^>]+>/g,''))+' — ردیف '+fa(r+1);
+          if(c.type==='fixed') h+=`<td class="lbl">${b.fixed[r]}</td>`;
+          else if(c.type==='check') h+=`<td class="chk"><input type="checkbox" data-key="${k}" aria-label="${lab}"></td>`;
+          else if(c.type==='value') h+=`<td><input class="cellin" list="vals" data-key="${k}" aria-label="${lab}" autocomplete="off"></td>`;
+          else if(c.type==='short') h+=`<td><input class="cellin" data-key="${k}" aria-label="${lab}" autocomplete="off"></td>`;
+          else { const ph=(j===0&&b.prefill)?get(b.prefill+'.'+r):''; h+=`<td><textarea class="cell" rows="1" data-key="${k}" aria-label="${lab}" data-ph="${esc(ph)}"></textarea></td>`; }
+        });
+        h+='</tr>';
+      }
+      return h+'</tbody></table></div>';
+    }
+    case 'num': return `<div class="numlist">${Array.from({length:b.n},(_,i)=>`<div class="row"><b>${fa(i+1)}.</b><input class="line" data-key="${b.key}.${i}" aria-label="مورد ${fa(i+1)}" autocomplete="off"></div>`).join('')}</div>`;
+    case 'three': return `<div class="three">${b.labels.map((l,i)=>`<div class="c"><b>${l}</b><input class="line" data-key="${b.key}.${i}" aria-label="ارزش ${l}" autocomplete="off"></div>`).join('')}</div>`;
+    case 'scale': {
+      let h=`<div class="scale" role="radiogroup" aria-label="هم‌خوانی با تجربه من"><div class="sl">هم‌خوانی با تجربه من:</div><div class="opts"><span class="end">اصلاً</span>`;
+      for(let i=1;i<=10;i++) h+=`<label><input type="radio" name="${b.key}" value="${i}" data-key="${b.key}" aria-label="${fa(i)}"><span>${fa(i)}</span></label>`;
+      return h+`<span class="end">کاملاً</span><button type="button" class="linkbtn clear" data-clear="${b.key}">پاک کردن</button></div></div>`;
+    }
+    case 'recall3': {
+      const vals=[0,1,2].map(i=>get('c21.top3.'+i)).filter(Boolean);
+      return `<div class="recall"><div class="bt">سه ارزش اصلی تو (از فصل ۲۱)</div>${vals.length?`<div class="chips">${vals.map(v=>`<span class="chip">${esc(v)}</span>`).join('')}</div>`:`<div>هنوز در فصل ۲۱ سه ارزشت را ننوشته‌ای. <button class="linkbtn" data-go="c21">رفتن به فصل ۲۱</button></div>`}</div>`;
+    }
+    case 'recall1': {const v=get(b.key);return `<div class="recall"><div class="bt">${b.label}</div>${v?`<div class="quote">«${esc(v)}»</div>`:`<div>این جمله را هنوز ننوشته‌ای. <button class="linkbtn" data-go="whatis">رفتن به آن صفحه</button></div>`}</div>`;}
+    case 'conflict': return `<div class="conflict field"><span>میان</span><input class="line" data-key="${b.key}.0" aria-label="ارزش اول" autocomplete="off"><span>و</span><input class="line" data-key="${b.key}.1" aria-label="ارزش دوم" autocomplete="off"><span>— و معمولاً برنده:</span><input class="line" data-key="${b.key}.2" aria-label="ارزش برنده" autocomplete="off"></div>`;
+    case 'checks': {
+      let h='';
+      Object.keys(GROUPS).forEach(g=>{
+        const G=GROUPS[g];
+        h+=`<div class="vgroup"><div class="vhead" style="background:var(${G.c})"><span>${G.t} <span style="font-weight:500;opacity:.9">— ${G.s}</span></span><small>${G.en}</small></div><div class="vgrid">`;
+        VALUES.filter(v=>v[4]===g).forEach(v=>{h+=`<label class="vcard"><input type="checkbox" data-key="${b.key}.${v[0]}"><span><div class="en">${v[2]}</div><div class="fa">${v[1]}</div><div class="df">${v[3]}</div></span></label>`;});
+        h+='</div></div>';
+      });
+      return h;
+    }
+    case 'wheel': return `<div class="wheel-wrap">${wheelSVG()}</div><div class="wcount" id="wcount"></div><div class="legend" id="legend"></div>`;
+    case 'cover': return coverHTML();
+  }
+  return '';
+}
+function coverHTML(){
+  return `<div class="cover"><div class="org">آکادمی تایم کوچ</div><h1>آنچه واقعاً برایم مهم است</h1><p class="subt">کتاب کار کشف ارزش‌های شخصی</p>
+  <p class="tag">هفت مرحله برای اینکه خودت ارزش‌هایت را کشف کنی — نه اینکه کسی به تو بگوید چه چیزی باید مهم باشد.</p>
+  <div class="meta"><div><label class="qlabel" for="cv1">این کتاب متعلق به:</label><input class="line" id="cv1" data-key="cover.name" autocomplete="off"></div><div><label class="qlabel" for="cv2">تاریخ شروع:</label><input class="line" id="cv2" data-key="cover.date" autocomplete="off"></div></div>
+  <button class="startbtn" data-go="howto">شروع کار</button>
+  <p class="saveinfo">هر چیزی که می‌نویسی هم‌زمان ذخیره می‌شود. می‌توانی هر وقت خواستی برگردی و از همان‌جا ادامه بدهی.</p>
+  <h2 class="sub">شناسنامه کتاب کار</h2>
+  <div class="tbl"><table><tbody>
+   <tr><td class="lbl">عنوان</td><td class="txt">آنچه واقعاً برایم مهم است</td></tr>
+   <tr><td class="lbl">عنوان فرعی</td><td class="txt">کتاب کار کشف ارزش‌های شخصی</td></tr>
+   <tr><td class="lbl">مخاطب</td><td class="txt">دانش‌پذیران و مراجعان؛ برای کار فردی، با یا بدون همراهی کوچ</td></tr>
+   <tr><td class="lbl">تدوین</td><td class="txt">ایمان ابریشمچی — آکادمی تایم کوچ</td></tr>
+   <tr><td class="lbl">چارچوب مرجع</td><td class="txt">نظریه بازنگری‌شده ارزش‌های بنیادین انسانی، شالوم شوارتز و همکاران (۲۰۱۲)؛ رویکرد پرسشگری کوچینگ مبتنی بر صلاحیت‌های ICF</td></tr>
+   <tr><td class="lbl">زمان لازم</td><td class="txt">حدود شش تا هشت هفته کار پیوسته؛ هر هفته یک تا دو ساعت</td></tr>
+   <tr><td class="lbl">ویرایش</td><td class="txt">ویرایش اول — شهریور ۱۴۰۵</td></tr>
+  </tbody></table></div>
+  <div class="box note"><div class="bt">یادداشت</div><div>این کتاب کار یک ابزار خودشناسی است، نه آزمون شخصیت و نه ابزار تشخیص روان‌شناختی. خروجی آن نمره، تیپ یا برچسب نیست؛ تصویری است که خودت از آنچه برایت مهم است می‌سازی. اگر در جریان کار با موضوعی روبه‌رو شدی که فراتر از خودبازنگری است، مراجعه به یک متخصص مسیر درست است، نه ادامه‌دادن این تمرین‌ها.</div></div></div>`;
+}
+
+/* wheel */
+function segPath(i,r0,r1){
+  const w=2*Math.PI/19,a0=i*w+0.012,a1=(i+1)*w-0.012,cx=200,cy=200;
+  const p=(r,a)=>[(cx+r*Math.sin(a)).toFixed(2),(cy-r*Math.cos(a)).toFixed(2)];
+  const [x0,y0]=p(r1,a0),[x1,y1]=p(r1,a1),[x2,y2]=p(r0,a1),[x3,y3]=p(r0,a0);
+  return `M${x0},${y0} A${r1},${r1} 0 0 1 ${x1},${y1} L${x2},${y2} A${r0},${r0} 0 0 0 ${x3},${y3} Z`;
+}
+function wheelSVG(){
+  const w=2*Math.PI/19;let h=`<svg class="wheel" viewBox="0 0 400 400" role="group" aria-label="نقشه دایره‌ای ۱۹ ارزش">`;
+  h+=`<line x1="200" y1="112" x2="200" y2="288" stroke="var(--line)" stroke-dasharray="3 4"/><line x1="112" y1="200" x2="288" y2="200" stroke="var(--line)" stroke-dasharray="3 4"/>`;
+  VALUES.forEach((v,i)=>{
+    const c=GROUPS[v[4]].c, a=(i+.5)*w, tx=(200+142*Math.sin(a)).toFixed(1), ty=(200-142*Math.cos(a)).toFixed(1);
+    h+=`<g class="seg" data-v="${v[0]}" role="checkbox" aria-checked="false" tabindex="0" aria-label="${v[1]}" style="--c:var(${c})"><path d="${segPath(i,96,186)}" stroke="var(${c})"/><text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="central">${fa(v[0])}</text></g>`;
+  });
+  h+=`<text class="ctr b" x="200" y="148" text-anchor="middle" style="fill:var(--teal)">رشد و گشودگی</text><text class="ctr b" x="200" y="258" text-anchor="middle" style="fill:var(--gold)">خودحفاظتی</text><text class="ctr" x="248" y="190" text-anchor="middle">تمرکز بر خود</text><text class="ctr" x="152" y="190" text-anchor="middle">تمرکز بر دیگران</text>`;
+  return h+'</svg>';
+}
+function paintWheel(){
+  const sel=new Set(get('apA.wheel').split(',').filter(Boolean).map(Number));
+  document.querySelectorAll('.wheel .seg').forEach(g=>{
+    const on=sel.has(+g.dataset.v);g.setAttribute('aria-checked',on);
+    const p=g.querySelector('path'),t=g.querySelector('text');
+    p.style.fill=on?'var(--c)':'color-mix(in srgb, var(--c) 13%, var(--surface))';
+    p.style.strokeWidth=on?'2.5':'1.2';
+    t.style.fill=on?'var(--surface)':'var(--c)';
+  });
+  const lg=document.getElementById('legend');
+  if(lg) lg.innerHTML=VALUES.map(v=>`<div class="${sel.has(v[0])?'on':''}"><b style="background:var(${GROUPS[v[4]].c})">${fa(v[0])}</b>${v[1]}${sel.has(v[0])?' ✓':''}</div>`).join('');
+  const wc=document.getElementById('wcount');
+  if(wc) wc.textContent=sel.size?`علامت‌خورده: ${fa(sel.size)} ارزش`:'روی هر بخش بزن تا علامت بخورد.';
+}
+function toggleWheel(n){
+  const sel=new Set(get('apA.wheel').split(',').filter(Boolean).map(Number));
+  sel.has(n)?sel.delete(n):sel.add(n);
+  setVal('apA.wheel',[...sel].sort((a,b)=>a-b).join(','));paintWheel();
+}
+
+const LH=34;
+function fit(el){
+  if(el.tagName!=='TEXTAREA')return;
+  el.style.height='auto';
+  if(el.classList.contains('ruled')){const min=(+el.getAttribute('rows')||2)*LH;el.style.height=Math.max(min,Math.ceil(el.scrollHeight/LH)*LH)+'px';}
+  else el.style.height=Math.max(50,el.scrollHeight)+'px';
+}
+function fillEl(el){
+  const k=el.dataset.key,v=get(k);
+  if(el.type==='checkbox') el.checked=!!v;
+  else if(el.type==='radio') el.checked=(v===el.value);
+  else if(el.value!==v) el.value=v;
+  if(el.dataset.ph) el.placeholder=el.dataset.ph;
+  fit(el);
+}
+function syncDom(){
+  pageEl.querySelectorAll('[data-key]').forEach(el=>{if(el!==document.activeElement)fillEl(el);});
+  if(current==='apA')paintWheel();
+}
+
+function render(id,scroll=true){
+  const s=SECBY[id]||S[0];current=s.id;
+  try{localStorage.setItem(LS_POS,s.id);}catch(e){}
+  let h='';
+  if(s.id!=='cover'){
+    if(s.stage!=='شروع') h+=`<div class="stage-label">${s.stage}</div>`;
+    h+=`<div class="chap-head">${s.num!=null?`<div class="chap-num">${typeof s.num==='number'?fa(s.num):s.num}</div>`:''}<h1>${s.title}</h1></div>`;
+  }
+  h+=s.blocks.map(b=>blockHTML(b,s)).join('');
+  const prev=S[s.idx-1],next=S[s.idx+1];
+  h+=`<div class="pager">${prev?`<button class="navbtn" data-go="${prev.id}"><small>قبلی</small><b>${prev.title}</b></button>`:'<span></span>'}${next?`<button class="navbtn next" data-go="${next.id}"><small>بعدی</small><b>${next.title}</b></button>`:''}</div>`;
+  if(s.blocks.some(b=>b.t==='table'&&b.cols.some(c=>c.type==='value'))) h+=`<datalist id="vals">${VALUES.map(v=>`<option value="${v[1]}">`).join('')}</datalist>`;
+  pageEl.innerHTML=h;
+  pageEl.querySelectorAll('[data-key]').forEach(fillEl);
+  if(s.id==='apA')paintWheel();
+  renderToc();
+  if(scroll)window.scrollTo(0,0);
+  document.body.classList.remove('nav-open');
+  requestAnimationFrame(()=>pageEl.querySelectorAll('textarea').forEach(fit));
+}
+
+/* progress & toc */
+function secProgress(id){const u=UNITS[id]||[];if(!u.length)return null;let f=0;u.forEach(keys=>{if(keys.some(k=>store.v[k]))f++;});return [f,u.length];}
+function renderToc(){
+  let total=0,filled=0;S.forEach(s=>{const p=secProgress(s.id);if(p){filled+=p[0];total+=p[1];}});
+  const pct=total?Math.round(filled/total*100):0;
+  let h=`<div class="overall"><div class="lbl"><span>پیشرفت کل</span><b>${fa(pct)}٪</b></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  let stage=null;
+  S.forEach(s=>{
+    if(s.stage!==stage){stage=s.stage;h+=`<div class="stage-title">${stage}</div>`;}
+    const p=secProgress(s.id);
+    const pg=p?(p[0]>=p[1]?`<span class="pg done" title="کامل"></span>`:`<span class="pg" title="${fa(p[0])} از ${fa(p[1])}"><i style="width:${Math.round(p[0]/p[1]*100)}%"></i></span>`):'';
+    const n=s.num==null?'':(typeof s.num==='number'?fa(s.num):s.num);
+    h+=`<a href="#${s.id}" data-go="${s.id}" class="${s.id===current?'active':''}" ${s.id===current?'aria-current="page"':''}><span class="n">${n}</span><span>${s.title}</span>${pg}</a>`;
+  });
+  tocEl.innerHTML=h;
+}
+let progTimer;function refreshProgress(){clearTimeout(progTimer);progTimer=setTimeout(renderToc,400);}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const go=e.target.closest('[data-go]');
+  if(go){e.preventDefault();render(go.dataset.go);return;}
+  const cl=e.target.closest('[data-clear]');
+  if(cl){setVal(cl.dataset.clear,'');pageEl.querySelectorAll(`input[name="${cl.dataset.clear}"]`).forEach(r=>r.checked=false);return;}
+  const seg=e.target.closest('.wheel .seg');
+  if(seg){toggleWheel(+seg.dataset.v);return;}
+  const dd=document.getElementById('exportDd');
+  if(e.target.closest('#exportBtn')){const o=dd.classList.toggle('open');document.getElementById('exportBtn').setAttribute('aria-expanded',o);return;}
+  const act=e.target.closest('[data-act]');
+  if(act){dd.classList.remove('open');doAction(act.dataset.act);return;}
+  if(!e.target.closest('#exportDd'))dd.classList.remove('open');
+});
+document.addEventListener('keydown',e=>{
+  const seg=e.target.closest&&e.target.closest('.wheel .seg');
+  if(seg&&(e.key==='Enter'||e.key===' ')){e.preventDefault();toggleWheel(+seg.dataset.v);}
+  if(e.key==='Escape'){document.getElementById('exportDd').classList.remove('open');document.body.classList.remove('nav-open');}
+});
+pageEl.addEventListener('input',e=>{
+  const el=e.target;const k=el.dataset&&el.dataset.key;if(!k)return;
+  if(el.type==='checkbox')setVal(k,el.checked?'1':'');
+  else if(el.type==='radio'){if(el.checked)setVal(k,el.value);}
+  else{setVal(k,el.value.trim()?el.value:'');fit(el);}
+});
+pageEl.addEventListener('change',e=>{const el=e.target;if(el.type==='radio'&&el.checked&&el.dataset.key)setVal(el.dataset.key,el.value);});
+document.getElementById('menuBtn').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
+document.getElementById('scrim').addEventListener('click',()=>document.body.classList.remove('nav-open'));
+window.addEventListener('resize',()=>{clearTimeout(window.__rt);window.__rt=setTimeout(()=>pageEl.querySelectorAll('textarea').forEach(fit),150);});
+
+/* ---------- export / import ---------- */
+const toastEl=document.getElementById('toast');
+function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._t);toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),3200);}
+const strip=s=>String(s).replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').trim();
+function toMarkdown(){
+  const out=['# آنچه واقعاً برایم مهم است','کتاب کار کشف ارزش‌های شخصی — آکادمی تایم کوچ',''];
+  if(get('cover.name'))out.push('**این کتاب متعلق به:** '+get('cover.name'));
+  if(get('cover.date'))out.push('**تاریخ شروع:** '+get('cover.date'));
+  S.forEach(s=>{
+    const lines=[];let lastH='';
+    const ans=(label,v)=>{if(v){if(lastH){lines.push('### '+lastH);lastH='';}lines.push((label?`**${strip(label)}**\n\n`:'')+v.trim(),'');}};
+    s.blocks.forEach(b=>{
+      switch(b.t){
+        case 'h': lastH=strip(b.x);break;
+        case 'q': case 'line': case 'take': ans(b.x||'',get(b.key));break;
+        case 'free': ans('فضای نوشتن',get(b.key));break;
+        case 'scale': ans('هم‌خوانی با تجربه من',get(b.key)?fa(get(b.key))+' از ۱۰':'');break;
+        case 'num': case 'three': {const n=b.t==='num'?b.n:b.labels.length;const it=[];for(let i=0;i<n;i++){const v=get(b.key+'.'+i);if(v)it.push(`${fa(i+1)}. ${v}`);}ans('',it.join('\n'));break;}
+        case 'conflict': {const a=[0,1,2].map(i=>get(b.key+'.'+i));if(a.some(Boolean))ans('',`میان ${a[0]||'…'} و ${a[1]||'…'} — و معمولاً برنده: ${a[2]||'…'}`);break;}
+        case 'checks': {const it=VALUES.filter(v=>get(b.key+'.'+v[0])).map(v=>'- '+v[1]);ans('ارزش‌های علامت‌خورده',it.join('\n'));break;}
+        case 'wheel': {const sel=get(b.key).split(',').filter(Boolean).map(Number);ans('ارزش‌های علامت‌خورده روی دایره',VALUES.filter(v=>sel.includes(v[0])).map(v=>'- '+v[1]).join('\n'));break;}
+        case 'table': {
+          const rows=[];
+          for(let r=0;r<b.n;r++){const cells=b.cols.map((c,j)=>c.type==='fixed'?b.fixed[r]:c.type==='check'?(get(b.key+'.r'+r+'.c'+j)?'✓':''):(get(b.key+'.r'+r+'.c'+j)||'').replace(/\n/g,' ').replace(/\|/g,'/'));
+            const has=b.cols.some((c,j)=>c.type!=='fixed'&&get(b.key+'.r'+r+'.c'+j));if(has)rows.push('| '+cells.join(' | ')+' |');}
+          if(rows.length)ans('',['| '+b.cols.map(c=>strip(c.h)).join(' | ')+' |','|'+b.cols.map(()=>'---').join('|')+'|',...rows].join('\n'));
+          break;}
+      }
+    });
+    if(lines.length){out.push('',`## ${s.num!=null&&typeof s.num==='number'?fa(s.num)+'. ':''}${s.title}`,'',...lines);}
+  });
+  return out.join('\n');
+}
+let downloads=null;
+async function doAction(a){
+  if(a==='import'){document.getElementById('importFile').click();return;}
+  const data=a==='md'?toMarkdown():JSON.stringify({app:'tc-values-workbook',version:1,saved:new Date().toISOString(),v:store.v,t:store.t},null,1);
+  const filename=a==='md'?'values-workbook-answers.md':'values-workbook-backup.json';
+  if(!downloads&&window.claude&&window.claude.use){try{downloads=await window.claude.use('downloads');}catch(e){}}
+  if(downloads){
+    try{await downloads.save({filename,data});toast('فایل ذخیره شد.');}
+    catch(e){if(e&&e.code==='declined')return;toast('ذخیرهٔ فایل در این صفحه ممکن نشد.');}
+  }else toast('دانلود فایل در این نمای صفحه در دسترس نیست.');
+}
+document.getElementById('importFile').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const o=JSON.parse(await f.text());
+    if(!o||o.app!=='tc-values-workbook'||typeof o.v!=='object')throw 0;
+    if(!confirm('پاسخ‌های فعلی با محتوای این فایل جایگزین می‌شوند. ادامه می‌دهی؟'))return;
+    store.v={};for(const k in o.v)if(typeof o.v[k]==='string'&&o.v[k])store.v[k]=o.v[k];
+    const now=Date.now();store.t={};S.forEach(s=>{store.t[s.id]=now;dirty.add(s.id);});
+    saveLocalSoon();render(current,false);
+    if(cloud){setStatus('saving');flushCloud();}
+    toast('پاسخ‌ها از نسخهٔ پشتیبان بازگردانی شدند.');
+  }catch(err){toast('این فایل نسخهٔ پشتیبانِ این کتاب کار نیست.');}
+});
+
+/* ---------- start ---------- */
+let start='cover';try{const p=localStorage.getItem(LS_POS);if(p&&SECBY[p])start=p;}catch(e){}
+const hs=location.hash.slice(1);if(SECBY[hs])start=hs;
+render(start,false);
+setStatus('loading');
+initCloud();
+setTimeout(()=>{if(cloudMode==='pending'){/* still waiting on viewer; answers are safe locally */statusEl.title=STIP.local;}},4000);
+})();
+</script>
+</body>
+</html>

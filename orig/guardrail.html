@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Behavioral Guardrail — System Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;700&family=Sohne:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e10;
+    --bg-elev: #15171b;
+    --bg-elev-2: #1c1f24;
+    --ink: #ebe7df;
+    --ink-dim: #8a8680;
+    --ink-faint: #4a4845;
+    --rule: #2a2d33;
+    --signal: #f0a020;
+    --signal-dim: #8a5d10;
+    --danger: #c84a3a;
+    --good: #6aa67a;
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --sans: 'Sohne', -apple-system, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Background grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 1000;
+    mix-blend-mode: overlay;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+  }
+
+  /* Top meta bar */
+  .meta-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    max-width: 1176px;
+    margin: 0 auto;
+  }
+
+  .meta-bar .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--signal);
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Hero */
+  .hero {
+    padding: 120px 0 100px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .hero .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--signal);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero .label::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--signal);
+    display: inline-block;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin-bottom: 40px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--signal);
+    font-weight: 400;
+  }
+
+  .hero .deck {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--ink-dim);
+    max-width: 700px;
+    font-weight: 300;
+  }
+
+  /* Section */
+  section {
+    padding: 96px 0;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .section-num {
+    position: absolute;
+    top: 96px;
+    left: -120px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.15em;
+  }
+
+  @media (max-width: 1280px) {
+    .section-num { position: static; margin-bottom: 16px; display: block; }
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--signal);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 4.2vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    max-width: 880px;
+  }
+
+  h2 em { font-style: italic; color: var(--signal); }
+
+  h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+
+  p.dim { color: var(--ink-dim); }
+
+  .lede {
+    font-family: var(--serif);
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--ink);
+    max-width: 760px;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  /* Diagrams container */
+  .diagram {
+    margin: 48px 0;
+    padding: 40px;
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .diagram-label {
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    background: var(--bg);
+    padding: 0 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .diagram svg { width: 100%; height: auto; display: block; }
+
+  /* Three-column comparison */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 48px 0;
+  }
+
+  .compare-cell {
+    background: var(--bg-elev);
+    padding: 32px 28px;
+  }
+
+  .compare-cell .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .compare-cell h4 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .compare-cell p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+
+  .compare-cell .verdict {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--danger);
+    letter-spacing: 0.05em;
+  }
+
+  .compare-cell.us .verdict { color: var(--good); }
+
+  /* Loop diagram */
+  .loop-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin: 32px 0;
+  }
+
+  .loop-step {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    padding: 20px 14px;
+    position: relative;
+    text-align: center;
+  }
+
+  .loop-step .num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--signal);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .loop-step .name {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .loop-step.kill {
+    border-color: var(--signal);
+    background: linear-gradient(180deg, var(--bg-elev), rgba(240, 160, 32, 0.08));
+  }
+
+  @media (max-width: 900px) {
+    .loop-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Phase rows */
+  .phase {
+    display: grid;
+    grid-template-columns: 80px 200px 1fr;
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+
+  .phase:last-child { border-bottom: none; }
+
+  .phase .ph-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+    padding-top: 6px;
+  }
+
+  .phase .ph-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .phase .ph-title .weeks {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+
+  .phase .ph-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+  }
+
+  .phase .ph-body strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 760px) {
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+  }
+
+  /* Pull-quote */
+  .pull {
+    margin: 56px 0;
+    padding: 48px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .pull .q {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.5vw, 40px);
+    line-height: 1.25;
+    font-weight: 300;
+    letter-spacing: -0.015em;
+    max-width: 880px;
+  }
+
+  .pull .q em { color: var(--signal); font-style: italic; }
+
+  .pull .attr {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 24px;
+  }
+
+  /* Warning example boxes */
+  .warning-stack { margin: 32px 0; }
+
+  .warn-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: center;
+  }
+
+  .warn-row:last-child { border-bottom: none; }
+
+  .warn-row .grade {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .warn-row.weak .grade { color: var(--danger); }
+  .warn-row.mid .grade { color: var(--signal-dim); }
+  .warn-row.strong .grade { color: var(--good); }
+
+  .warn-row .text {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .warn-row.strong .text { color: var(--ink); font-weight: 500; }
+
+  /* Key/value list */
+  .kv-list { margin: 32px 0; }
+
+  .kv {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+  }
+
+  .kv .k {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--signal);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .kv .v {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  /* Discipline rules */
+  .rules { margin: 32px 0; }
+
+  .rule-item {
+    display: flex;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: flex-start;
+  }
+
+  .rule-item:last-child { border-bottom: none; }
+
+  .rule-item .marker {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--signal);
+    letter-spacing: 0.15em;
+    padding-top: 4px;
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .rule-item .text {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  /* Footer */
+  footer {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+
+  footer .mark {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--signal);
+    margin-bottom: 16px;
+  }
+
+  footer .meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* SVG diagram styling */
+  .svg-text { font-family: var(--mono); font-size: 11px; fill: var(--ink); }
+  .svg-text-dim { font-family: var(--mono); font-size: 10px; fill: var(--ink-dim); letter-spacing: 0.05em; }
+  .svg-text-serif { font-family: var(--serif); font-size: 14px; fill: var(--ink); }
+
+  /* Reveal animation */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="meta-bar">
+  <div><span class="dot"></span>System Brief / v0.1</div>
+  <div>Internal Document — Trader Working Group</div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero reveal">
+    <div class="label">Behavioral Infrastructure for Discretionary Trading</div>
+    <h1>The trader<br>already <em>knows</em>.<br>The system<br>helps them <em>act</em>.</h1>
+    <p class="deck">A pre-commitment system that turns a trader's implicit edge into an explicit, enforceable contract — and intervenes at the moment of deviation, not the morning after.</p>
+  </header>
+
+  <!-- 01 — THE PROBLEM -->
+  <section class="reveal">
+    <span class="section-num">§ 01</span>
+    <div class="eyebrow">The Gap</div>
+    <h2>Mistakes are <em>known</em> before they're made.<br>No tool exists at the moment of decision.</h2>
+    <p class="lede">Traders repeat the same handful of errors across years of experience. They aren't knowledge gaps — they're behavioral gaps. The trader sees the mistake forming and clicks anyway.</p>
+
+    <div class="compare-grid">
+      <div class="compare-cell">
+        <div class="tag">Tool Class A</div>
+        <h4>Journals</h4>
+        <p>Edgewonk, Tradezella, spreadsheets. Manual entry, post-session review. Insight arrives hours after the trade is closed and the damage is done.</p>
+        <div class="verdict">→ Past tense</div>
+      </div>
+      <div class="compare-cell">
+        <div class="tag">Tool Class B</div>
+        <h4>Platforms</h4>
+        <p>TradingView, NinjaTrader, broker terminals. Real-time execution but stateless — no memory of the trader's prior decisions, patterns, or losses.</p>
+        <div class="verdict">→ Present tense, no memory</div>
+      </div>
+      <div class="compare-cell">
+        <div class="tag">Tool Class C</div>
+        <h4>Predictive AI</h4>
+        <p>Signal services, pattern detectors, sentiment dashboards. Predicts the market — a problem the trader doesn't actually need help with — and ignores the trader entirely.</p>
+        <div class="verdict">→ Wrong subject</div>
+      </div>
+    </div>
+
+    <p>The closed loop between <em>what the trader learns after the fact</em> and <em>what the trader does in the moment</em> does not exist in any product on the market. That gap is the wedge.</p>
+  </section>
+
+  <!-- 02 — THE INSIGHT -->
+  <section class="reveal">
+    <span class="section-num">§ 02</span>
+    <div class="eyebrow">The Reframe</div>
+    <h2>Don't predict the market.<br>Predict the <em>trader</em>.</h2>
+    <p class="lede">Modeling a single human's edge and deviations from it is dramatically more tractable than modeling the market — and dramatically more valuable, because for experienced discretionary traders, execution discipline is the dominant source of P&L variance.</p>
+    <p>Best months and worst months often share similar win rates. The difference is the magnitude and frequency of mistakes — three to five trades a month that turn green to red. The system's job is to prevent those specific trades, not to find new ones.</p>
+
+    <div class="pull">
+      <p class="q">Traders don't pay for signals.<br>They pay to <em>stop losing money</em>.</p>
+      <div class="attr">Operating Principle</div>
+    </div>
+  </section>
+
+  <!-- 03 — THE MECHANISM -->
+  <section class="reveal">
+    <span class="section-num">§ 03</span>
+    <div class="eyebrow">Core Mechanism</div>
+    <h2>A <em>closed learning loop</em>, not a feature set.</h2>
+    <p class="lede">Seven steps that compound. Each step generates the data that improves the next. The kill switch — the trader's escape hatch — is the highest-quality signal in the system.</p>
+
+    <div class="diagram">
+      <span class="diagram-label">Diagram 01 / The Loop</span>
+      <svg viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#8a8680"/>
+          </marker>
+          <marker id="arrow-signal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#f0a020"/>
+          </marker>
+        </defs>
+
+        <!-- Top row of 4 nodes -->
+        <g>
+          <rect x="40" y="60" width="160" height="60" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="120" y="86" text-anchor="middle" class="svg-text-dim">01</text>
+          <text x="120" y="106" text-anchor="middle" class="svg-text-serif">Capture</text>
+
+          <rect x="240" y="60" width="160" height="60" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="320" y="86" text-anchor="middle" class="svg-text-dim">02</text>
+          <text x="320" y="106" text-anchor="middle" class="svg-text-serif">Reflect</text>
+
+          <rect x="440" y="60" width="160" height="60" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="520" y="86" text-anchor="middle" class="svg-text-dim">03</text>
+          <text x="520" y="106" text-anchor="middle" class="svg-text-serif">Detect Pattern</text>
+
+          <rect x="640" y="60" width="160" height="60" fill="#1c1f24" stroke="#f0a020" stroke-width="1.5"/>
+          <text x="720" y="86" text-anchor="middle" class="svg-text-dim" fill="#f0a020">04</text>
+          <text x="720" y="106" text-anchor="middle" class="svg-text-serif">Intervene</text>
+        </g>
+
+        <!-- Bottom row of 3 nodes -->
+        <g>
+          <rect x="640" y="200" width="160" height="60" fill="#1c1f24" stroke="#f0a020" stroke-width="1.5"/>
+          <text x="720" y="226" text-anchor="middle" class="svg-text-dim" fill="#f0a020">05 / KILL</text>
+          <text x="720" y="246" text-anchor="middle" class="svg-text-serif">Override</text>
+
+          <rect x="440" y="200" width="160" height="60" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="520" y="226" text-anchor="middle" class="svg-text-dim">06</text>
+          <text x="520" y="246" text-anchor="middle" class="svg-text-serif">Explain</text>
+
+          <rect x="240" y="200" width="160" height="60" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="320" y="226" text-anchor="middle" class="svg-text-dim">07</text>
+          <text x="320" y="246" text-anchor="middle" class="svg-text-serif">Update Model</text>
+        </g>
+
+        <!-- Arrows top row -->
+        <line x1="200" y1="90" x2="240" y2="90" stroke="#8a8680" marker-end="url(#arrow)"/>
+        <line x1="400" y1="90" x2="440" y2="90" stroke="#8a8680" marker-end="url(#arrow)"/>
+        <line x1="600" y1="90" x2="640" y2="90" stroke="#8a8680" marker-end="url(#arrow)"/>
+
+        <!-- Arrow down -->
+        <line x1="720" y1="120" x2="720" y2="200" stroke="#f0a020" marker-end="url(#arrow-signal)"/>
+
+        <!-- Arrows bottom row (right to left) -->
+        <line x1="640" y1="230" x2="600" y2="230" stroke="#8a8680" marker-end="url(#arrow)"/>
+        <line x1="440" y1="230" x2="400" y2="230" stroke="#8a8680" marker-end="url(#arrow)"/>
+
+        <!-- Arrow up to start, completing loop -->
+        <path d="M 240 230 L 120 230 L 120 120" fill="none" stroke="#8a8680" marker-end="url(#arrow)"/>
+
+        <!-- Labels -->
+        <text x="450" y="40" text-anchor="middle" class="svg-text-dim">FORWARD PASS — DECISION STREAM</text>
+        <text x="450" y="295" text-anchor="middle" class="svg-text-dim">REVERSE PASS — LEARNING SIGNAL</text>
+      </svg>
+    </div>
+
+    <p class="dim">The kill switch is not a UX concession. Every time it is pressed, the system records what fired, what the trader did instead, and what happened. This becomes the disagreement corpus — the highest-quality labeled data for distinguishing genuine edge expression from rationalization.</p>
+  </section>
+
+  <!-- 04 — THE THREE EDGES -->
+  <section class="reveal">
+    <span class="section-num">§ 04</span>
+    <div class="eyebrow">Edge Representation</div>
+    <h2>The trader has <em>three</em> edges.<br>The gaps between them are the product.</h2>
+
+    <div class="diagram">
+      <span class="diagram-label">Diagram 02 / The Three Edges</span>
+      <svg viewBox="0 0 900 380" preserveAspectRatio="xMidYMid meet">
+        <!-- Three overlapping circles (Venn-ish but stacked diagrammatically) -->
+        <g>
+          <circle cx="280" cy="180" r="130" fill="rgba(240,160,32,0.05)" stroke="#f0a020" stroke-width="1" stroke-dasharray="3 4"/>
+          <text x="280" y="80" text-anchor="middle" class="svg-text-dim" fill="#f0a020">A — STATED</text>
+          <text x="280" y="170" text-anchor="middle" class="svg-text-serif" font-size="16">What the trader</text>
+          <text x="280" y="190" text-anchor="middle" class="svg-text-serif" font-size="16">says they do</text>
+          <text x="280" y="220" text-anchor="middle" class="svg-text-dim">"I trade breakouts</text>
+          <text x="280" y="234" text-anchor="middle" class="svg-text-dim">with confirmation"</text>
+
+          <circle cx="620" cy="180" r="130" fill="rgba(106,166,122,0.05)" stroke="#6aa67a" stroke-width="1" stroke-dasharray="3 4"/>
+          <text x="620" y="80" text-anchor="middle" class="svg-text-dim" fill="#6aa67a">B — REVEALED</text>
+          <text x="620" y="170" text-anchor="middle" class="svg-text-serif" font-size="16">What the data</text>
+          <text x="620" y="190" text-anchor="middle" class="svg-text-serif" font-size="16">actually shows</text>
+          <text x="620" y="220" text-anchor="middle" class="svg-text-dim">winning trade</text>
+          <text x="620" y="234" text-anchor="middle" class="svg-text-dim">clusters</text>
+
+          <!-- Intersection arrow / box -->
+          <rect x="380" y="290" width="140" height="60" fill="#1c1f24" stroke="#f0a020" stroke-width="1.5"/>
+          <text x="450" y="312" text-anchor="middle" class="svg-text-dim" fill="#f0a020">C — ENFORCED</text>
+          <text x="450" y="332" text-anchor="middle" class="svg-text-serif" font-size="14">A ∩ B (weighted)</text>
+
+          <!-- Lines -->
+          <line x1="320" y1="290" x2="380" y2="320" stroke="#8a8680" stroke-dasharray="2 3"/>
+          <line x1="580" y1="290" x2="520" y2="320" stroke="#8a8680" stroke-dasharray="2 3"/>
+
+          <!-- Gap callout -->
+          <text x="450" y="180" text-anchor="middle" class="svg-text" fill="#f0a020" font-size="13">THE GAP</text>
+          <text x="450" y="198" text-anchor="middle" class="svg-text-dim">where insight lives</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="kv-list">
+      <div class="kv">
+        <div class="k">A — Stated</div>
+        <div class="v">What the trader believes their edge is. Almost always cleaner and more disciplined than reality. The version they would describe in an interview.</div>
+      </div>
+      <div class="kv">
+        <div class="k">B — Revealed</div>
+        <div class="v">What the trade record actually shows when their winning clusters are isolated. Often narrower and weirder than stated — different time of day, different setup variant, different market conditions.</div>
+      </div>
+      <div class="kv">
+        <div class="k">C — Enforced</div>
+        <div class="v">The intersection of A and B, weighted by recency and confidence. This is what the watchdog uses. The trader pre-commits to it during calm review — not in the heat of the session.</div>
+      </div>
+    </div>
+    <p>The gap between A and B is where the "this tool understands me" moment lives. Surfacing it once, accurately, in month one is what converts a trial into a long-term user.</p>
+  </section>
+
+  <!-- 05 — INTERVENTION DESIGN -->
+  <section class="reveal">
+    <span class="section-num">§ 05</span>
+    <div class="eyebrow">Intervention Design</div>
+    <h2>Friction over notification.<br><em>Mirror</em>, not judge.</h2>
+    <p class="lede">Notifications are ignored within days. Friction reshapes behavior. A two-second hold-to-confirm with a personally relevant statistic is more powerful than any alert because it manufactures a single conscious moment between impulse and action.</p>
+
+    <div class="warning-stack">
+      <div class="warn-row weak">
+        <div class="grade">— Weak</div>
+        <div class="text">"You've lost $2,140 doing this."</div>
+      </div>
+      <div class="warn-row mid">
+        <div class="grade">⊕ Better</div>
+        <div class="text">"You've done this 23 times. 4 worked."</div>
+      </div>
+      <div class="warn-row strong">
+        <div class="grade">★ Strongest</div>
+        <div class="text">"This matches your losing pattern from the last 2 sessions."</div>
+      </div>
+    </div>
+
+    <p>Dollar amounts get rationalized. Frequency and base rates resist rationalization. Temporal proximity — "the last 2 sessions" — is hardest of all, because the trader can recall the specific trades and the rationalization collapses.</p>
+
+    <p class="dim">No labels like "tilt" or "bad trade." No authority tone. Only patterns, probabilities, and comparisons. The system is a mirror — the trader makes the call.</p>
+  </section>
+
+  <!-- 06 — CAPTURE LAYER -->
+  <section class="reveal">
+    <span class="section-num">§ 06</span>
+    <div class="eyebrow">Foundation</div>
+    <h2>Capture is the moat.<br>Everything downstream <em>compounds</em> from it.</h2>
+    <p class="lede">If capture is wrong, the model is garbage and the alerts are noise. If capture is right, even crude downstream logic produces value. This is the only place in the stack where 99% reliability is non-negotiable.</p>
+
+    <div class="diagram">
+      <span class="diagram-label">Diagram 03 / Event Taxonomy</span>
+      <svg viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet">
+        <!-- Six pillars -->
+        <g>
+          <!-- Pillar 1 -->
+          <rect x="40" y="80" width="130" height="200" fill="#1c1f24" stroke="#2a2d33"/>
+          <line x1="40" y1="110" x2="170" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="105" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">01</text>
+          <text x="105" y="135" text-anchor="middle" class="svg-text-serif" font-size="13">Session</text>
+          <text x="105" y="155" text-anchor="middle" class="svg-text-dim">START / END</text>
+          <text x="105" y="190" text-anchor="middle" class="svg-text-dim">balance</text>
+          <text x="105" y="206" text-anchor="middle" class="svg-text-dim">equity</text>
+          <text x="105" y="222" text-anchor="middle" class="svg-text-dim">window</text>
+
+          <!-- Pillar 2 -->
+          <rect x="180" y="80" width="130" height="200" fill="#1c1f24" stroke="#2a2d33"/>
+          <line x1="180" y1="110" x2="310" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="245" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">02</text>
+          <text x="245" y="135" text-anchor="middle" class="svg-text-serif" font-size="13">Intent</text>
+          <text x="245" y="155" text-anchor="middle" class="svg-text-dim">STAGED</text>
+          <text x="245" y="171" text-anchor="middle" class="svg-text-dim">MODIFIED</text>
+          <text x="245" y="187" text-anchor="middle" class="svg-text-dim">RESOLVED</text>
+          <text x="245" y="220" text-anchor="middle" class="svg-text-dim">hesitation</text>
+          <text x="245" y="236" text-anchor="middle" class="svg-text-dim">near-actions</text>
+
+          <!-- Pillar 3 -->
+          <rect x="320" y="80" width="130" height="200" fill="#1c1f24" stroke="#2a2d33"/>
+          <line x1="320" y1="110" x2="450" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="385" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">03</text>
+          <text x="385" y="135" text-anchor="middle" class="svg-text-serif" font-size="13">Order</text>
+          <text x="385" y="155" text-anchor="middle" class="svg-text-dim">SUBMITTED</text>
+          <text x="385" y="171" text-anchor="middle" class="svg-text-dim">MODIFIED</text>
+          <text x="385" y="187" text-anchor="middle" class="svg-text-dim">FILLED</text>
+          <text x="385" y="203" text-anchor="middle" class="svg-text-dim">CANCELLED</text>
+          <text x="385" y="236" text-anchor="middle" class="svg-text-dim">partial fills</text>
+
+          <!-- Pillar 4 -->
+          <rect x="460" y="80" width="130" height="200" fill="#1c1f24" stroke="#2a2d33"/>
+          <line x1="460" y1="110" x2="590" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="525" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">04</text>
+          <text x="525" y="135" text-anchor="middle" class="svg-text-serif" font-size="13">Position</text>
+          <text x="525" y="155" text-anchor="middle" class="svg-text-dim">OPENED</text>
+          <text x="525" y="171" text-anchor="middle" class="svg-text-dim">UPDATED</text>
+          <text x="525" y="187" text-anchor="middle" class="svg-text-dim">CLOSED</text>
+          <text x="525" y="220" text-anchor="middle" class="svg-text-dim">close</text>
+          <text x="525" y="236" text-anchor="middle" class="svg-text-dim">reason</text>
+
+          <!-- Pillar 5 — Risk, highlighted -->
+          <rect x="600" y="80" width="130" height="200" fill="rgba(240,160,32,0.06)" stroke="#f0a020"/>
+          <line x1="600" y1="110" x2="730" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="665" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">05 ★</text>
+          <text x="665" y="135" text-anchor="middle" class="svg-text-serif" font-size="13" font-weight="600">Risk</text>
+          <text x="665" y="155" text-anchor="middle" class="svg-text-dim">STOP_SET</text>
+          <text x="665" y="171" text-anchor="middle" class="svg-text-dim">STOP_MOD</text>
+          <text x="665" y="187" text-anchor="middle" class="svg-text-dim">TP_SET</text>
+          <text x="665" y="203" text-anchor="middle" class="svg-text-dim">TP_MOD</text>
+          <text x="665" y="236" text-anchor="middle" class="svg-text-dim" fill="#f0a020">highest signal</text>
+
+          <!-- Pillar 6 -->
+          <rect x="740" y="80" width="130" height="200" fill="#1c1f24" stroke="#2a2d33"/>
+          <line x1="740" y1="110" x2="870" y2="110" stroke="#f0a020" stroke-width="2"/>
+          <text x="805" y="100" text-anchor="middle" class="svg-text-dim" fill="#f0a020">06</text>
+          <text x="805" y="135" text-anchor="middle" class="svg-text-serif" font-size="13">Snapshot</text>
+          <text x="805" y="155" text-anchor="middle" class="svg-text-dim">CHART_IMG</text>
+          <text x="805" y="190" text-anchor="middle" class="svg-text-dim">what the</text>
+          <text x="805" y="206" text-anchor="middle" class="svg-text-dim">trader saw</text>
+        </g>
+
+        <!-- Bottom band - market context -->
+        <g>
+          <rect x="40" y="300" width="830" height="40" fill="#15171b" stroke="#2a2d33"/>
+          <text x="455" y="324" text-anchor="middle" class="svg-text-dim">market_context — bid · ask · spread · volatility · session H/L · bar state — embedded on every event</text>
+        </g>
+      </svg>
+    </div>
+
+    <p>Every event carries a timestamp, sequence number, and provenance flag — what produced it, with what confidence. The system trusts no single source. Sessions reconcile to broker statements at end-of-day; sessions that fail reconciliation are excluded from training data, never silently consumed.</p>
+  </section>
+
+  <!-- 07 — ADAPTIVE LAYER -->
+  <section class="reveal">
+    <span class="section-num">§ 07</span>
+    <div class="eyebrow">Non-Stationarity</div>
+    <h2>Edge drifts. The system must <em>drift with it</em>.</h2>
+    <p class="lede">A model trained on six months of trades will silently degrade. February's A+ setup becomes August's B-minus. A static system flags good trades as deviations and burns trust on each false positive. The fix is structural, not parametric.</p>
+
+    <div class="kv-list">
+      <div class="kv">
+        <div class="k">Rolling priors</div>
+        <div class="v">Behavioral patterns learned over a sliding window. Older data decays in influence rather than holding equal weight to last week.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Self-expiring rules</div>
+        <div class="v">Each rule has a trigger count, override rate, and outcome correlation. High overrides with good outcomes weaken the rule. Low usage decays it. No static rules.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Confidence gating</div>
+        <div class="v">The system intervenes only when pattern stability is high and recent validation holds. Otherwise it stays silent. Silence is a feature.</div>
+      </div>
+      <div class="kv">
+        <div class="k">Regime detection</div>
+        <div class="v">Sudden drops in pattern accuracy or rising override rates trigger recalibration mode — fewer interventions, more reflection prompts. The system tells the trader "your behavior has shifted, let's relabel."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — OBSERVER → ENFORCER -->
+  <section class="reveal">
+    <span class="section-num">§ 08</span>
+    <div class="eyebrow">Trust Sequence</div>
+    <h2>Trust is sequenced.<br>You earn it before you spend it.</h2>
+
+    <div class="diagram">
+      <span class="diagram-label">Diagram 04 / Trust Ladder</span>
+      <svg viewBox="0 0 900 240" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#f0a020"/>
+          </marker>
+        </defs>
+
+        <g>
+          <!-- Stage 1 -->
+          <rect x="40" y="60" width="240" height="120" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="160" y="90" text-anchor="middle" class="svg-text-dim">STAGE 01</text>
+          <text x="160" y="115" text-anchor="middle" class="svg-text-serif" font-size="20">Observer</text>
+          <text x="160" y="145" text-anchor="middle" class="svg-text-dim">passive capture · post-session</text>
+          <text x="160" y="161" text-anchor="middle" class="svg-text-dim">no intervention</text>
+
+          <!-- Arrow -->
+          <line x1="290" y1="120" x2="320" y2="120" stroke="#f0a020" marker-end="url(#arrow2)"/>
+
+          <!-- Stage 2 -->
+          <rect x="330" y="60" width="240" height="120" fill="#1c1f24" stroke="#2a2d33"/>
+          <text x="450" y="90" text-anchor="middle" class="svg-text-dim">STAGE 02</text>
+          <text x="450" y="115" text-anchor="middle" class="svg-text-serif" font-size="20">Advisor</text>
+          <text x="450" y="145" text-anchor="middle" class="svg-text-dim">real-time flags · friction</text>
+          <text x="450" y="161" text-anchor="middle" class="svg-text-dim">trader decides</text>
+
+          <!-- Arrow -->
+          <line x1="580" y1="120" x2="610" y2="120" stroke="#f0a020" marker-end="url(#arrow2)"/>
+
+          <!-- Stage 3 -->
+          <rect x="620" y="60" width="240" height="120" fill="rgba(240,160,32,0.06)" stroke="#f0a020"/>
+          <text x="740" y="90" text-anchor="middle" class="svg-text-dim" fill="#f0a020">STAGE 03</text>
+          <text x="740" y="115" text-anchor="middle" class="svg-text-serif" font-size="20">Enforcer</text>
+          <text x="740" y="145" text-anchor="middle" class="svg-text-dim">pre-committed lockouts</text>
+          <text x="740" y="161" text-anchor="middle" class="svg-text-dim">trader-configured</text>
+        </g>
+
+        <text x="450" y="220" text-anchor="middle" class="svg-text-dim">Each stage requires the previous stage to have proven correct on the trader's own data.</text>
+      </svg>
+    </div>
+
+    <p>The Enforcer is not the system imposing control. It is the trader pre-committing to lockouts during calm review — a Ulysses contract — that the system mechanically enforces during the session. The trader is restricting themselves; the tool is the mechanism. This framing also keeps the product on the user's side of the broker API and out of regulatory hot water.</p>
+  </section>
+
+  <!-- 09 — KILL SWITCH -->
+  <section class="reveal">
+    <span class="section-num">§ 09</span>
+    <div class="eyebrow">The Escape Hatch</div>
+    <h2>The kill switch is the <em>most valuable signal</em> in the system.</h2>
+    <p class="lede">A single keystroke disables all interventions for the rest of the session, no questions asked. Counterintuitive but essential — traders will not adopt a tool they fear in a real moment of need.</p>
+    <p>Every press logs which rule fired, what the trader did instead, and what happened next. This is the disagreement corpus: clean labels for "system was about to be right and I overrode it" versus "system was wrong and got in my way." After each press, the system optionally prompts a ten-second voice memo. Half will skip. The other half generate the highest-quality training data in the entire pipeline, captured at peak emotional salience.</p>
+  </section>
+
+  <!-- 10 — ROADMAP -->
+  <section class="reveal">
+    <span class="section-num">§ 10</span>
+    <div class="eyebrow">Build Sequence</div>
+    <h2>Four phases.<br>Earn the right to be real-time.</h2>
+    <p class="lede">The first eight weeks produce nothing visibly impressive. This is by design. Capture and reflection have to be correct in hindsight before any real-time intervention can be trusted.</p>
+
+    <div class="phase">
+      <div class="ph-num">PHASE 0</div>
+      <div class="ph-title">Capture<span class="weeks">Weeks 1–2</span></div>
+      <div class="ph-body">Perfect passive capture. No UX. No insights. No AI. Raw timeline of every session — orders, intents, stops, snapshots, market context. <strong>Success criterion:</strong> 99%+ event reliability and full broker reconciliation.</div>
+    </div>
+
+    <div class="phase">
+      <div class="ph-num">PHASE 1</div>
+      <div class="ph-title">Reconstruction<span class="weeks">Weeks 3–4</span></div>
+      <div class="ph-body">Auto-generated trade timeline with replay. Light rule-based flags only — stop moved, trade after loss, trade near news. No interpretation. <strong>Success criterion:</strong> the trader can review a session in 10 minutes and recognize every event.</div>
+    </div>
+
+    <div class="phase">
+      <div class="ph-num">PHASE 2</div>
+      <div class="ph-title">Reflection Engine<span class="weeks">Weeks 4–6</span></div>
+      <div class="ph-body">Five-second per-trade structured prompts: was this part of your A+ setup? Did you follow your plan? What went wrong? The trader teaches the model. <strong>Success criterion:</strong> a personalized labeled dataset that did not exist before.</div>
+    </div>
+
+    <div class="phase">
+      <div class="ph-num">PHASE 3</div>
+      <div class="ph-title">First Real-Time Guardrail<span class="weeks">Weeks 6–8</span></div>
+      <div class="ph-body">Two or three rules promoted to real-time, with two-second hold-to-confirm and personal stat surfacing. <strong>Success criterion:</strong> measurable behavior change on at least one rule, with honest attribution. No new rule until an existing one proves itself.</div>
+    </div>
+  </section>
+
+  <!-- 11 — DISCIPLINE -->
+  <section class="reveal">
+    <span class="section-num">§ 11</span>
+    <div class="eyebrow">Operating Discipline</div>
+    <h2>The project succeeds on <em>restraint</em>,<br>not on intelligence.</h2>
+
+    <div class="rules">
+      <div class="rule-item">
+        <div class="marker">— 01</div>
+        <div class="text">No new real-time rule until an existing one proves measurable behavior change.</div>
+      </div>
+      <div class="rule-item">
+        <div class="marker">— 02</div>
+        <div class="text">Every rule must adapt or die. No static rules. Override-driven decay is built in from day one.</div>
+      </div>
+      <div class="rule-item">
+        <div class="marker">— 03</div>
+        <div class="text">Silence is a feature. The system intervenes only when pattern stability is high.</div>
+      </div>
+      <div class="rule-item">
+        <div class="marker">— 04</div>
+        <div class="text">Facts in the canonical layer. Interpretations downstream. Never embed a definition you might want to change later.</div>
+      </div>
+      <div class="rule-item">
+        <div class="marker">— 05</div>
+        <div class="text">No ML beyond simple stats for the first 6–8 weeks. Earn the model with the data.</div>
+      </div>
+      <div class="rule-item">
+        <div class="marker">— 06</div>
+        <div class="text">One trader. One behavior changed. That is the test that decides whether the project is real.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 — NORTH STAR -->
+  <section class="reveal">
+    <span class="section-num">§ 12</span>
+    <div class="eyebrow">North Star Metric</div>
+    <h2>Not retention. Not usage.<br>Did the system surface something <em>true</em>?</h2>
+    <p class="lede">The aha moment is structural: the system shows the trader a pattern in their behavior they recognize as true but had not articulated. Specific. Asymmetric. Recognizable as theirs. One of these in the first month converts a trial into a long-term user. Zero converts to a cancellation.</p>
+
+    <div class="pull">
+      <p class="q">Earn the right to be real-time<br>by being correct <em>in hindsight</em> first.</p>
+      <div class="attr">Operating Rule</div>
+    </div>
+
+    <p>If post-session reconstruction is not accurate, useful, and trusted, real-time intervention will fail. There is no shortcut. The capture layer is the moat. The reflection loop is the asset. The watchdog is the visible product. The kill switch is the truth.</p>
+  </section>
+
+  <footer>
+    <div class="mark">※</div>
+    <div class="meta">End of Brief · v0.1 · Internal Distribution</div>
+  </footer>
+
+</div>
+
+<script>
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

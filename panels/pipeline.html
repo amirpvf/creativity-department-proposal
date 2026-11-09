@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head><script data-demo-inject>
+(function(){var F='pipeline.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Content Pipeline — an assisted production line for business content</title>
+<meta name="description" content="An interactive demo of a staged content production line: ideation, research, drafting, editing, design and publishing, with a human approval at every station." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#EDF0F4; --surface:#FFFFFF; --raise:#F6F8FA;
+  --ink:#12202E; --muted:#5B6977; --line:#D5DCE3;
+  --accent:#17557C; --accent-soft:#E6EEF5;
+  --amber:#A9711A; --amber-soft:#F8EFDD;
+  --green:#1C6B4B; --green-soft:#E3EFE9;
+  --red:#9E2B20; --red-soft:#F7E7E4;
+  --serif:'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--page);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px 80px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 0 16px;border-bottom:1px solid var(--line);margin-bottom:28px;flex-wrap:wrap}
+.mark{display:flex;flex-direction:column;line-height:1.2}
+.mark b{font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:-.01em}
+.mark span{font-size:12.5px;color:var(--muted)}
+.nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.navbtn{background:transparent;border:1px solid transparent;padding:7px 12px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:500}
+.navbtn[aria-current="page"]{color:var(--ink);background:var(--surface);border-color:var(--line)}
+
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 15px;border-radius:5px;cursor:pointer;font-weight:500;line-height:1.6}
+.btn:hover:not(:disabled){background:var(--raise);border-color:#B9C3CE}
+.btn-primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn-primary:hover:not(:disabled){background:#1E3348;border-color:#1E3348}
+.btn-quiet{border-color:transparent;background:transparent;color:var(--muted)}
+.btn-quiet:hover:not(:disabled){background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:24px}
+h1{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.25;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-family:var(--serif);font-weight:600;font-size:20px;margin:0 0 4px;line-height:1.35}
+.sub{color:var(--muted);margin:0;max-width:68ch}
+.hint{font-size:13px;color:var(--muted);line-height:1.6}
+.label{font-weight:600;font-size:13.5px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+.back{padding:2px 0;margin-bottom:6px;background:none;border:0;color:var(--muted);cursor:pointer}
+.back:hover{color:var(--ink)}
+
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.input,.textarea,.select{width:100%;border:1px solid var(--line);border-radius:5px;background:var(--raise);padding:8px 11px;line-height:1.65}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.textarea{resize:vertical}
+.block{padding:20px 0;border-bottom:1px solid var(--line)}
+.block:first-child{padding-top:0}
+.block:last-of-type{border-bottom:0}
+.block-head{display:flex;flex-direction:column;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line);background:var(--surface);padding:5px 13px;border-radius:4px;cursor:pointer;line-height:1.5}
+.chip:hover{border-color:#B9C3CE}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+.chip-locked{cursor:default}
+.frow{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;padding:6px 0}
+.fgroup{font-size:13.5px;color:var(--muted);font-weight:500}
+.opt{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode{text-align:left;display:flex;flex-direction:column;gap:3px;padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer}
+.mode[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--accent)}
+.mode b{font-weight:600}
+.check{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:14px;cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.submit{display:flex;align-items:center;gap:14px;padding-top:20px;flex-wrap:wrap}
+.grow{display:flex;gap:8px;flex:1 1 340px}
+.grow .input,.grow .select{flex:1;min-width:0}
+
+.notice{background:var(--amber-soft);border-left:3px solid var(--amber);padding:9px 13px;border-radius:4px;font-size:14px;margin:0 0 14px}
+.failure{background:var(--red-soft);border-left:3px solid var(--red);padding:11px 14px;border-radius:4px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.failure p{margin:0;color:var(--red)}
+.failure-text{color:var(--red);font-size:14px;margin:8px 0 0}
+.notes{margin-top:16px;padding:13px 15px;background:var(--raise);border:1px solid var(--line);border-radius:5px}
+.notes p{margin:5px 0 8px;white-space:pre-wrap;font-size:14px}
+.out{margin-top:14px;white-space:pre-wrap}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:var(--amber-soft);border:1px solid var(--amber);padding:15px 17px;border-radius:6px}
+.stage-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:16px}
+.running{color:var(--muted);margin:0}
+.coord{display:flex;gap:10px;align-items:baseline;margin:0 0 12px;font-size:14px;flex-wrap:wrap;color:var(--muted)}
+.coord b{font-weight:600;color:var(--ink)}
+
+.line{display:flex;overflow-x:auto;padding:4px 2px 14px;margin-bottom:12px}
+.station{position:relative;flex:1 0 130px;display:flex;flex-direction:column;align-items:flex-start;padding:11px 14px 13px;background:var(--surface);border:1px solid var(--line);border-radius:6px;cursor:pointer;text-align:left}
+.station + .station{margin-left:22px}
+.station + .station::before{content:"";position:absolute;left:-23px;top:50%;width:22px;border-top:1px dashed #B9C3CE}
+.station[data-state="done"]{border-color:var(--amber)}
+.station[data-state="done"] .st-status{color:var(--amber)}
+.station[data-state="approved"]{border-color:var(--green)}
+.station[data-state="approved"] .st-status{color:var(--green)}
+.station[data-state="error"]{border-color:var(--red)}
+.station[data-state="error"] .st-status{color:var(--red)}
+.station[aria-current="step"]{box-shadow:0 0 0 2px var(--accent)}
+.station[data-state="running"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:0 0 5px 5px;
+  background:repeating-linear-gradient(-45deg,var(--accent) 0 8px,#9FB6C8 8px 16px);background-size:22.63px 22.63px;animation:belt .9s linear infinite}
+@keyframes belt{from{background-position:0 0}to{background-position:22.63px 0}}
+@media (prefers-reduced-motion:reduce){.station[data-state="running"]::after{animation:none}}
+.st-num{font-size:11.5px;color:var(--muted)}
+.st-label{font-weight:600}
+.st-status{font-size:12.5px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:22px;align-items:start}
+.main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.aside{position:sticky;top:18px}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:0 0 18px;font-size:13.5px}
+.dl dt{color:var(--muted)}
+.dl dd{margin:0;font-weight:500;overflow-wrap:anywhere}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:3px;font-size:12.5px;font-weight:500;background:#E7EBF0;color:var(--muted);white-space:nowrap}
+.badge-go{background:var(--green-soft);color:var(--green)}
+.badge-wait{background:var(--amber-soft);color:var(--amber)}
+.badge-stop{background:var(--red-soft);color:var(--red)}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:2px;flex-wrap:wrap;align-items:flex-end}
+.tab{background:transparent;border:0;padding:10px 14px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tab-count{color:var(--muted);margin-left:6px;font-weight:400}
+.filter{margin-left:auto;padding-bottom:7px}
+.filter .select{width:auto;padding:5px 10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;padding:15px 6px;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer;text-align:left;flex-wrap:wrap}
+.row:hover{background:rgba(255,255,255,.6)}
+.row-main{display:flex;flex-direction:column;min-width:0}
+.row-title{font-weight:600}
+.row-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.row-side{display:flex;align-items:center;gap:12px}
+.dots{display:flex;gap:3px}
+.dots span{width:9px;height:9px;border-radius:2px;background:var(--line)}
+.dots span[data-state="done"]{background:var(--amber)}
+.dots span[data-state="approved"]{background:var(--green)}
+.dots span[data-state="running"]{background:var(--accent)}
+.dots span[data-state="error"]{background:var(--red)}
+.empty{padding:40px 6px;color:var(--muted);display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+
+.ideas{display:grid;gap:10px}
+.idea{text-align:left;border:1px solid var(--line);border-radius:6px;padding:11px 14px;background:var(--surface);cursor:pointer;display:flex;flex-direction:column}
+.idea[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.idea:disabled{cursor:default}
+.idea b{font-weight:600}
+.idea span{font-size:13.5px;color:var(--muted)}
+
+.slides{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px}
+.slide{flex:0 0 auto;border-radius:4px;padding:18px 16px 32px;position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(18,32,46,.14);line-height:1.55;display:flex;flex-direction:column;justify-content:center}
+.s-cover{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.3}
+.s-title{font-size:14.5px;font-weight:600;line-height:1.4}
+.s-body{font-size:12.5px;margin-top:8px}
+.s-quote-mark{font-family:var(--serif);font-size:42px;line-height:1;font-weight:600}
+.s-quote{font-family:var(--serif);font-size:16px;font-weight:500;line-height:1.45}
+.s-list{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.s-list li{display:flex;gap:8px;align-items:baseline}
+.s-list li i{flex:0 0 6px;height:6px;display:inline-block}
+.s-foot{position:absolute;bottom:9px;left:16px;right:16px;display:flex;justify-content:space-between;font-size:10.5px;opacity:.7}
+details{margin-top:10px}
+summary{cursor:pointer;font-weight:500;padding:6px 0}
+.slide-edit{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+.slide-edit-head{display:flex;gap:10px;align-items:center}
+.slide-edit-head .select{width:auto}
+
+.repurpose{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0 14px;margin-top:16px}
+.wide{grid-column:1 / -1}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{text-align:left;display:flex;flex-direction:column;gap:5px;padding:17px;background:var(--surface);border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.card:hover{border-color:var(--accent)}
+.card b{font-family:var(--serif);font-weight:600;font-size:18px}
+.swatches{display:flex;gap:4px;margin-bottom:4px}
+.swatches i{width:17px;height:17px;border-radius:3px;border:1px solid rgba(0,0,0,.12);display:inline-block}
+.colors{display:flex;gap:16px;flex-wrap:wrap}
+.color{display:flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer}
+.color input{width:38px;height:30px;border:1px solid var(--line);border-radius:4px;padding:0;background:none}
+
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:34px 32px;margin-bottom:24px}
+.hero h1{font-size:34px;max-width:19ch}
+.hero p{max-width:62ch}
+.hero-line{display:flex;gap:0;margin:26px 0 0;flex-wrap:wrap}
+.hero-step{flex:1 1 130px;padding:12px 14px;border-left:2px solid var(--line)}
+.hero-step:first-child{border-left-color:var(--accent)}
+.hero-step b{display:block;font-weight:600;font-size:14px}
+.hero-step span{font-size:12.5px;color:var(--muted)}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;padding:9px 18px;border-radius:5px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:20}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+
+@media (max-width:900px){.grid{grid-template-columns:1fr}.aside{position:static}}
+@media (max-width:640px){.frow{grid-template-columns:1fr;gap:6px}.modes{grid-template-columns:1fr}h1{font-size:25px}.hero{padding:24px 20px}.hero h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark"><b>Content Pipeline</b><span>An assisted production line for business content</span></div>
+    <nav class="nav" id="nav"></nav>
+  </header>
+  <div id="app"></div>
+  <footer style="margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px">
+    Everything here runs in your browser and is stored locally. Switch to live mode in Settings to connect your own API key.
+  </footer>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+/* ============================================================
+   Content Pipeline — single-file interactive demo
+   Vanilla JS. No build step, no server. Works from any static host.
+   ============================================================ */
+
+/* ---------- storage ---------- */
+const LS_KEY = "content-pipeline-v1";
+const state = {
+  businesses: [],
+  projects: [],
+  settings: { mode: "demo", apiKey: "", model: "claude-sonnet-4-6" },
+  view: { name: "home" },
+  ui: {},
+};
+
+function persist() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      businesses: state.businesses, projects: state.projects,
+      settings: { ...state.settings, apiKey: state.settings.apiKey },
+    }));
+  } catch (e) { /* private mode — session still works */ }
+}
+function restore() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    state.businesses = d.businesses || [];
+    state.projects = (d.projects || []).map((p) => {
+      const ss = { ...p.stageStatus };
+      const er = { ...(p.errors || {}) };
+      Object.keys(ss).forEach((k) => {
+        if (ss[k] === "running") { ss[k] = "error"; er[k] = "The run was interrupted. Run this station again."; }
+      });
+      return { ...p, stageStatus: ss, errors: er };
+    });
+    state.settings = { ...state.settings, ...(d.settings || {}) };
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ---------- configuration ---------- */
+const STAGE_ORDER = ["idea", "research", "write", "edit", "design", "publish"];
+
+const STAGES = {
+  idea:     { label: "Ideas",       desc: "Proposes five distinct angles. You pick one.", optional: true },
+  research: { label: "Research",    desc: "Collects facts, figures and examples, and flags claims that need checking.", optional: true },
+  write:    { label: "Draft",       desc: "Writes the piece to the rules of the chosen format.", optional: false },
+  edit:     { label: "Edit",        desc: "Tests the draft against the brand profile, rewrites it and lists what changed.", optional: false },
+  design:   { label: "Design",      desc: "Lays out slides or writes a visual brief for your designer.", optional: true },
+  publish:  { label: "Publish kit", desc: "Caption, tags, suggested timing and a pre-flight checklist.", optional: true },
+};
+
+const STATUS_LABEL = { pending: "Queued", running: "Working", done: "Needs your review", approved: "Approved", error: "Stopped" };
+
+const FORMATS = {
+  ig_carousel: {
+    group: "Instagram", label: "Carousel", visual: "slides", ratio: "1/1", countKey: "slides",
+    options: [
+      { key: "slides", label: "Slides", choices: ["5", "7", "10"], def: "7" },
+      { key: "style", label: "Style", choices: ["Teaching", "Story", "Listicle", "Myth-busting"] },
+    ],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write the copy for a ${o.slides}-slide carousel in a ${o.style.toLowerCase()} style. Start each slide with "Slide 1:", give it a short headline and no more than 30 words of body copy. Slide one is the hook; the last slide is the call to action.`,
+  },
+  ig_post: {
+    group: "Instagram", label: "Single post", visual: "slides", ratio: "1/1", fixedCount: 1,
+    options: [{ key: "type", label: "Type", choices: ["Tip", "Quote", "Simple infographic"] }],
+    stages: ["idea", "write", "edit", "design", "publish"],
+    write: (o) => `Write a single-image post of the "${o.type}" type in two labelled parts: "On-image text:" of at most 20 words, and "Caption:" of at most 120 words.`,
+  },
+  ig_reel: {
+    group: "Instagram", label: "Reel", visual: "brief",
+    options: [
+      { key: "duration", label: "Length", choices: ["15 seconds", "30 seconds", "60 seconds", "90 seconds"], def: "30 seconds" },
+      { key: "style", label: "Delivery", choices: ["To camera", "Voiceover", "On-screen text"] },
+    ],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write a ${o.duration} reel script delivered ${o.style.toLowerCase()}: a three-second hook, a timed body, and a closing call to action. Label "Spoken" and "On-screen" separately for every beat.`,
+  },
+  ig_story: {
+    group: "Instagram", label: "Story", visual: "slides", ratio: "9/16", countKey: "frames",
+    options: [
+      { key: "frames", label: "Frames", choices: ["3", "5", "7"], def: "5" },
+      { key: "interactive", label: "Sticker", choices: ["Poll", "Quiz", "Question box", "None"] },
+    ],
+    stages: ["idea", "write", "edit", "design", "publish"],
+    write: (o) => `Write a ${o.frames}-frame story sequence. Start each frame with "Frame 1:" and keep it under 20 words. Interactive sticker: ${o.interactive}. If there is one, write the exact question and options on the right frame.`,
+  },
+  li_post: {
+    group: "LinkedIn", label: "Text post", visual: null,
+    options: [
+      { key: "length", label: "Length", choices: ["Short", "Medium", "Long"], def: "Medium" },
+      { key: "approach", label: "Approach", choices: ["First-person story", "How-to", "Analysis"] },
+    ],
+    stages: ["idea", "research", "write", "edit", "publish"],
+    write: (o) => `Write a ${o.length.toLowerCase()} LinkedIn post using a ${o.approach.toLowerCase()} approach. Open with a hook line, keep paragraphs to two lines, and close with a question that invites replies.`,
+  },
+  li_slides: {
+    group: "LinkedIn", label: "Document post", visual: "slides", ratio: "4/5", countKey: "slides",
+    options: [{ key: "slides", label: "Slides", choices: ["6", "8", "12"], def: "8" }],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write the copy for a ${o.slides}-slide LinkedIn document post. Start each slide with "Slide 1:", give it a headline and at most 35 words of body copy. Keep the register professional and practical.`,
+  },
+  x_post: {
+    group: "X", label: "Single post", visual: null,
+    options: [{ key: "tone", label: "Tone", choices: ["Direct", "Wry", "Analytical"] }],
+    stages: ["idea", "write", "edit", "publish"],
+    write: (o) => `Write one post of at most 280 characters in a ${o.tone.toLowerCase()} tone, then two alternative versions that take a different angle.`,
+  },
+  x_thread: {
+    group: "X", label: "Thread", visual: null,
+    options: [{ key: "count", label: "Posts", choices: ["5", "8", "12"], def: "8" }],
+    stages: ["idea", "research", "write", "edit", "publish"],
+    write: (o) => `Write a ${o.count}-post thread. Number every post and keep each under 280 characters. Post one is the hook; the last one summarises and invites a follow.`,
+  },
+  blog_post: {
+    group: "Website", label: "Blog article", visual: "brief",
+    options: [
+      { key: "length", label: "Length", choices: ["600 words", "1,200 words", "2,000 words"], def: "1,200 words" },
+      { key: "intent", label: "Search intent", choices: ["Informational", "Comparison", "Buying guide"] },
+    ],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write a ${o.length} article for ${o.intent.toLowerCase()} search intent: a working title, an opening that states the problem, H2 sections with substance under each, and a closing section that tells the reader what to do next.`,
+  },
+  landing_copy: {
+    group: "Website", label: "Landing page", visual: "brief",
+    options: [{ key: "goal", label: "Goal", choices: ["Book a call", "Start a trial", "Request a quote", "Join the list"] }],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write landing page copy with the single goal "${o.goal}": hero headline and subhead, three proof points, an objection-handling block, a short FAQ of three questions, and the button text.`,
+  },
+  email_news: {
+    group: "Email", label: "Newsletter", visual: null,
+    options: [{ key: "length", label: "Length", choices: ["Short", "Standard"], def: "Standard" }],
+    stages: ["idea", "research", "write", "edit", "publish"],
+    write: (o) => `Write a ${o.length.toLowerCase()} newsletter issue: three subject line options, a preview line, the body in short sections with subheads, and one clear call to action.`,
+  },
+  email_seq: {
+    group: "Email", label: "Sequence", visual: null,
+    options: [{ key: "count", label: "Emails", choices: ["3", "5"], def: "3" }],
+    stages: ["idea", "write", "edit", "publish"],
+    write: (o) => `Write a ${o.count}-email sequence. For each email give the send timing, subject line, and body of at most 150 words, with one job per email and one call to action.`,
+  },
+  yt_video: {
+    group: "YouTube", label: "Video", visual: "brief",
+    options: [{ key: "duration", label: "Length", choices: ["5 minutes", "10 minutes", "20 minutes"], def: "10 minutes" }],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Write a ${o.duration} video script: a 15-second hook, titled sections with the key talking points under each, and a close with a call to action.`,
+  },
+  podcast: {
+    group: "Podcast", label: "Episode", visual: "brief",
+    options: [
+      { key: "duration", label: "Length", choices: ["15 minutes", "30 minutes", "60 minutes"], def: "30 minutes" },
+      { key: "format", label: "Format", choices: ["Solo", "Interview"] },
+    ],
+    stages: ["idea", "research", "write", "edit", "design", "publish"],
+    write: (o) => `Outline a ${o.duration} ${o.format.toLowerCase()} episode: the intro, timed segments, ${o.format === "Interview" ? "the main interview questions" : "the key talking points per segment"}, and the close.`,
+  },
+};
+
+const GROUPS = [...new Set(Object.values(FORMATS).map((f) => f.group))];
+
+const BRIEF_GUIDE = {
+  ig_reel: "a shot list with short notes, the on-screen text, the sound or music feel, and the cover frame text",
+  yt_video: "the b-roll for each section, three thumbnail text options with the image idea for each, and the on-screen graphics",
+  podcast: "the episode cover concept and text, and three short promo clips with their on-screen text",
+  blog_post: "the hero image concept, two in-article diagrams or tables worth building, and the alt text for each",
+  landing_copy: "the hero visual concept, the section order down the page, and what each proof point should show",
+};
+
+const PUBLISH_GUIDE = {
+  Instagram: "the final caption, five to ten relevant hashtags, and the first comment",
+  X: "at most two hashtags if they earn their place, and one suggested reply to seed the thread",
+  LinkedIn: "any accompanying text, three hashtags, and the first comment",
+  Website: "the meta title and description, the URL slug, and three internal links worth adding",
+  Email: "the final subject line, the preview text, the send segment, and a plain-text fallback note",
+  YouTube: "three title options, the description with chapter timestamps, and the tags",
+  Podcast: "three episode title options, the short description, and the show notes",
+};
+
+const LAYOUTS = [
+  { key: "cover", label: "Cover" }, { key: "point", label: "Point" },
+  { key: "quote", label: "Quote" }, { key: "list", label: "List" }, { key: "cta", label: "Call to action" },
+];
+
+const METRICS = [
+  { key: "reach", label: "Reach" }, { key: "likes", label: "Likes" }, { key: "comments", label: "Comments" },
+  { key: "saves", label: "Saves" }, { key: "shares", label: "Shares" }, { key: "follows", label: "New followers" },
+  { key: "note", label: "What you noticed", wide: true },
+];
+
+const PROFILE_FIELDS = [
+  { key: "name", label: "Business name" },
+  { key: "industry", label: "Industry", hint: "What the business actually does, in one line" },
+  { key: "audience", label: "Audience", hint: "Who you are talking to and what keeps them up at night", rows: 2 },
+  { key: "offering", label: "What you sell", hint: "Products or services, and the price bracket", rows: 2 },
+  { key: "pillars", label: "Content pillars", hint: "Three to five recurring subjects", rows: 2 },
+  { key: "voice", label: "Voice", rows: 2 },
+  { key: "dos", label: "Always", rows: 2 },
+  { key: "donts", label: "Never", rows: 2 },
+  { key: "goals", label: "What content is for", rows: 2 },
+];
+
+const DEFAULT_COLORS = { bg: "#FFFFFF", ink: "#12202E", accent: "#17557C" };
+
+/* ---------- helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtDate = (ts) => { try { return new Date(ts).toLocaleDateString(undefined, { month: "short", day: "numeric" }); } catch (e) { return ""; } };
+const getP = (id) => state.projects.find((p) => p.id === id);
+const getB = (id) => state.businesses.find((b) => b.id === id);
+const defaultOptions = (k) => Object.fromEntries(FORMATS[k].options.map((o) => [o.key, o.def || o.choices[0]]));
+const defaultStages = (k, hasSource) => FORMATS[k].stages.filter((s) => !(hasSource && (s === "idea" || s === "research")));
+const availableStages = (k) => STAGE_ORDER.filter((s) => s !== "design" || FORMATS[k].visual);
+const finalText = (p) => (p.outputs.edit && p.outputs.edit.text) || (p.outputs.write && p.outputs.write.text) || "";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e2) { return false; }
+  }
+}
+
+function projectStatus(p) {
+  const ss = p.stages.map((s) => p.stageStatus[s]);
+  if (p.published) return { label: "Published", cls: "badge-go", key: "published" };
+  if (p.finalApproved) return { label: "Ready to publish", cls: "badge-go", key: "ready" };
+  if (ss.includes("running")) return { label: "In production", cls: "badge-wait", key: "active" };
+  if (ss.includes("error")) return { label: "Stopped", cls: "badge-stop", key: "active" };
+  if (ss.includes("done")) return { label: "Needs your review", cls: "badge-wait", key: "active" };
+  return { label: "Queued", cls: "", key: "active" };
+}
+
+function coordinatorLine(p) {
+  if (p.published) return "Published. When the numbers come in, hand them to the analyst below.";
+  if (p.finalApproved) return "Every station is approved. This is ready to go out.";
+  const run = p.stages.find((s) => p.stageStatus[s] === "running");
+  if (run) return STAGES[run].label + " is working.";
+  const err = p.stages.find((s) => p.stageStatus[s] === "error");
+  if (err) return STAGES[err].label + " stopped. Open that station and run it again.";
+  if (p.stages.every((s) => ["done", "approved"].includes(p.stageStatus[s]))) return "The line is finished. Review it and give final approval.";
+  const d = p.stages.find((s) => p.stageStatus[s] === "done");
+  if (d && p.mode === "step") {
+    if (d === "idea" && (!p.outputs.idea || p.outputs.idea.chosen == null)) return "Five angles are ready. Pick one to keep the line moving.";
+    return STAGES[d].label + " is done and waiting on you.";
+  }
+  return "Queued.";
+}
+
+/* ---------- prompts (live mode) ---------- */
+const BASE = "You are one station on a content production line. Write clean, natural English. Return only what is asked for, with no preamble.";
+
+function profileBlock(b) {
+  const line = (k, v) => (v && v.trim() ? k + ": " + v.trim() : null);
+  return [
+    'Brand profile for "' + b.name + '"',
+    line("Industry", b.industry), line("Audience", b.audience), line("Offering", b.offering),
+    line("Content pillars", b.pillars), line("Voice", b.voice), line("Always", b.dos),
+    line("Never", b.donts), line("Purpose of content", b.goals),
+    b.learnings && b.learnings.trim() ? "What past content taught us:\n" + b.learnings.trim() : null,
+  ].filter(Boolean).join("\n");
+}
+function formatBlock(p) {
+  const f = FORMATS[p.format];
+  const opts = f.options.map((o) => o.label + ": " + p.options[o.key]).join(", ");
+  return "Format: " + f.group + " " + f.label + (opts ? ", " + opts : "");
+}
+function ideaBlock(p) {
+  const id = p.outputs.idea;
+  if (id && id.ideas && id.chosen != null && id.ideas[id.chosen]) {
+    const i = id.ideas[id.chosen];
+    return "Chosen angle: " + i.title + "\nAngle: " + (i.angle || "-") + "\nHook: " + (i.hook || "-") + (p.topic ? "\nEditor's starting topic: " + p.topic : "");
+  }
+  return p.topic ? "Topic: " + p.topic : "";
+}
+function slideCount(p) {
+  const f = FORMATS[p.format];
+  return f.fixedCount ? String(f.fixedCount) : p.options[f.countKey] || "7";
+}
+function stagePrompt(p, stage) {
+  const f = FORMATS[p.format];
+  const web = p.webSearch;
+  switch (stage) {
+    case "idea":
+      return 'Your station: ideas.\nPropose five distinct content ideas for this format and this business' + (p.topic ? ", around this topic: " + p.topic : ", based on the content pillars") + "." + (web ? " Search the web briefly and take current discussion into account." : "") + ' Put the strongest first.\nReturn only a valid JSON object, nothing else:\n{"ideas":[{"title":"","angle":"one sentence","hook":"opening line"}]}\nEach field 20 words maximum.';
+    case "research":
+      return "Your station: research and fact-checking.\nList the key points, credible figures or examples, and the claims that need care." + (web ? " Use web search and give a short source for every figure." : " Only state what you are confident about, and say plainly where you are not.") + "\n250 words maximum, as a short list.";
+    case "write":
+      return "Your station: writer.\n" + f.write(p.options) + "\nKeep the whole piece under 400 words. Return the copy only.";
+    case "edit":
+      return 'Your station: a demanding editor.\nTest the draft against the brand profile and the format: hook strength, clarity, filler, voice, and the "never" list. Keep the format structure and numbering.\nWrite the full corrected version first. Then a line containing only "---NOTES---" and under it at most four short points on what you changed.';
+    case "design":
+      if (f.visual === "slides") {
+        return "Your station: designer.\nTurn the final copy into " + slideCount(p) + " " + (p.format === "ig_story" ? "frames" : "slides") + '. Choose a layout for each from cover, point, quote, list, cta; write a headline of at most 8 words and body copy of at most 25 words. In list layouts, separate items with \\n.\nReturn only a valid JSON object, nothing else:\n{"slides":[{"layout":"cover","title":"","body":""}]}';
+      }
+      return "Your station: visual designer.\nWrite a short, buildable visual brief covering: " + (BRIEF_GUIDE[p.format] || "the key visuals this piece needs") + ".\n250 words maximum.";
+    case "publish":
+      return "Your station: publishing.\nPrepare the publish kit: " + PUBLISH_GUIDE[f.group] + ", the best time to post for this audience with a one-line reason, and a short pre-flight checklist.\n300 words maximum.";
+    default: return "";
+  }
+}
+function outputAsText(p, stage) {
+  const o = p.outputs[stage];
+  if (!o) return "";
+  if (o.ideas) return o.ideas.map((i, k) => (k + 1) + ". " + i.title + " — " + i.angle + " — " + i.hook).join("\n");
+  if (o.slides) return o.slides.map((s, k) => (k + 1) + ". " + s.title + ": " + s.body).join("\n");
+  return o.text || "";
+}
+function buildPrompt(p, stage, profile, feedback) {
+  const parts = [BASE, profileBlock(profile), formatBlock(p)];
+  if (p.sourceContent) parts.push("Source content to rework for this format:\n" + p.sourceContent);
+  if (stage !== "idea") { const ib = ideaBlock(p); if (ib) parts.push(ib); }
+  if (stage === "write" && p.outputs.research && p.outputs.research.text) parts.push("Research findings:\n" + p.outputs.research.text);
+  if (stage === "edit") parts.push("The draft:\n" + ((p.outputs.write && p.outputs.write.text) || ""));
+  if (stage === "design" || stage === "publish") parts.push("Final copy:\n" + finalText(p));
+  parts.push(stagePrompt(p, stage));
+  if (feedback && feedback.trim()) {
+    const prev = outputAsText(p, stage);
+    parts.push((prev ? "Previous version from this station:\n" + prev + "\n\n" : "") + "Editor feedback that must be applied:\n" + feedback.trim());
+  }
+  return parts.join("\n\n");
+}
+
+/* ---------- live model call ---------- */
+async function callModel(prompt, useWeb) {
+  const key = state.settings.apiKey.trim();
+  if (!key) throw new Error("Live mode needs an API key. Add one in Settings, or switch back to demo mode.");
+  const body = { model: state.settings.model, max_tokens: 1400, messages: [{ role: "user", content: prompt }] };
+  if (useWeb) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+  let res;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (e) { throw new Error("Could not reach the model. Check the connection and run the station again."); }
+  if (!res.ok) throw new Error("The model returned an error (" + res.status + "). Try the station again in a moment.");
+  const data = await res.json();
+  const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
+  if (!text) throw new Error("The response came back empty. Run the station again.");
+  return { text: text, truncated: data.stop_reason === "max_tokens" };
+}
+function extractJSON(text, truncated) {
+  const clean = text.replace(/```json|```/g, "");
+  const s = clean.indexOf("{"), e = clean.lastIndexOf("}");
+  try {
+    if (s < 0 || e <= s) throw new Error("no json");
+    return JSON.parse(clean.slice(s, e + 1));
+  } catch (err) {
+    throw new Error(truncated ? "The output hit the length ceiling and came back incomplete. Run it again." : "The output was not in the expected shape. Run it again.");
+  }
+}
+function splitMarker(text, re) {
+  const m = text.match(re);
+  if (!m) return [text.trim(), ""];
+  return [text.slice(0, m.index).trim(), text.slice(m.index + m[0].length).trim()];
+}
+const NOTES_RE = /-{2,}\s*NOTES\s*-{2,}/i;
+const LEARN_RE = /-{2,}\s*LESSONS\s*-{2,}/i;
+
+/* ---------- demo engine (no API key needed) ---------- */
+function firstClause(s, n) {
+  const max = n || 60;
+  let t = String(s || "").split(/[.,;\n]/)[0].trim();
+  if (t.length <= max) return t;
+  t = t.slice(0, max);
+  const cut = t.lastIndexOf(" ");
+  return (cut > 12 ? t.slice(0, cut) : t).trim();
+}
+function cap(s) { return String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1); }
+function subjectOf(p, profile) {
+  const id = p.outputs.idea;
+  if (id && id.ideas && id.chosen != null && id.ideas[id.chosen]) return id.ideas[id.chosen].title;
+  if (p.topic) return p.topic;
+  if (profile.pillars) return firstClause(profile.pillars, 50);
+  return "how " + profile.name + " actually works";
+}
+function audienceOf(profile) {
+  const raw = String(profile.audience || "").trim();
+  if (!raw) return "the people you sell to";
+  const head = raw.split(/\s+(?:who|that|which)\b|[,.;]/)[0].trim();
+  let words = head.split(/\s+/).slice(0, 3).join(" ").replace(/\s+(and|or|&|of|for|in)$/i, "");
+  return words.charAt(0).toLowerCase() + words.slice(1);
+}
+
+function demoIdeas(p, profile) {
+  const s = p.topic ? firstClause(p.topic, 46) : firstClause(profile.pillars, 42) || "the work you do";
+  const a = audienceOf(profile);
+  return { ideas: [
+    { title: cap(s) + " — the part nobody quotes you on", angle: "Name the hidden cost your competitors leave out of the conversation.", hook: "The quote is never the price. Here is what sits underneath it." },
+    { title: "The assumption " + a + " keep making", angle: "Correct one expensive belief using what you see every week.", hook: "We hear the same wrong assumption three times a week." },
+    { title: "A week inside " + profile.name + ", one job at a time", angle: "Show the process instead of describing it — proof beats claims.", hook: "Five days, one job, and everything that went sideways." },
+    { title: "Three questions to ask before you sign anything", angle: "Arm the buyer with questions that only a good supplier can answer well.", hook: "Ask any supplier these three things and watch what happens." },
+    { title: "Why we stopped doing this the standard way", angle: "A decision with a before and after, told against the industry norm.", hook: "We did it the standard way for two years. It was costing our clients." },
+  ] };
+}
+
+function demoResearch(p, profile) {
+  const s = firstClause(subjectOf(p, profile), 48);
+  return { text: [
+    "Key points worth making",
+    "• Buyers compare on headline price first and discover the real cost later — that gap is the strongest angle here.",
+    "• Decision timelines in " + (profile.industry || "this market") + " are usually weeks, not days, so this piece should aim to be forwarded internally rather than to convert on the spot.",
+    "• The objection that comes up most often is switching cost. Address it directly rather than around it.",
+    "",
+    "Examples to use",
+    "• One anonymised client story where the cheaper option cost more over twelve months.",
+    "• A simple side-by-side of what is and is not included in a standard quote.",
+    "",
+    "Claims to handle carefully",
+    "• Any market-wide percentage: use your own numbers, or attribute the figure to a named source with a date.",
+    "• Comparisons with named competitors: describe the practice, not the company.",
+    "",
+    "Demo note: in live mode this station searches the web and cites what it finds about " + s + ".",
+  ].join("\n") };
+}
+
+function demoSlideLines(p, profile, n) {
+  const s = firstClause(subjectOf(p, profile), 40);
+  const a = audienceOf(profile);
+  const pool = [
+    ["The quote is never the price", "Most " + a + " compare headline numbers. The number that matters shows up in month three."],
+    ["What a standard quote leaves out", "Setup, changeover, support hours, and the cost of the work you end up doing yourself."],
+    ["The twelve-month view", "Run both options over a year. The cheaper line item is rarely the cheaper decision."],
+    ["Ask for the exclusions list", "Any supplier worth hiring can hand you one in a day. That answer tells you most of what you need."],
+    ["Where the time goes", "Waiting on approvals, not doing the work. Cut that and the schedule fixes itself."],
+    ["One thing you can do today", "Take your last invoice and mark every line you did not expect."],
+    ["What we do differently", "Scope, exclusions, and response times in writing before anyone signs."],
+    ["Bring us your current quote", "We will mark it up honestly, even if the answer is to stay where you are."],
+    ["The question to start with", "Not what does it cost, but what happens when something goes wrong."],
+    ["Proof beats promises", "Ask for two references who left and came back. Those are the useful calls."],
+  ];
+  const out = [];
+  out.push("Slide 1: " + cap(s) + "\n" + "The version of this nobody puts in a brochure.");
+  for (let i = 1; i < n - 1; i++) { const c = pool[(i - 1) % pool.length]; out.push("Slide " + (i + 1) + ": " + c[0] + "\n" + c[1]); }
+  out.push("Slide " + n + ": Talk to " + profile.name + "\nSend us the quote you are weighing up. We will tell you what we would ask.");
+  return out.join("\n\n");
+}
+
+function demoWrite(p, profile) {
+  const f = FORMATS[p.format];
+  const s = firstClause(subjectOf(p, profile), 48);
+  const a = audienceOf(profile);
+  const name = profile.name;
+  const k = p.format;
+  if (f.visual === "slides" && k !== "ig_post") return { text: demoSlideLines(p, profile, parseInt(slideCount(p), 10) || 7) };
+  if (k === "ig_post") return { text: "On-image text:\n" + s + " — the part that does not make the brochure.\n\nCaption:\nMost " + a + " pick a supplier on the headline number, then meet the real cost in month three: the exclusions, the waiting, the work that quietly lands back on their desk.\n\nBefore you sign anything, ask for the exclusions list in writing. Anyone good can produce one in a day.\n\nSend us the quote you are weighing up and we will tell you what we would ask about it." };
+  if (k === "ig_reel") return { text: "HOOK (0–3s)\nSpoken: Do not sign that quote yet.\nOn-screen: Read the exclusions first\n\nBODY (3–22s)\nSpoken: Every quote in " + (profile.industry || "this business") + " has two numbers. The one on the page, and the one you meet in month three.\nOn-screen: Number 1: the quote / Number 2: the year\n\nSpoken: Ask for the exclusions list in writing. Anyone good can send it the same day.\nOn-screen: Ask for the exclusions list\n\nCLOSE (22–30s)\nSpoken: Send us your current quote. We will tell you exactly what we would ask about it.\nOn-screen: " + name + " — send us the quote" };
+  if (k === "x_thread") {
+    const n = parseInt(p.options.count, 10) || 8;
+    const lines = ["1/ " + s + ". Here is what actually drives the cost, from the inside."];
+    const body = [
+      "The headline number is the easy part. The exclusions decide what you pay.",
+      "Ask any supplier for the exclusions list in writing. Same-day answer means a real process behind it.",
+      "Run both options over twelve months, not one invoice. Cheaper per unit is often dearer per year.",
+      "The expensive failure is not the mistake. It is how long it takes to get someone on the phone after it.",
+      "Response times belong in the contract, not the sales call.",
+      "Two references who left and came back tell you more than ten who never left.",
+      "Scope creep is a documentation problem before it is a money problem.",
+      "None of this needs a bigger budget. It needs better questions.",
+      "Price is what you agree. Cost is what you find out.",
+      "Switching is not as painful as staying somewhere that does not answer the phone.",
+    ];
+    for (let i = 1; i < n - 1; i++) lines.push((i + 1) + "/ " + body[(i - 1) % body.length]);
+    lines.push(n + "/ That is the short version of how we work at " + name + ". Follow along if this is the kind of thing you deal with weekly.");
+    return { text: lines.join("\n\n") };
+  }
+  if (k === "x_post") return { text: 'Every quote has two numbers: the one on the page, and the one you meet in month three.\n\nAsk for the exclusions list in writing before you sign.\n\n— — —\nAlternative 1:\nCheaper per unit is not cheaper per year. Run both options over twelve months before you decide.\n\nAlternative 2:\nThe expensive part is never the mistake. It is the four days it takes to get someone on the phone afterwards.' };
+  if (k === "li_post") return { text: "A client sent me two quotes last week and asked which was better.\n\nThe cheaper one was 18% lower on the page. It also excluded setup, capped support at business hours, and left the handover to them.\n\nWe put both on a twelve-month view. The cheap one finished higher — and it would have cost them about a day a week of their own time.\n\nThree questions that settle most of these decisions:\n\n1. What is on the exclusions list, in writing?\n2. What is the response time when something fails, and what happens if it is missed?\n3. Can I speak to two customers who left and came back?\n\nNone of that needs a bigger budget. It needs better questions before signing.\n\nWhat would you add to that list?" };
+  if (k === "blog_post") return { text: "Working title: " + s + ": what the quote does not tell you\n\nThe problem\nMost " + a + " compare suppliers on the headline number because it is the only figure everyone publishes. The costs that decide the outcome — exclusions, response times, the work that lands back on your desk — are rarely on the page.\n\nH2: The two numbers in every quote\nThe agreed price, and the twelve-month cost. They are different, and the gap between them is where most regret lives.\n\nH2: What the exclusions list tells you\nAsk for one in writing. The speed and shape of the answer tells you what working together will feel like.\n\nH2: Response times belong in the contract\nA failure costs what it costs. The waiting is what turns it into a bad quarter.\n\nH2: How to compare two quotes properly\nPut both on a twelve-month view. Add your own time at a realistic rate. Then decide.\n\nWhat to do next\nTake the last quote you accepted and mark every line you did not expect. That list is your buying criteria for next time.\n\nDemo note: live mode writes this at full length with researched figures." };
+  if (k === "landing_copy") return { text: "Hero headline: Know what a quote will actually cost you\nSubhead: " + name + " puts scope, exclusions and response times in writing before anyone signs.\n\nProof points\n1. Exclusions list within one working day, every time.\n2. Response times written into the agreement, with what happens if they are missed.\n3. References available from customers who left and came back.\n\nObjection: we are locked in with our current supplier\nMost agreements have more room than people assume. Send us the contract and we will read it before you do anything else — there is no charge for that.\n\nFAQ\nHow long does switching take? Usually two to four weeks, most of it on our side.\nWhat if we stay where we are? That is a fine outcome, and we will say so.\nDo you work with businesses our size? Tell us the size and we will answer straight.\n\nButton: " + (p.options.goal || "Book a call") };
+  if (k === "email_news") return { text: "Subject line options\n1. The second number in every quote\n2. What we would ask about your last invoice\n3. Cheaper per unit, dearer per year\n\nPreview: The cost you agree and the cost you meet are rarely the same number.\n\nBody\nA client sent us two quotes last week. The cheaper one was 18% lower on the page and higher over twelve months, once setup, support hours and their own time were counted.\n\nThree questions that settle it\nAsk for the exclusions list in writing. Ask what happens when a response time is missed. Ask for two references who left and came back.\n\nOne thing to try this week\nTake your last invoice and mark every line you did not expect. That list is your buying criteria next time.\n\nCall to action: Send us a quote you are weighing up and we will tell you what we would ask about it." };
+  if (k === "email_seq") {
+    const n = parseInt(p.options.count, 10) || 3;
+    const mails = [
+      ["Day 0", "The thing we would ask about your quote", "You asked about " + s + ". Before anything else: ask your current supplier for the exclusions list in writing. It takes a day for anyone with a real process, and it answers most of the question. Reply with what comes back and we will read it with you."],
+      ["Day 3", "Cheaper per unit, dearer per year", "Put both options on a twelve-month view and add your own time at a realistic rate. That single exercise changes about half the decisions we see. Want our one-page version of it?"],
+      ["Day 7", "Two references worth calling", "Not the happy ones. Ask for two customers who left and came back. If there are none, that is also information. Want us to sit in on that call?"],
+      ["Day 12", "What switching actually takes", "Two to four weeks, most of it on our side. Here is the sequence so you can judge it yourself."],
+      ["Day 18", "Closing the loop", "If staying put is the right answer, we will say so. If it is not, here is what week one with us looks like."],
+    ];
+    return { text: mails.slice(0, n).map((m, i) => "Email " + (i + 1) + " — " + m[0] + "\nSubject: " + m[1] + "\n\n" + m[2]).join("\n\n———\n\n") };
+  }
+  if (k === "yt_video") return { text: "HOOK (0–15s)\nThere are two numbers in every quote you will ever receive, and only one of them is printed on it.\n\nSection 1 — The quote and the year\n• Headline price versus twelve-month cost\n• Where the difference usually hides: setup, support hours, your own time\n\nSection 2 — The exclusions list\n• Why you should ask for it in writing\n• What a slow answer tells you\n\nSection 3 — Response times\n• The failure costs what it costs; the waiting is what hurts\n• Putting response times in the agreement\n\nSection 4 — Comparing two quotes properly\n• The twelve-month worksheet, line by line\n\nCLOSE\nTake your last invoice, mark every line you did not expect, and bring that list to your next conversation. Links below." };
+  if (k === "podcast") return { text: "Episode outline — " + s + "\n\n00:00 Cold open: the two quotes, and which one actually cost more\n01:30 Intro and why this comes up every week\n04:00 Segment 1: what a standard quote leaves out\n12:00 Segment 2: the exclusions list, and what a slow answer means\n20:00 Segment 3: response times as a contract term, not a sales promise\n26:00 " + (p.options.format === "Interview" ? "Guest questions: the worst switch you have seen, what you would put in every contract, what buyers should stop asking" : "Key talking points: the twelve-month view, counting your own time, references who left and came back") + "\n29:00 Close: mark up your last invoice and bring that list next time" };
+  return { text: "Draft copy for " + s + ", written to the rules of this format.\n\nDemo note: connect an API key in Settings to generate this live." };
+}
+
+function demoEdit(p, profile) {
+  const draft = (p.outputs.write && p.outputs.write.text) || "";
+  const lines = draft.split("\n");
+  let text = draft;
+  if (lines.length && !/^Slide 1:|^HOOK|^Subject|^Working title|^Hero headline|^Episode outline|^On-image/.test(lines[0])) {
+    lines[0] = lines[0].replace(/^A client sent me/, "A client sent me");
+    text = lines.join("\n");
+  }
+  text = text.replace(/\bvery\b\s?/g, "").replace(/\bactually drives\b/g, "drives");
+  return {
+    text: text,
+    notes: "• Tightened the opening so the first line carries a claim rather than a warm-up.\n• Cut hedging words that softened the argument without adding anything.\n• Made the call to action concrete: a thing to send, not a thing to feel.\n• Checked the piece against the \"never\" list in the brand profile — no competitor names, no unsourced percentages.",
+  };
+}
+
+function demoDesign(p, profile) {
+  const f = FORMATS[p.format];
+  if (f.visual === "slides") {
+    const src = finalText(p);
+    const blocks = src.split(/\n\s*\n/).filter((b) => /^Slide \d+:|^Frame \d+:/.test(b));
+    const n = parseInt(slideCount(p), 10) || blocks.length || 5;
+    const slides = [];
+    for (let i = 0; i < n; i++) {
+      const b = blocks[i];
+      let title = "", body = "";
+      if (b) {
+        const t = b.replace(/^(Slide|Frame) \d+:\s*/, "").split("\n");
+        title = (t[0] || "").trim();
+        body = t.slice(1).join(" ").trim();
+      } else { title = "Point " + (i + 1); body = "Supporting copy for this frame."; }
+      let layout = "point";
+      if (i === 0) layout = "cover";
+      else if (i === n - 1) layout = "cta";
+      else if (i === 2) layout = "quote";
+      else if (i === 3) layout = "list";
+      if (layout === "list" && body.indexOf("\n") < 0) body = body.split(/[.;] /).filter(Boolean).slice(0, 3).join("\n");
+      slides.push({ layout: layout, title: title, body: body });
+    }
+    return { slides: slides };
+  }
+  return { text: "Visual brief\n\n" + (BRIEF_GUIDE[p.format] || "Key visuals") + "\n\n• Cover / opening frame: the two-number idea, shown as one struck-through figure and one circled figure. Plain background, brand accent on the circled number only.\n• Supporting visuals: a side-by-side of an invoice with expected lines in grey and unexpected lines in the accent colour.\n• Motion or emphasis: nothing decorative. One reveal on the second number is enough.\n• Text on screen: at most seven words per frame, set in the brand's headline face.\n• Alt text: describe the comparison, not the styling.\n\nHand this to a designer as-is; every item is buildable in under an hour." };
+}
+
+function demoPublish(p, profile) {
+  const f = FORMATS[p.format];
+  const g = f.group;
+  const kits = {
+    Instagram: "Caption\nThe quote is never the price. Ask for the exclusions list in writing before you sign — anyone good can send it the same day.\n\nSave this for the next time you are comparing two suppliers.\n\nHashtags\n#smallbusiness #procurement #" + (profile.industry || "business").toLowerCase().replace(/[^a-z]/g, "") + " #businessowner #buyingdecisions #supplychain #businessadvice\n\nFirst comment\nIf you are weighing up a quote right now, send it over and we will tell you what we would ask about it.",
+    X: "Hashtags: none. This audience reads them as noise.\n\nSeed reply\nThe follow-up question almost nobody asks: what happens if the response time is missed? The answer is usually nothing, which is the point.",
+    LinkedIn: "Accompanying text: none needed, the post carries itself.\n\nHashtags\n#procurement #operations #smallbusiness\n\nFirst comment\nHappy to share the twelve-month comparison sheet we use — say the word and I will send it over.",
+    Website: "Meta title: What your quote leaves out | " + profile.name + "\nMeta description: The costs that decide a supplier decision are rarely on the quote. Here are the three questions to ask before you sign.\nSlug: /what-your-quote-leaves-out\n\nInternal links: your services page, your pricing explainer, and the most recent client story.",
+    Email: "Final subject line: The second number in every quote\nPreview text: The cost you agree and the cost you meet are rarely the same.\nSegment: everyone who has requested a quote in the last 180 days and not bought.\nPlain-text note: keep the three questions as a numbered list; they carry the email on their own.",
+    YouTube: "Title options\n1. The second number in every quote\n2. How to compare two supplier quotes properly\n3. What your quote leaves out\n\nDescription\nThe costs that decide a supplier decision are rarely printed on the quote. Chapters below.\n00:00 The two numbers\n01:40 The exclusions list\n05:10 Response times\n08:30 Comparing two quotes\n\nTags: procurement, supplier comparison, small business, buying decisions",
+    Podcast: "Title options\n1. The second number in every quote\n2. What the exclusions list tells you\n3. Cheaper per unit, dearer per year\n\nShort description\nWhy the cheaper quote often finishes higher, and the three questions that settle most supplier decisions.\n\nShow notes: the twelve-month comparison sheet, the exclusions checklist, and the reference questions from the episode.",
+  };
+  return { text: (kits[g] || "Publish kit for " + g) + "\n\nSuggested timing\nTuesday to Thursday, mid-morning — this is a work decision, so it needs to land during the working week rather than at the weekend.\n\nPre-flight checklist\n• Every claim in the piece is one you can defend in a meeting.\n• No competitor is named.\n• The call to action asks for one specific action.\n• Links and the landing page work on a phone.\n• Someone other than the author has read it once." };
+}
+
+function demoAnalysis(p, profile, m) {
+  const reach = parseInt(m.reach, 10) || 0;
+  const saves = parseInt(m.saves, 10) || 0;
+  const comments = parseInt(m.comments, 10) || 0;
+  const thin = reach < 50;
+  return {
+    text: (thin ? "There is not much data here yet, so treat this as a reading rather than a conclusion.\n\n" : "") +
+      "What worked\nThe piece asked the reader to do something small and concrete, and the save and comment behaviour follows that pattern — people keep things they intend to use. " +
+      (saves > comments ? "Saves outpacing comments usually means the piece is being treated as a reference rather than a conversation." : "Comments outpacing saves suggests the opening question did more work than the body.") +
+      "\n\nWhat did not\nThe middle section carries the argument but arrives after the point where most readers decide whether to continue. Moving the strongest example one position earlier is the cheapest change available.\n\nWhat to try next\nSame structure, but open on the specific number rather than the general claim, and keep the call to action identical so the comparison is clean.",
+    learnings: "• Concrete asks outperform general advice for this audience.\n• The strongest example should appear before the halfway point.\n• Keep the call to action stable across pieces so results stay comparable.",
+  };
+}
+
+function demoStage(p, stage, profile, m) {
+  if (stage === "idea") return demoIdeas(p, profile);
+  if (stage === "research") return demoResearch(p, profile);
+  if (stage === "write") return demoWrite(p, profile);
+  if (stage === "edit") return demoEdit(p, profile);
+  if (stage === "design") return demoDesign(p, profile);
+  if (stage === "publish") return demoPublish(p, profile);
+  return { text: "" };
+}
+
+/* ---------- execution ---------- */
+async function executeStage(p, stage, profile, feedback) {
+  if (state.settings.mode === "demo") {
+    await sleep(700 + Math.random() * 700);
+    const out = demoStage(p, stage, profile);
+    if (feedback && feedback.trim() && out.text) out.text = out.text + "\n\n[Demo mode: your feedback \u201c" + feedback.trim() + "\u201d would be applied to the rewrite in live mode.]";
+    return out;
+  }
+  const f = FORMATS[p.format];
+  const useWeb = p.webSearch && (stage === "idea" || stage === "research");
+  const r = await callModel(buildPrompt(p, stage, profile, feedback), useWeb);
+  if (stage === "idea") {
+    const j = extractJSON(r.text, r.truncated);
+    if (!Array.isArray(j.ideas) || !j.ideas.length) throw new Error("The ideas station did not return a usable list. Run it again.");
+    return { ideas: j.ideas.slice(0, 5) };
+  }
+  if (stage === "design" && f.visual === "slides") {
+    const j = extractJSON(r.text, r.truncated);
+    if (!Array.isArray(j.slides) || !j.slides.length) throw new Error("The design station did not return usable slides. Run it again.");
+    return { slides: j.slides };
+  }
+  if (stage === "edit") {
+    const parts = splitMarker(r.text, NOTES_RE);
+    return { text: parts[0], notes: parts[1], truncated: r.truncated };
+  }
+  return { text: r.text, truncated: r.truncated };
+}
+
+function touch(p) { p.updatedAt = Date.now(); persist(); }
+
+function resetAfter(p, stage) {
+  const i = p.stages.indexOf(stage);
+  p.stages.slice(i + 1).forEach((s) => {
+    p.stageStatus[s] = "pending";
+    delete p.outputs[s];
+    if (p.errors) p.errors[s] = null;
+  });
+  p.finalApproved = false;
+}
+
+async function runStage(id, stage, feedback) {
+  const p = getP(id);
+  if (!p) return false;
+  const profile = getB(p.businessId);
+  if (!profile) {
+    p.stageStatus[stage] = "error";
+    p.errors[stage] = "This project has no brand profile. Create one under Profiles first.";
+    touch(p); render();
+    return false;
+  }
+  p.stageStatus[stage] = "running";
+  p.errors[stage] = null;
+  touch(p); render();
+  try {
+    const out = await executeStage(p, stage, profile, feedback);
+    const cur = getP(id);
+    if (!cur) return false;
+    if (stage === "idea") {
+      const chosen = cur.mode === "auto" ? 0 : null;
+      cur.outputs.idea = Object.assign({}, out, { chosen: chosen });
+      if (chosen != null && out.ideas[chosen] && out.ideas[chosen].title) cur.title = out.ideas[chosen].title;
+    } else {
+      cur.outputs[stage] = out;
+    }
+    cur.stageStatus[stage] = "done";
+    touch(cur); render();
+    return true;
+  } catch (e) {
+    const cur = getP(id);
+    if (cur) {
+      cur.stageStatus[stage] = "error";
+      cur.errors[stage] = e.message || "Something went wrong. Run the station again.";
+      touch(cur); render();
+    }
+    return false;
+  }
+}
+
+async function runAuto(id, fromIdx) {
+  const p = getP(id);
+  if (!p) return;
+  for (let i = fromIdx; i < p.stages.length; i++) {
+    const ok = await runStage(id, p.stages[i]);
+    if (!ok) return;
+  }
+}
+
+/* ---------- view helpers ---------- */
+function chip(label, pressed, act, extraClass) {
+  return '<button class="chip ' + (extraClass || "") + '" aria-pressed="' + (pressed ? "true" : "false") + '" data-act="' + act + '">' + esc(label) + "</button>";
+}
+function badge(label, cls) { return '<span class="badge ' + (cls || "") + '">' + esc(label) + "</span>"; }
+function field(label, hint, control) {
+  return '<label class="field"><span class="label">' + esc(label) + "</span>" + (hint ? '<span class="hint">' + esc(hint) + "</span>" : "") + control + "</label>";
+}
+function slideHTML(slide, i, total, profile, ratio) {
+  const c = Object.assign({}, DEFAULT_COLORS, (profile && profile.colors) || {});
+  const layout = slide.layout || "point";
+  const cta = layout === "cta";
+  const bg = cta ? c.accent : c.bg;
+  const ink = cta ? c.bg : c.ink;
+  const accent = cta ? c.bg : c.accent;
+  const tall = ratio === "9/16";
+  const w = tall ? 188 : ratio === "4/5" ? 220 : 238;
+  const lines = String(slide.body || "").split(/\n|\\n/).map((s) => s.trim()).filter(Boolean);
+  let inner = "";
+  if (layout === "cover") {
+    inner = '<div><div style="width:34px;height:4px;background:' + accent + ';margin-bottom:12px"></div><div class="s-cover">' + esc(slide.title) + "</div>" + (slide.body ? '<div class="s-body">' + esc(slide.body) + "</div>" : "") + "</div>";
+  } else if (layout === "quote") {
+    inner = '<div><div class="s-quote-mark" style="color:' + accent + '">&ldquo;</div><div class="s-quote">' + esc(slide.body || slide.title) + "</div>" + (slide.body && slide.title ? '<div class="s-body" style="opacity:.75">' + esc(slide.title) + "</div>" : "") + "</div>";
+  } else if (layout === "list") {
+    inner = '<div><div class="s-title">' + esc(slide.title) + '</div><ul class="s-list">' +
+      lines.map((l) => '<li><i style="background:' + accent + '"></i>' + esc(l.replace(/^([-•*]|\d+[.)])\s*/, "")) + "</li>").join("") + "</ul></div>";
+  } else {
+    inner = "<div>" + (cta
+      ? '<div class="s-cover">' + esc(slide.title) + "</div>"
+      : '<div class="s-title" style="border-left:3px solid ' + accent + ';padding-left:9px">' + esc(slide.title) + "</div>") +
+      '<div class="s-body">' + esc(slide.body) + "</div></div>";
+  }
+  return '<div class="slide" style="background:' + bg + ";color:" + ink + ";aspect-ratio:" + ratio + ";width:" + w + 'px">' + inner +
+    '<div class="s-foot"><span>' + esc(profile ? profile.name : "") + "</span><span>" + (i + 1) + " / " + total + "</span></div></div>";
+}
+
+/* ---------- home ---------- */
+function viewHome() {
+  const hero = '<section class="hero">' +
+    "<h1>A production line for everything your business publishes</h1>" +
+    '<p class="sub">Six stations take a piece from a blank page to a publish-ready kit. Each one stops and waits for you: nothing moves forward because software decided it was fine. Set up a brand profile once, and every station works from the same brief.</p>' +
+    '<div class="hero-line">' + STAGE_ORDER.map((s) => '<div class="hero-step"><b>' + esc(STAGES[s].label) + "</b><span>" + esc(STAGES[s].desc.split(".")[0]) + "</span></div>").join("") + "</div></section>";
+
+  if (!state.businesses.length) {
+    return hero + '<div class="empty" style="color:var(--ink)"><h2>No brand profile yet</h2><p class="sub">Every station reads the same profile: who you sell to, how you sound, what you never say. Start there and the output stops sounding like anyone else\'s.</p><button class="btn btn-primary" data-act="go:profiles">Create a brand profile</button></div>';
+  }
+  const filter = state.ui.homeFilter || "all";
+  const tab = state.ui.homeTab || "active";
+  const scoped = state.projects.filter((p) => filter === "all" || p.businessId === filter);
+  const counts = { active: 0, ready: 0, published: 0 };
+  scoped.forEach((p) => { counts[projectStatus(p).key]++; });
+  const list = scoped.filter((p) => projectStatus(p).key === tab).sort((a, b) => b.updatedAt - a.updatedAt);
+  const TABS = [["active", "In production"], ["ready", "Ready to publish"], ["published", "Published"]];
+
+  let html = hero + '<div class="head"><div><h1>The line</h1><p class="sub">Every piece in flight, and where it is waiting.</p></div>' +
+    '<button class="btn btn-primary" data-act="go:new">Start a piece</button></div>';
+  html += '<div class="tabs" role="tablist">' + TABS.map((t) =>
+    '<button class="tab" role="tab" aria-selected="' + (tab === t[0]) + '" data-act="tab:' + t[0] + '">' + t[1] + '<span class="tab-count">' + counts[t[0]] + "</span></button>").join("");
+  if (state.businesses.length > 1) {
+    html += '<div class="filter"><select class="select" data-bind="ui.homeFilter" data-rerender="1" aria-label="Filter by business"><option value="all">All businesses</option>' +
+      state.businesses.map((b) => '<option value="' + b.id + '"' + (filter === b.id ? " selected" : "") + ">" + esc(b.name) + "</option>").join("") + "</select></div>";
+  }
+  html += "</div>";
+
+  if (!list.length) {
+    html += '<div class="empty"><span>' + (tab === "active" ? "Nothing on the line right now." : tab === "ready" ? "Nothing is waiting to be published." : "Nothing published yet.") + "</span>" +
+      (tab === "active" ? '<button class="btn btn-primary" data-act="go:new">Start a piece</button>' : "") + "</div>";
+  } else {
+    html += list.map((p) => {
+      const f = FORMATS[p.format], b = getB(p.businessId), ps = projectStatus(p);
+      return '<button class="row" data-act="open:' + p.id + '"><span class="row-main"><span class="row-title">' + esc(p.title) + "</span>" +
+        '<span class="row-meta"><span>' + esc(b ? b.name : "Deleted profile") + "</span><span>" + esc(f.group + " " + f.label) + "</span><span>" + fmtDate(p.updatedAt) + "</span></span></span>" +
+        '<span class="row-side"><span class="dots" aria-hidden="true">' + p.stages.map((s) => '<span data-state="' + p.stageStatus[s] + '"></span>').join("") + "</span>" + badge(ps.label, ps.cls) + "</span></button>";
+    }).join("");
+  }
+  return html;
+}
+
+/* ---------- new piece ---------- */
+function newForm() {
+  if (!state.ui.nf) {
+    const pre = state.ui.prefill;
+    const fmt = (pre && pre.format) || "li_post";
+    state.ui.nf = {
+      businessId: (pre && pre.businessId) || (state.businesses[0] && state.businesses[0].id) || "",
+      format: fmt, options: defaultOptions(fmt), stages: defaultStages(fmt, !!(pre && pre.sourceContent)),
+      mode: "step", topic: "", webSearch: true, error: "",
+    };
+  }
+  return state.ui.nf;
+}
+function viewNew() {
+  if (!state.businesses.length) {
+    return '<div class="empty" style="color:var(--ink)"><h2>A brand profile comes first</h2><p class="sub">Without one, the stations have no idea who they are writing for.</p><button class="btn btn-primary" data-act="go:profiles">Create a brand profile</button></div>';
+  }
+  const nf = newForm();
+  const pre = state.ui.prefill;
+  const f = FORMATS[nf.format];
+  const needsTopic = nf.stages.indexOf("idea") < 0 && !(pre && pre.sourceContent);
+  const webRelevant = nf.stages.indexOf("idea") >= 0 || nf.stages.indexOf("research") >= 0;
+
+  let html = '<div class="head"><div><button class="back" data-act="go:home">Back to the line</button><h1>' +
+    (pre && pre.sourceContent ? "Rework for another format" : "Start a piece") + "</h1>" +
+    '<p class="sub">' + (pre && pre.sourceContent ? "Reworking &ldquo;" + esc(pre.sourceTitle) + "&rdquo;" : "Pick the business, the format and how closely you want to supervise.") + "</p></div></div>";
+  html += '<section class="panel">';
+
+  html += '<div class="block"><div class="block-head"><span class="label">Business</span></div><div class="chips">' +
+    state.businesses.map((b) => chip(b.name, nf.businessId === b.id, "nf-business:" + b.id)).join("") + "</div></div>";
+
+  html += '<div class="block"><div class="block-head"><span class="label">Format</span></div>' +
+    GROUPS.map((g) => '<div class="frow"><span class="fgroup">' + esc(g) + '</span><div class="chips">' +
+      Object.keys(FORMATS).filter((k) => FORMATS[k].group === g).map((k) => chip(FORMATS[k].label, nf.format === k, "nf-format:" + k)).join("") +
+      "</div></div>").join("") + "</div>";
+
+  if (f.options.length) {
+    html += '<div class="block"><div class="block-head"><span class="label">' + esc(f.group + " " + f.label) + " options</span></div>" +
+      f.options.map((o) => '<div class="opt"><span class="hint">' + esc(o.label) + '</span><div class="chips">' +
+        o.choices.map((c) => chip(c, nf.options[o.key] === c, "nf-opt:" + o.key + ":" + c)).join("") + "</div></div>").join("") + "</div>";
+  }
+
+  html += '<div class="block"><div class="block-head"><span class="label">Stations</span><span class="hint">Draft and Edit always run. Turn the rest on or off for this piece.</span></div><div class="chips">' +
+    availableStages(nf.format).map((s) => {
+      const on = nf.stages.indexOf(s) >= 0;
+      const locked = !STAGES[s].optional;
+      return chip((on ? (nf.stages.indexOf(s) + 1) + ". " : "") + STAGES[s].label, on, "nf-stage:" + s, locked ? "chip-locked" : "");
+    }).join("") + "</div></div>";
+
+  html += '<div class="block"><div class="block-head"><span class="label">' + (needsTopic ? "Topic" : "Topic or starting point (optional)") + '</span><span class="hint">' +
+    (pre && pre.sourceContent ? "Add a new angle for this version, or leave it blank." : nf.stages.indexOf("idea") >= 0 ? "Leave it blank and the ideas station starts from your content pillars." : "The writer starts from exactly this.") +
+    '</span></div><textarea class="textarea" rows="3" data-bind="ui.nf.topic" placeholder="For example: why the cheapest quote usually costs more over a year">' + esc(nf.topic) + "</textarea>";
+  if (webRelevant) {
+    html += '<label class="check"><input type="checkbox" data-bind="ui.nf.webSearch"' + (nf.webSearch ? " checked" : "") + "><span>Let the ideas and research stations search the web</span></label>";
+  }
+  html += "</div>";
+
+  html += '<div class="block"><div class="block-head"><span class="label">Supervision</span></div><div class="modes">' +
+    [["step", "Approve at every station", "You see each output, edit or approve it, and only then does the next station start."],
+     ["auto", "Run the whole line", "Stations run back to back. You review everything once at the end."]]
+      .map((m) => '<button class="mode" aria-pressed="' + (nf.mode === m[0]) + '" data-act="nf-mode:' + m[0] + '"><b>' + m[1] + '</b><span class="hint">' + m[2] + "</span></button>").join("") +
+    "</div></div>";
+
+  html += '<div class="submit"><button class="btn btn-primary" data-act="nf-create">Start production</button>' +
+    (nf.error ? '<span class="failure-text" role="alert" style="margin:0">' + esc(nf.error) + "</span>" : "") + "</div></section>";
+  return html;
+}
+
+/* ---------- project ---------- */
+function stageOutputHTML(p, stage, profile, anyRunning) {
+  const o = p.outputs[stage] || {};
+  const st = p.stageStatus[stage];
+  const idx = p.stages.indexOf(stage);
+  const isLast = idx === p.stages.length - 1;
+  const readOnly = !!p.published;
+  const laterHasOutput = p.stages.slice(idx + 1).some((s) => p.outputs[s]);
+  const ideaPending = stage === "idea" && o.chosen == null;
+  const canApprove = p.mode === "step" && st === "done" && !ideaPending;
+  let html = "";
+
+  if (o.truncated) html += '<p class="notice">This output hit the length ceiling and may be cut short. Regenerate it with feedback such as &ldquo;keep it shorter&rdquo;.</p>';
+
+  if (stage === "idea" && o.ideas) {
+    html += '<div class="ideas">' + o.ideas.map((i, k) =>
+      '<button class="idea" aria-pressed="' + (o.chosen === k) + '"' + (readOnly || anyRunning ? " disabled" : "") + ' data-act="choose:' + k + '"><b>' + esc(i.title) + "</b>" +
+      (i.angle ? "<span>Angle: " + esc(i.angle) + "</span>" : "") + (i.hook ? "<span>Hook: " + esc(i.hook) + "</span>" : "") + "</button>").join("") + "</div>";
+  }
+  if (o.slides) {
+    const f = FORMATS[p.format];
+    html += '<div class="slides">' + o.slides.map((s, i) => slideHTML(s, i, o.slides.length, profile, f.ratio)).join("") + "</div>" +
+      '<p class="hint" style="margin:0">Previewed in the profile\'s colours. Screenshot each frame, or hand the copy to your designer.</p>';
+    if (!readOnly) {
+      html += "<details><summary>Edit slide copy and layout</summary>" + o.slides.map((s, i) =>
+        '<div class="slide-edit"><div class="slide-edit-head"><span class="label">' + (i + 1) + '</span><select class="select" data-slide="' + i + '" data-slide-field="layout">' +
+        LAYOUTS.map((l) => '<option value="' + l.key + '"' + ((s.layout || "point") === l.key ? " selected" : "") + ">" + l.label + "</option>").join("") + "</select></div>" +
+        '<input class="input" value="' + esc(s.title) + '" data-slide="' + i + '" data-slide-field="title" aria-label="Slide headline">' +
+        '<textarea class="textarea" rows="2" data-slide="' + i + '" data-slide-field="body" aria-label="Slide body">' + esc(s.body) + "</textarea></div>").join("") + "</details>";
+    }
+  }
+  if (typeof o.text === "string") {
+    const rows = Math.min(26, Math.max(8, (o.text.match(/\n/g) || []).length + 3));
+    html += '<textarea class="textarea" rows="' + rows + '" data-stage-text="' + stage + '"' + (readOnly ? " readonly" : "") + ">" + esc(o.text) + "</textarea>";
+  }
+  if (stage === "edit" && o.notes) {
+    html += '<div class="notes"><span class="label">What the editor changed</span><p>' + esc(o.notes) + "</p></div>";
+  }
+
+  html += '<div class="actions">';
+  if (canApprove) html += '<button class="btn btn-primary"' + (anyRunning ? " disabled" : "") + ' data-act="approve:' + stage + '">' + (isLast ? "Approve and finish" : "Approve and continue") + "</button>";
+  if (p.mode === "step" && st === "done" && ideaPending) html += '<span class="hint">Pick an angle to keep the line moving.</span>';
+  if (!o.ideas) html += '<button class="btn btn-quiet" data-act="copy-stage:' + stage + '">Copy</button>';
+  html += "</div>";
+
+  if (!readOnly) {
+    html += '<div class="actions"><div class="grow"><input class="input" id="fb-' + stage + '" placeholder="Feedback for the next version — sharper hook, fewer words, different example" aria-label="Feedback">' +
+      '<button class="btn"' + (anyRunning ? " disabled" : "") + ' data-act="regen:' + stage + '">Regenerate</button></div></div>';
+    if (laterHasOutput) html += '<p class="hint" style="margin:6px 0 0">Regenerating clears every station after this one.</p>';
+    if (!isLast && (st === "approved" || p.mode === "auto") && laterHasOutput) {
+      html += '<div class="actions" style="margin-top:8px"><button class="btn btn-quiet"' + (anyRunning || ideaPending ? " disabled" : "") + ' data-act="rerun:' + stage + '">Rebuild the stations after this one</button></div>';
+    }
+  }
+  return html;
+}
+
+function finalBoxHTML(p) {
+  const pub = p.outputs.publish && p.outputs.publish.text;
+  let html = '<section class="panel"><h2>' + (p.published ? "Published" : "Ready to publish") + "</h2>" +
+    '<p class="sub">' + (p.published ? "When the numbers come in, the analyst below turns them into something usable." : "Take the copy and the publish kit, put it out, then mark it here.") + "</p>" +
+    '<div class="actions"><button class="btn" data-act="copy-final">Copy the copy</button>' +
+    (pub ? '<button class="btn" data-act="copy-kit">Copy the publish kit</button>' : "") +
+    (!p.published ? '<button class="btn btn-primary" data-act="published">Mark as published</button><button class="btn btn-quiet" data-act="reopen">Reopen for edits</button>' : "") + "</div>";
+  html += '<div class="repurpose"><span class="label">Rework for another format</span><span class="hint">Same piece, different channel. The line starts at the writer, using this copy as the source.</span>' +
+    '<div class="actions" style="margin-top:8px"><div class="grow"><select class="select" data-bind="ui.repurpose" aria-label="Target format"><option value="">Choose a format</option>' +
+    GROUPS.map((g) => "<optgroup label=\"" + esc(g) + "\">" + Object.keys(FORMATS).filter((k) => FORMATS[k].group === g && k !== p.format)
+      .map((k) => '<option value="' + k + '">' + esc(FORMATS[k].label) + "</option>").join("") + "</optgroup>").join("") +
+    '</select><button class="btn" data-act="repurpose">Create the new version</button></div></div></div></section>';
+  return html;
+}
+
+function analystHTML(p) {
+  const m = p.metrics || {};
+  const running = p.analysisStatus === "running";
+  let html = '<section class="panel"><h2>Analyst</h2><p class="sub">A few days after publishing, put the numbers in. The lessons get added to the brand profile, and the next piece starts from them.</p><div class="metrics">' +
+    METRICS.map((x) => '<label class="field' + (x.wide ? " wide" : "") + '"><span class="label">' + esc(x.label) + "</span>" +
+      (x.wide ? '<textarea class="textarea" rows="2" data-metric="' + x.key + '" placeholder="For example: most comments were about the third slide">' + esc(m[x.key] || "") + "</textarea>"
+              : '<input class="input" inputmode="numeric" data-metric="' + x.key + '" value="' + esc(m[x.key] || "") + '">') + "</label>").join("") + "</div>" +
+    '<button class="btn btn-primary"' + (running ? " disabled" : "") + ' data-act="analyze">' + (running ? "Reading the numbers…" : p.analysis ? "Run it again" : "Read the numbers") + "</button>";
+  if (p.analysisStatus === "error") html += '<p class="failure-text">' + esc(p.analysisError) + "</p>";
+  if (p.analysis) html += '<div class="out">' + esc(p.analysis) + "</div>";
+  if (p.learnings) {
+    html += '<div class="notes"><span class="label">Lessons</span><p>' + esc(p.learnings) + "</p>" +
+      (p.learningAdded ? badge("Added to the brand profile", "badge-go") : '<button class="btn" data-act="add-learning">Add to the brand profile</button>') + "</div>";
+  }
+  return html + "</section>";
+}
+
+function viewProject() {
+  const p = getP(state.view.id);
+  if (!p) return '<div class="empty"><span>That piece is gone.</span><button class="btn" data-act="go:home">Back to the line</button></div>';
+  const f = FORMATS[p.format];
+  const profile = getB(p.businessId);
+  const runningStage = p.stages.find((s) => p.stageStatus[s] === "running");
+  let sel = state.ui.sel;
+  if (runningStage) sel = runningStage;
+  if (!sel || p.stages.indexOf(sel) < 0) sel = p.stages.find((s) => p.stageStatus[s] !== "approved") || p.stages[p.stages.length - 1];
+  state.ui.sel = sel;
+
+  const st = p.stageStatus[sel] || "pending";
+  const idx = p.stages.indexOf(sel);
+  const prevStatus = idx > 0 ? p.stageStatus[p.stages[idx - 1]] : "approved";
+  const prevOk = prevStatus === "approved" || (p.mode === "auto" && prevStatus === "done");
+  const anyRunning = !!runningStage;
+  const allDone = p.stages.every((s) => ["done", "approved"].indexOf(p.stageStatus[s]) >= 0);
+  const showFinalBanner = allDone && !p.finalApproved && !anyRunning && (p.mode === "auto" || p.stages.every((s) => p.stageStatus[s] === "approved"));
+  const ps = projectStatus(p);
+
+  let html = '<div class="head"><div><button class="back" data-act="go:home">Back to the line</button><h1>' + esc(p.title) + "</h1>" +
+    '<p class="sub">' + esc((profile ? profile.name : "Deleted profile") + " · " + f.group + " " + f.label) + "</p></div>" + badge(ps.label, ps.cls) + "</div>";
+  html += '<p class="coord"><b>Line manager</b><span>' + esc(coordinatorLine(p)) + "</span></p>";
+  html += '<div class="line">' + p.stages.map((s, i) => {
+    const stt = p.stageStatus[s] || "pending";
+    return '<button class="station" data-state="' + stt + '"' + (sel === s ? ' aria-current="step"' : "") + ' data-act="sel:' + s + '">' +
+      '<span class="st-num">' + (i + 1) + '</span><span class="st-label">' + esc(STAGES[s].label) + '</span><span class="st-status">' + STATUS_LABEL[stt] + "</span></button>";
+  }).join("") + "</div>";
+
+  html += '<div class="grid"><div class="main">';
+  if (showFinalBanner) {
+    html += '<div class="banner"><div><b>Every station has run.</b><div class="hint">Open each one from the line above, read it, then sign it off.</div></div>' +
+      '<button class="btn btn-primary" data-act="final">Approve the piece</button></div>';
+  }
+  html += '<section class="panel"><div class="stage-head"><div><h2>' + esc(STAGES[sel].label) + '</h2><p class="hint" style="margin:0">' + esc(STAGES[sel].desc) + "</p></div>" +
+    badge(STATUS_LABEL[st], st === "approved" ? "badge-go" : st === "error" ? "badge-stop" : (st === "done" || st === "running") ? "badge-wait" : "") + "</div>";
+
+  if (st === "pending") {
+    html += prevOk && !anyRunning
+      ? '<div class="actions" style="margin-top:0"><span class="sub">This station has not run yet.</span><button class="btn btn-primary" data-act="run:' + sel + '">Run this station</button></div>'
+      : '<p class="running">' + (anyRunning ? "Another station is working; this one is queued." : "This station runs once the one before it is approved.") + "</p>";
+  } else if (st === "running") {
+    html += '<p class="running">' + esc(STAGES[sel].label) + " is working. This usually takes under a minute.</p>";
+  } else if (st === "error") {
+    html += '<div class="failure"><p>' + esc((p.errors && p.errors[sel]) || "The run failed.") + '</p><button class="btn"' + (anyRunning ? " disabled" : "") + ' data-act="run:' + sel + '">Run it again</button></div>';
+  } else {
+    html += stageOutputHTML(p, sel, profile, anyRunning);
+  }
+  html += "</section>";
+  if (p.finalApproved) html += finalBoxHTML(p);
+  if (p.published) html += analystHTML(p);
+  html += "</div>";
+
+  html += '<aside class="panel aside"><dl class="dl"><dt>Business</dt><dd>' + esc(profile ? profile.name : "Deleted") + "</dd>" +
+    "<dt>Format</dt><dd>" + esc(f.group + " " + f.label) + "</dd>" +
+    f.options.map((o) => "<dt>" + esc(o.label) + "</dt><dd>" + esc(p.options[o.key]) + "</dd>").join("") +
+    "<dt>Supervision</dt><dd>" + (p.mode === "auto" ? "Whole line, one review" : "Approve every station") + "</dd>" +
+    "<dt>Web search</dt><dd>" + (p.webSearch ? "On" : "Off") + "</dd>" +
+    (p.topic ? "<dt>Topic</dt><dd>" + esc(p.topic) + "</dd>" : "") +
+    (p.sourceTitle ? "<dt>Reworked from</dt><dd>" + esc(p.sourceTitle) + "</dd>" : "") +
+    "<dt>Started</dt><dd>" + fmtDate(p.createdAt) + "</dd></dl>" +
+    (state.ui.confirmDel
+      ? '<div class="actions" style="margin-top:0"><button class="btn btn-danger" data-act="delete">Delete for good</button><button class="btn btn-quiet" data-act="cancel-del">Keep it</button></div>'
+      : '<button class="btn btn-quiet" style="padding-left:0" data-act="confirm-del">Delete this piece</button>') + "</aside></div>";
+  return html;
+}
+
+/* ---------- brand profiles ---------- */
+function viewProfiles() {
+  if (state.ui.editing) return viewProfileEditor();
+  let html = '<div class="head"><div><h1>Brand profiles</h1><p class="sub">One profile per business. Every station reads it before it writes a word.</p></div>' +
+    '<button class="btn btn-primary" data-act="p-new">New profile</button></div>';
+  if (!state.businesses.length) {
+    return html + '<div class="empty"><span>No profiles yet.</span><button class="btn btn-primary" data-act="p-new">Create the first one</button></div>';
+  }
+  html += '<div class="cards">' + state.businesses.map((b) => {
+    const c = Object.assign({}, DEFAULT_COLORS, b.colors || {});
+    const n = state.projects.filter((p) => p.businessId === b.id).length;
+    return '<button class="card" data-act="p-edit:' + b.id + '"><span class="swatches" aria-hidden="true">' +
+      ["bg", "ink", "accent"].map((k) => '<i style="background:' + c[k] + '"></i>').join("") + "</span><b>" + esc(b.name) + "</b>" +
+      '<span class="hint">' + esc(b.industry || "Industry not set") + '</span><span class="hint">' + esc(b.audience ? b.audience.slice(0, 90) : "Audience not set") + "</span>" +
+      '<span class="hint">' + n + (n === 1 ? " piece" : " pieces") + "</span></button>";
+  }).join("") + "</div>";
+  return html;
+}
+
+function viewProfileEditor() {
+  const pe = state.ui.pe;
+  const isNew = state.ui.editing === "new";
+  const count = isNew ? 0 : state.projects.filter((p) => p.businessId === pe.id).length;
+  let html = '<div class="head"><div><button class="back" data-act="p-cancel">Back to profiles</button><h1>' +
+    (isNew ? "New brand profile" : "Edit brand profile") + "</h1>" +
+    '<p class="sub">This is the shared brief for every station. The more specific it is, the less the output sounds like everyone else in your market.</p></div></div>';
+  html += '<div class="grid"><section class="panel">';
+  html += PROFILE_FIELDS.map((fd) => field(fd.label, fd.hint,
+    fd.rows ? '<textarea class="textarea" rows="' + fd.rows + '" data-bind="ui.pe.' + fd.key + '">' + esc(pe[fd.key] || "") + "</textarea>"
+            : '<input class="input" data-bind="ui.pe.' + fd.key + '" value="' + esc(pe[fd.key] || "") + '">')).join("");
+  html += field("Lessons", "The analyst adds to this after each piece. Trim it when it gets long.",
+    '<textarea class="textarea" rows="4" data-bind="ui.pe.learnings">' + esc(pe.learnings || "") + "</textarea>");
+  html += '<div class="field"><span class="label">Slide colours</span><div class="colors">' +
+    [["bg", "Background"], ["ink", "Text"], ["accent", "Accent"]].map((c) =>
+      '<label class="color"><input type="color" value="' + (pe.colors[c[0]] || DEFAULT_COLORS[c[0]]) + '" data-bind="ui.pe.colors.' + c[0] + '" data-rerender="1"><span>' + c[1] + "</span></label>").join("") + "</div></div>";
+  if (state.ui.peError) html += '<p class="failure-text" role="alert">' + esc(state.ui.peError) + "</p>";
+  html += '<div class="actions"><button class="btn btn-primary" data-act="p-save">Save profile</button>' +
+    '<button class="btn btn-quiet" data-act="p-cancel">Cancel</button>' +
+    (!isNew ? (state.ui.confirmDelB
+      ? '<button class="btn btn-danger" data-act="p-delete">Delete for good' + (count ? " — " + count + " pieces lose their profile" : "") + "</button>"
+      : '<button class="btn btn-quiet" data-act="p-confirm-del">Delete profile</button>') : "") + "</div></section>";
+
+  html += '<aside class="panel aside"><h2>Draft it for me</h2><p class="hint">Describe the business in your own words. The fields get filled in, then you correct them.</p>' +
+    '<textarea class="textarea" rows="7" data-bind="ui.peDesc" placeholder="For example: we run grounds maintenance contracts for business parks and schools; most clients are facilities managers judged on budget and complaints…">' + esc(state.ui.peDesc || "") + "</textarea>" +
+    '<button class="btn" style="margin-top:10px"' + (state.ui.peDrafting ? " disabled" : "") + ' data-act="p-draft">' + (state.ui.peDrafting ? "Writing the profile…" : "Fill in the fields") + "</button>" +
+    '<div style="margin-top:20px"><span class="label">Slide preview</span><div class="slides" style="margin-top:8px">' +
+    slideHTML({ layout: "cover", title: pe.name || "Business name", body: "A cover in this profile's colours" }, 0, 1, pe, "1/1") + "</div></div></aside></div>";
+  return html;
+}
+
+async function draftProfile() {
+  const desc = (state.ui.peDesc || "").trim();
+  if (!desc) { state.ui.peError = "Write a couple of sentences about the business first."; render(); return; }
+  state.ui.peError = ""; state.ui.peDrafting = true; render();
+  try {
+    let j;
+    if (state.settings.mode === "demo") {
+      await sleep(900);
+      const name = state.ui.pe.name || firstClause(desc, 32) || "The business";
+      j = {
+        industry: firstClause(desc, 70),
+        audience: "Decision-makers who are judged on budget and on complaints, and who buy this reluctantly rather than enthusiastically.",
+        offering: "The core service described above, sold on contract rather than per job, with a clear entry price.",
+        pillars: "Cost of ownership; how the work is actually done; seasonal or cyclical planning; proof from real jobs.",
+        voice: "Plain and specific. Short sentences. Numbers rather than adjectives. Never breathless.",
+        dos: "Use real jobs and real figures. Answer the awkward question before it is asked.",
+        donts: "Never name a competitor. Never quote an industry statistic without a source and a date. No stock-photo language.",
+        goals: "Turn quiet readers into a conversation: a site visit, a quote review, a reply.",
+      };
+      j.name = name;
+    } else {
+      const prompt = BASE + "\n\nYour station: brand strategy.\nTurn the description below into a precise, usable brand profile" +
+        (state.ui.pe.name ? ' for "' + state.ui.pe.name + '"' : "") + ".\nDescription:\n" + desc +
+        '\n\nReturn only a valid JSON object, nothing else:\n{"name":"","industry":"","audience":"","offering":"","pillars":"","voice":"","dos":"","donts":"","goals":""}\nEach field 40 words maximum.';
+      const r = await callModel(prompt, false);
+      j = extractJSON(r.text, r.truncated);
+    }
+    ["name", "industry", "audience", "offering", "pillars", "voice", "dos", "donts", "goals"].forEach((k) => {
+      if (k === "name" && (state.ui.pe.name || "").trim()) return;
+      if (typeof j[k] === "string" && j[k].trim()) state.ui.pe[k] = j[k].trim();
+    });
+  } catch (e) {
+    state.ui.peError = e.message;
+  }
+  state.ui.peDrafting = false; render();
+}
+
+/* ---------- settings ---------- */
+function viewSettings() {
+  const s = state.settings;
+  let html = '<div class="head"><div><h1>Settings</h1><p class="sub">This demo runs entirely in your browser. Nothing is sent anywhere unless you switch on live mode and add your own key.</p></div></div>';
+  html += '<section class="panel"><div class="block"><div class="block-head"><span class="label">How the stations generate output</span></div><div class="modes">' +
+    [["demo", "Demo mode", "Worked examples, written in advance, appear at each station. No key, no network, nothing leaves the page."],
+     ["live", "Live mode", "Each station calls the Anthropic API with your own key. Real output, and the key stays in this browser."]]
+      .map((m) => '<button class="mode" aria-pressed="' + (s.mode === m[0]) + '" data-act="s-mode:' + m[0] + '"><b>' + m[1] + '</b><span class="hint">' + m[2] + "</span></button>").join("") + "</div></div>";
+  if (s.mode === "live") {
+    html += '<div class="block">' +
+      field("API key", "Kept in this browser's local storage and sent only to api.anthropic.com. Use a key with a spend limit, and never put one in a public page.",
+        '<input class="input" type="password" data-bind="settings.apiKey" value="' + esc(s.apiKey) + '" placeholder="sk-ant-…">') +
+      field("Model", "", '<input class="input" data-bind="settings.model" value="' + esc(s.model) + '">') +
+      '<p class="hint">A browser calling the API directly exposes the key to anyone using the page. For anything public, put a small server between the page and the API.</p></div>';
+  }
+  html += '<div class="block"><div class="block-head"><span class="label">Stored data</span><span class="hint">Profiles and pieces live in this browser only. Clearing them cannot be undone.</span></div>' +
+    '<div class="actions" style="margin-top:0"><button class="btn" data-act="s-save">Save settings</button>' +
+    '<button class="btn btn-quiet" data-act="s-reset">Reset to the sample data</button>' +
+    (state.ui.settingsSaved ? '<span class="hint" role="status">Saved.</span>' : "") + "</div></div></section>";
+  return html;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const v = state.view.name;
+  $("#nav").innerHTML =
+    '<button class="navbtn" ' + (v === "home" || v === "project" ? 'aria-current="page"' : "") + ' data-act="go:home">The line</button>' +
+    '<button class="navbtn" ' + (v === "profiles" ? 'aria-current="page"' : "") + ' data-act="go:profiles">Profiles</button>' +
+    '<button class="navbtn" ' + (v === "settings" ? 'aria-current="page"' : "") + ' data-act="go:settings">Settings</button>' +
+    '<button class="btn btn-primary" data-act="go:new">Start a piece</button>';
+  const app = $("#app");
+  if (v === "home") app.innerHTML = viewHome();
+  else if (v === "new") app.innerHTML = viewNew();
+  else if (v === "project") app.innerHTML = viewProject();
+  else if (v === "profiles") app.innerHTML = viewProfiles();
+  else if (v === "settings") app.innerHTML = viewSettings();
+}
+
+function go(name, opts) {
+  const keep = opts && opts.keepPrefill;
+  state.view = { name: name, id: opts && opts.id };
+  state.ui.confirmDel = false;
+  state.ui.confirmDelB = false;
+  if (!keep) { state.ui.nf = null; state.ui.prefill = null; }
+  if (name !== "profiles") { state.ui.editing = null; state.ui.peError = ""; }
+  window.scrollTo(0, 0);
+  render();
+}
+
+function setPath(path, value) {
+  const parts = path.split(".");
+  let o = state;
+  for (let i = 0; i < parts.length - 1; i++) { if (!o[parts[i]]) o[parts[i]] = {}; o = o[parts[i]]; }
+  o[parts[parts.length - 1]] = value;
+}
+
+let flashTimer = null;
+function flash(msg) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => t.classList.remove("on"), 2200);
+}
+
+/* ---------- actions ---------- */
+async function handle(act, el) {
+  const parts = act.split(":");
+  const cmd = parts[0], arg = parts[1], arg2 = parts.slice(2).join(":");
+  const p = state.view.name === "project" ? getP(state.view.id) : null;
+
+  if (cmd === "go") { go(arg); return; }
+  if (cmd === "open") { state.ui.sel = null; go("project", { id: arg }); return; }
+  if (["sel","run","approve","choose","regen","rerun","copy-stage","copy-final","copy-kit","final","reopen","published","confirm-del","cancel-del","delete","repurpose","analyze","add-learning"].indexOf(cmd) >= 0 && !p) return;
+  if (cmd === "tab") { state.ui.homeTab = arg; render(); return; }
+
+  /* new piece */
+  if (cmd === "nf-business") { newForm().businessId = arg; render(); return; }
+  if (cmd === "nf-format") {
+    const nf = newForm();
+    nf.format = arg; nf.options = defaultOptions(arg);
+    nf.stages = defaultStages(arg, !!(state.ui.prefill && state.ui.prefill.sourceContent));
+    render(); return;
+  }
+  if (cmd === "nf-opt") { newForm().options[arg] = arg2; render(); return; }
+  if (cmd === "nf-stage") {
+    const nf = newForm();
+    if (!STAGES[arg].optional) return;
+    nf.stages = nf.stages.indexOf(arg) >= 0 ? nf.stages.filter((s) => s !== arg) : STAGE_ORDER.filter((s) => s === arg || nf.stages.indexOf(s) >= 0);
+    render(); return;
+  }
+  if (cmd === "nf-mode") { newForm().mode = arg; render(); return; }
+  if (cmd === "nf-create") {
+    const nf = newForm();
+    const pre = state.ui.prefill;
+    const hasSource = !!(pre && pre.sourceContent);
+    if (!nf.businessId) { nf.error = "Pick a business first."; render(); return; }
+    if (nf.stages.indexOf("idea") < 0 && !hasSource && !nf.topic.trim()) {
+      nf.error = "The ideas station is off, so the writer needs a topic to start from."; render(); return;
+    }
+    const now = Date.now();
+    const proj = {
+      id: uid(), createdAt: now, updatedAt: now,
+      businessId: nf.businessId, format: nf.format, options: Object.assign({}, nf.options),
+      stages: nf.stages.slice(), mode: nf.mode, topic: nf.topic.trim(),
+      webSearch: nf.webSearch && (nf.stages.indexOf("idea") >= 0 || nf.stages.indexOf("research") >= 0),
+      sourceContent: hasSource ? pre.sourceContent : "", sourceTitle: hasSource ? pre.sourceTitle : "",
+      title: hasSource ? pre.sourceTitle + " — " + FORMATS[nf.format].label : (nf.topic.trim() ? nf.topic.trim().slice(0, 70) : "Untitled " + FORMATS[nf.format].label.toLowerCase()),
+      outputs: {}, stageStatus: Object.fromEntries(nf.stages.map((s) => [s, "pending"])), errors: {},
+      finalApproved: false, published: false,
+    };
+    state.projects.unshift(proj);
+    persist();
+    state.ui.nf = null; state.ui.prefill = null; state.ui.sel = null;
+    go("project", { id: proj.id });
+    if (proj.mode === "auto") runAuto(proj.id, 0); else runStage(proj.id, proj.stages[0]);
+    return;
+  }
+
+  /* project */
+  if (cmd === "sel") { state.ui.sel = arg; render(); return; }
+  if (cmd === "run") { runStage(p.id, arg); return; }
+  if (cmd === "approve") {
+    p.stageStatus[arg] = "approved";
+    if (p.stages.every((s) => p.stageStatus[s] === "approved")) { p.finalApproved = true; touch(p); render(); return; }
+    const next = p.stages[p.stages.indexOf(arg) + 1];
+    touch(p); render();
+    if (next && ["pending", "error"].indexOf(p.stageStatus[next]) >= 0) { state.ui.sel = next; runStage(p.id, next); }
+    return;
+  }
+  if (cmd === "choose") {
+    const i = parseInt(arg, 10);
+    p.outputs.idea.chosen = i;
+    if (p.outputs.idea.ideas[i] && p.outputs.idea.ideas[i].title) p.title = p.outputs.idea.ideas[i].title;
+    touch(p); render(); return;
+  }
+  if (cmd === "regen") {
+    const input = document.getElementById("fb-" + arg);
+    const fb = input ? input.value : "";
+    resetAfter(p, arg);
+    touch(p);
+    const ok = await runStage(p.id, arg, fb);
+    if (ok && p.mode === "auto") runAuto(p.id, p.stages.indexOf(arg) + 1);
+    return;
+  }
+  if (cmd === "rerun") {
+    const i = p.stages.indexOf(arg);
+    resetAfter(p, arg);
+    if (p.mode === "step") p.stageStatus[arg] = "approved";
+    touch(p); render();
+    if (p.mode === "auto") runAuto(p.id, i + 1);
+    else if (p.stages[i + 1]) { state.ui.sel = p.stages[i + 1]; runStage(p.id, p.stages[i + 1]); }
+    return;
+  }
+  if (cmd === "copy-stage") { flash((await copyText(outputAsText(p, arg))) ? "Copied." : "Copy failed — select the text instead."); return; }
+  if (cmd === "copy-final") { flash((await copyText(finalText(p))) ? "Copied." : "Copy failed — select the text instead."); return; }
+  if (cmd === "copy-kit") { flash((await copyText((p.outputs.publish && p.outputs.publish.text) || "")) ? "Copied." : "Copy failed — select the text instead."); return; }
+  if (cmd === "final") { p.stages.forEach((s) => { if (p.stageStatus[s] === "done") p.stageStatus[s] = "approved"; }); p.finalApproved = true; touch(p); render(); return; }
+  if (cmd === "reopen") { p.finalApproved = false; touch(p); render(); return; }
+  if (cmd === "published") { p.published = true; p.publishedAt = Date.now(); touch(p); render(); return; }
+  if (cmd === "confirm-del") { state.ui.confirmDel = true; render(); return; }
+  if (cmd === "cancel-del") { state.ui.confirmDel = false; render(); return; }
+  if (cmd === "delete") { state.projects = state.projects.filter((x) => x.id !== p.id); persist(); go("home"); return; }
+  if (cmd === "repurpose") {
+    const target = state.ui.repurpose;
+    if (!target) return;
+    state.ui.nf = null;
+    state.ui.prefill = { businessId: p.businessId, format: target, sourceContent: finalText(p), sourceTitle: p.title };
+    go("new", { keepPrefill: true });
+    return;
+  }
+  if (cmd === "analyze") {
+    p.analysisStatus = "running"; p.analysisError = null; touch(p); render();
+    try {
+      let text, lessons;
+      if (state.settings.mode === "demo") {
+        await sleep(1000);
+        const d = demoAnalysis(p, getB(p.businessId) || {}, p.metrics || {});
+        text = d.text; lessons = d.learnings;
+      } else {
+        const profile = getB(p.businessId);
+        const m = p.metrics || {};
+        const stats = METRICS.filter((x) => m[x.key] && String(m[x.key]).trim()).map((x) => x.label + ": " + m[x.key]).join("\n");
+        const prompt = [BASE, profile ? profileBlock(profile) : "", formatBlock(p),
+          "What was published:\n" + finalText(p).slice(0, 1500),
+          "Results:\n" + (stats || "No numbers entered"),
+          'Your station: analyst.\nSay what worked and what did not, given the format, the audience and the numbers. If the data is thin, say so plainly.\n200 words maximum. Then a line containing only "---LESSONS---" and under it at most three short, usable lessons for the next piece.',
+        ].filter(Boolean).join("\n\n");
+        const r = await callModel(prompt, false);
+        const sp = splitMarker(r.text, LEARN_RE);
+        text = sp[0]; lessons = sp[1];
+      }
+      p.analysis = text; p.learnings = lessons; p.learningAdded = false; p.analysisStatus = "done";
+    } catch (e) {
+      p.analysisStatus = "error"; p.analysisError = e.message;
+    }
+    touch(p); render(); return;
+  }
+  if (cmd === "add-learning") {
+    const b = getB(p.businessId);
+    if (!b || !p.learnings) return;
+    const entry = FORMATS[p.format].label + " — " + p.title + ":\n" + p.learnings.trim();
+    b.learnings = (b.learnings ? b.learnings + "\n\n" : "") + entry;
+    p.learningAdded = true;
+    touch(p); render(); return;
+  }
+
+  /* profiles */
+  if (cmd === "p-new") {
+    state.ui.editing = "new";
+    state.ui.pe = { id: uid(), name: "", industry: "", audience: "", offering: "", pillars: "", voice: "", dos: "", donts: "", goals: "", learnings: "", colors: Object.assign({}, DEFAULT_COLORS) };
+    state.ui.peDesc = ""; state.ui.peError = "";
+    render(); return;
+  }
+  if (cmd === "p-edit") {
+    const b = getB(arg);
+    if (!b) return;
+    state.ui.editing = b.id;
+    state.ui.pe = JSON.parse(JSON.stringify(Object.assign({ learnings: "" }, b, { colors: Object.assign({}, DEFAULT_COLORS, b.colors || {}) })));
+    state.ui.peDesc = ""; state.ui.peError = ""; state.ui.confirmDelB = false;
+    render(); return;
+  }
+  if (cmd === "p-cancel") { state.ui.editing = null; state.ui.peError = ""; render(); return; }
+  if (cmd === "p-save") {
+    const pe = state.ui.pe;
+    if (!(pe.name || "").trim()) { state.ui.peError = "The profile needs a business name."; render(); return; }
+    pe.name = pe.name.trim();
+    const existing = getB(pe.id);
+    if (existing) Object.assign(existing, pe);
+    else state.businesses.push(JSON.parse(JSON.stringify(pe)));
+    persist();
+    state.ui.editing = null; state.ui.peError = "";
+    render(); return;
+  }
+  if (cmd === "p-confirm-del") { state.ui.confirmDelB = true; render(); return; }
+  if (cmd === "p-delete") {
+    state.businesses = state.businesses.filter((b) => b.id !== state.ui.pe.id);
+    persist();
+    state.ui.editing = null; state.ui.confirmDelB = false;
+    render(); return;
+  }
+  if (cmd === "p-draft") { draftProfile(); return; }
+
+  /* settings */
+  if (cmd === "s-mode") { state.settings.mode = arg; persist(); render(); return; }
+  if (cmd === "s-save") { persist(); state.ui.settingsSaved = true; render(); await sleep(2000); state.ui.settingsSaved = false; render(); return; }
+  if (cmd === "s-reset") {
+    localStorage.removeItem(LS_KEY);
+    state.businesses = []; state.projects = [];
+    seed(); persist(); go("home"); return;
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  if (el.hasAttribute("disabled") || el.getAttribute("aria-disabled") === "true") return;
+  e.preventDefault();
+  handle(el.getAttribute("data-act"), el);
+});
+
+document.addEventListener("input", (e) => {
+  const el = e.target;
+  const path = el.getAttribute && el.getAttribute("data-bind");
+  if (!path) return;
+  setPath(path, el.type === "checkbox" ? el.checked : el.value);
+  if (path.indexOf("settings.") === 0) persist();
+  if (el.getAttribute("data-rerender")) render();
+});
+
+document.addEventListener("change", (e) => {
+  const el = e.target;
+  if (el.getAttribute && el.getAttribute("data-bind")) {
+    setPath(el.getAttribute("data-bind"), el.type === "checkbox" ? el.checked : el.value);
+    if (el.getAttribute("data-rerender")) render();
+    return;
+  }
+  const p = state.view.name === "project" ? getP(state.view.id) : null;
+  if (!p) return;
+  const stage = el.getAttribute && el.getAttribute("data-stage-text");
+  if (stage && p.outputs[stage]) { p.outputs[stage].text = el.value; touch(p); return; }
+  const si = el.getAttribute && el.getAttribute("data-slide");
+  if (si !== null && si !== undefined && si !== "") {
+    const stageKey = p.stages.find((s) => p.outputs[s] && p.outputs[s].slides);
+    if (stageKey) {
+      const fieldName = el.getAttribute("data-slide-field");
+      p.outputs[stageKey].slides[parseInt(si, 10)][fieldName] = el.value;
+      touch(p);
+      if (fieldName === "layout") render();
+    }
+    return;
+  }
+  const mk = el.getAttribute && el.getAttribute("data-metric");
+  if (mk) { p.metrics = Object.assign({}, p.metrics); p.metrics[mk] = el.value; touch(p); }
+});
+
+/* ---------- sample data ---------- */
+function seed() {
+  const grounds = {
+    id: uid(), name: "Harbour & Field", industry: "Commercial grounds maintenance for business parks and schools",
+    audience: "Facilities managers who are judged on budget and on complaints, and who inherited the contract from someone else.",
+    offering: "Contracted grounds maintenance, seasonal planting and winter gritting, from £2,000 a month.",
+    pillars: "What a grounds contract really costs; seasonal planning; safety and compliance; before-and-after from real sites.",
+    voice: "Plain and specific. Short sentences, real numbers, no marketing gloss.",
+    dos: "Use real jobs and real figures. Answer the awkward question before it is asked.",
+    donts: "Never name a competitor. Never quote an industry statistic without a source and a date.",
+    goals: "Get facilities managers to ask for a site visit or a second opinion on a quote.",
+    learnings: "", colors: { bg: "#FFFFFF", ink: "#1C3327", accent: "#4B7A4E" },
+  };
+  const payroll = {
+    id: uid(), name: "Lumen Payroll", industry: "Payroll and pensions software for companies of 20 to 200 people",
+    audience: "Finance leads and office managers who run payroll alongside four other jobs and dread the last three days of the month.",
+    offering: "Payroll software with managed pension filing, priced per employee per month.",
+    pillars: "Month-end without the panic; compliance changes explained in plain English; switching providers; what payroll errors actually cost.",
+    voice: "Calm and precise. Never alarmist about compliance. Explain the rule, then the action.",
+    dos: "Show the actual screen or the actual form. Date every rule you mention.",
+    donts: "Never scare people into buying. No jargon without a plain-English gloss in the same sentence.",
+    goals: "Get finance leads to book a switching call before their next renewal date.",
+    learnings: "", colors: { bg: "#FFFFFF", ink: "#111C2E", accent: "#2F5DA8" },
+  };
+  state.businesses = [grounds, payroll];
+
+  const now = Date.now();
+  const demoProject = {
+    id: uid(), createdAt: now - 86400000, updatedAt: now - 3600000,
+    businessId: grounds.id, format: "li_post", options: { length: "Medium", approach: "First-person story" },
+    stages: ["idea", "research", "write", "edit", "publish"], mode: "step",
+    topic: "what a grounds contract really costs",
+    webSearch: true, sourceContent: "", sourceTitle: "",
+    title: "", outputs: {}, stageStatus: {}, errors: {}, finalApproved: false, published: false,
+  };
+  const ideas = demoIdeas(demoProject, grounds);
+  demoProject.outputs.idea = Object.assign({}, ideas, { chosen: 0 });
+  demoProject.title = ideas.ideas[0].title;
+  demoProject.outputs.research = demoResearch(demoProject, grounds);
+  demoProject.outputs.write = demoWrite(demoProject, grounds);
+  demoProject.outputs.edit = demoEdit(demoProject, grounds);
+  demoProject.stageStatus = { idea: "approved", research: "approved", write: "approved", edit: "done", publish: "pending" };
+  state.projects = [demoProject];
+}
+
+/* ---------- boot ---------- */
+if (!restore() || (!state.businesses.length && !state.projects.length)) { seed(); persist(); }
+render();
+
+</script>
+</body>
+</html>

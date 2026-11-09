@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head><script data-demo-inject>
+(function(){var F='trade-builder.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Checklist Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (kept from the original polished checklist)
+   ============================================================ */
+:root{
+  --ink:#1c3a5e; --ink2:#24456b; --mut:#5d7693; --line:#cfe0f3;
+  --blue:#2f72cf; --blue-d:#1f5bb0; --blue-soft:#e2eefc; --blue-bd:#7cafe6;
+  --rose:#cf5f59; --rose-soft:#fbe6e4; --rose-bd:#e29a96;
+  --green:#3f9f73; --green-soft:#dcf1e6; --green-bd:#86c9a8;
+  --peach:#fbe7cb; --gold:#cf9740; --gold-bd:#e7c389;
+  --card:#ffffff; --neutral:#eef3f9;
+  --shadow:0 8px 22px rgba(43,95,160,.10);
+}
+*{box-sizing:border-box}
+html{min-height:100%;
+  background:linear-gradient(180deg,#b6d4f5 0%,#cfe3fb 26%,#e6f1fd 60%,#f6fbff 100%) no-repeat;
+  background-attachment:fixed}
+body{margin:0;color:var(--ink);
+  font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.5;padding:0 0 90px}
+/* Persian uses Vazirmatn */
+html.lang-fa body{font-family:"Vazirmatn","Inter",system-ui,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px;position:relative;z-index:1}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.hidden{display:none!important}
+
+/* ---------- header + top bar ---------- */
+header{text-align:center;padding:26px 16px 6px}
+h1{font-size:26px;margin:0;font-weight:800;color:var(--ink)}
+.kicker{letter-spacing:.32em;text-transform:uppercase;font-size:11px;color:var(--gold);
+  margin:0 0 6px;font-weight:700}
+html.lang-fa .kicker{letter-spacing:.08em}
+.tag{color:var(--mut);max-width:620px;margin:8px auto 0;font-size:13.5px}
+.topbar{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.langbtn{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:999px;
+  padding:6px 14px;font-weight:700;cursor:pointer;font-size:13px;box-shadow:var(--shadow)}
+.langbtn:hover{border-color:var(--blue-bd)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:18px 0 4px;
+  position:sticky;top:8px;z-index:30;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:var(--shadow)}
+.tab{border:none;background:transparent;color:var(--ink2);border-radius:10px;
+  padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}
+.tab[aria-selected=true]{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
+.tab:not([aria-selected=true]):hover{background:var(--blue-soft)}
+@media (max-width:560px){ .tab{padding:8px 11px;font-size:13px} }
+
+.panel{margin-top:18px}
+.panel[hidden]{display:none}
+
+/* ---------- generic card / section headings ---------- */
+.section{margin-top:20px}
+.shead{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+.shead .n{width:26px;height:26px;border-radius:50%;background:var(--blue-soft);color:var(--blue-d);
+  font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.shead h2{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;margin:0;font-weight:800;color:var(--ink2)}
+html.lang-fa .shead h2{letter-spacing:.04em}
+.shead .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+html[dir=rtl] .shead .ln{background:linear-gradient(270deg,var(--line),transparent)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;box-shadow:var(--shadow);margin-top:14px}
+.card h3{margin:0 0 4px;font-size:16px;color:var(--ink)}
+.card p.sub{color:var(--mut);font-size:13px;margin:0 0 12px}
+
+/* ---------- buttons / inputs ---------- */
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;
+  padding:8px 14px;font-weight:700;cursor:pointer;font-size:13.5px;font-family:inherit}
+.btn:hover{border-color:var(--blue-bd)}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:var(--blue-d)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--rose);border-color:var(--rose-bd)}
+.btn.danger:hover{background:var(--rose-soft)}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:800}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn.editing{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
+.btn:disabled{opacity:.45;cursor:default}
+input,select,textarea{font-family:inherit;background:#f7fafe;border:1px solid var(--line);
+  color:var(--ink);border-radius:9px;padding:9px 11px;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue-bd)}
+textarea{width:100%;resize:vertical;min-height:56px}
+label.fld{display:block;margin:10px 0}
+label.fld > span{display:block;font-size:12px;color:var(--mut);margin-bottom:4px;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+
+/* ---------- verdict bar (Evaluate) ---------- */
+.verdict{position:sticky;top:70px;z-index:20;margin-top:16px;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:16px;padding:14px 18px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.score-box{display:flex;align-items:baseline;gap:8px;min-width:120px}
+.score-num{font-size:40px;font-weight:800;line-height:1;color:var(--blue)}
+.score-lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.vtext{flex:1;min-width:170px;font-weight:700;font-size:14px;color:var(--ink2)}
+.vtext small{display:block;font-weight:400;color:var(--mut);font-size:12px;margin-top:3px}
+.max-pill{padding:8px 13px;border-radius:999px;font-weight:800;font-size:13px;
+  border:1px solid var(--line);white-space:nowrap;color:var(--mut);background:#fff}
+.state-wait .score-num{color:#9bb0c6}
+.state-no .score-num{color:var(--rose)}.state-no .vtext{color:var(--rose)}
+.state-ok .score-num{color:var(--blue)}
+.state-go .score-num{color:var(--green)}.state-go .vtext{color:var(--green)}
+
+/* ---------- meta row (symbol / tf / dir) ---------- */
+.metarow{display:flex;align-items:center;gap:10px;margin:16px 0 4px;flex-wrap:wrap}
+.metarow .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);font-weight:700}
+html.lang-fa .metarow .lbl{letter-spacing:.02em}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{background:#fff;color:var(--ink);border:1px solid var(--line);
+  padding:8px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:var(--shadow);font-family:inherit}
+.chips button[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+input.sym{width:170px;text-transform:uppercase;font-weight:700}
+
+/* ---------- factor cards (Evaluate) ---------- */
+.factor{background:var(--card);border:1px solid var(--line);border-radius:11px;
+  padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
+.factor .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px}
+.fname{font-weight:700;font-size:13.5px;color:var(--ink)}
+.fhint{color:var(--mut);font-size:11px;text-align:end}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{flex:1 1 calc(33.333% - 6px);min-width:120px;border:1px solid var(--line);background:#f7fafe;color:var(--ink2);
+  border-radius:8px;padding:7px 9px;cursor:pointer;text-align:start;font-size:12px;line-height:1.25;
+  transition:transform .08s,border-color .12s,background .12s;
+  display:flex;flex-direction:column;gap:2px;min-height:42px;justify-content:space-between;font-family:inherit}
+.opt:hover{border-color:#a9c6e8}
+.opt .v{font-weight:800;font-size:10.5px;font-family:ui-monospace,monospace;opacity:.55}
+.opt[aria-pressed=true]{transform:translateY(-1px)}
+.opt.p[aria-pressed=true]{background:var(--blue-soft);border-color:var(--blue-bd);color:#123a66}
+.opt.p[aria-pressed=true] .v{color:var(--blue);opacity:1}
+.opt.n[aria-pressed=true]{background:var(--rose-soft);border-color:var(--rose-bd);color:#7c302c}
+.opt.n[aria-pressed=true] .v{color:var(--rose);opacity:1}
+.opt.z[aria-pressed=true]{background:var(--neutral);border-color:#a9bcd2;color:#33455c}
+@media (max-width:560px){ .opt{flex:1 1 calc(50% - 6px)} }
+/* toggle factor */
+.toggle{width:100%;display:flex;align-items:center;gap:10px;text-align:start;cursor:pointer;
+  border:1px solid var(--line);background:#f7fafe;border-radius:9px;padding:8px 11px;font-family:inherit;
+  transition:background .12s,border-color .12s}
+.toggle:hover{border-color:var(--green-bd)}
+.toggle .tick{width:18px;height:18px;border-radius:5px;border:2px solid #b9c8da;flex:none;position:relative;transition:all .12s}
+.toggle .tlabel{flex:1;display:flex;flex-direction:column;gap:2px}
+.toggle .tval{font-family:ui-monospace,monospace;font-weight:800;color:var(--mut);font-size:12.5px}
+.toggle[aria-pressed=true]{background:var(--green-soft);border-color:var(--green-bd)}
+.toggle[aria-pressed=true] .tick{background:var(--green);border-color:var(--green)}
+.toggle[aria-pressed=true] .tick::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;
+  border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+.toggle[aria-pressed=true] .tval{color:var(--green)}
+.toggle .fname{margin:0}
+
+/* ---------- gate ---------- */
+.gate{margin-top:26px;border:1px solid var(--line);border-radius:16px;background:var(--card);
+  padding:18px;opacity:.55;pointer-events:none;transition:opacity .25s;box-shadow:var(--shadow)}
+.gate.live{opacity:1;pointer-events:auto;border-color:var(--gold-bd);box-shadow:0 10px 26px rgba(207,151,64,.18)}
+.gate h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
+.chk{display:flex;gap:11px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);
+  border-radius:11px;margin-bottom:8px;cursor:pointer;background:#f7fafe}
+.chk input{margin-top:2px;width:18px;height:18px;accent-color:var(--gold);flex:none}
+.chk span{font-size:14px;color:var(--ink2)}
+.gate .empty{color:var(--mut);font-size:13px}
+.plan{margin-top:12px;border-top:1px dashed var(--green-bd);padding-top:12px;display:none}
+.plan.show{display:block}
+.plan .ph{color:var(--green);font-weight:800;margin-bottom:6px}
+.plan p{color:var(--ink2);font-size:13.5px;margin:0}
+
+/* ---------- journal ---------- */
+.jtools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.jname{min-width:150px}
+.jrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.jrow input.note{flex:1;min-width:150px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.filters .fl{display:flex;align-items:center;gap:6px}
+.filters .fl span{font-size:11px;color:var(--mut);font-weight:700}
+.jlist{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.jempty{color:var(--mut);font-size:13.5px;text-align:center;padding:18px}
+.jitem{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:#f7fafe;border:1px solid var(--line);
+  border-inline-start:4px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;position:relative}
+.jitem.v-approved{background:var(--green-soft);border-color:var(--green-bd);border-inline-start-color:var(--green)}
+.jitem.v-no-trade{background:#fff4e8;border-color:var(--gold-bd);border-inline-start-color:#e09a3a}
+.jitem .js{font-weight:800;font-family:ui-monospace,monospace;color:var(--blue-d)}
+.jitem .jmeta{color:var(--mut);flex:1;min-width:130px}
+.jitem .jmeta b{color:var(--ink)}
+.jdir{display:inline-block;font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px;margin:0 4px;
+  color:var(--ink2);background:var(--neutral);border:1px solid #c3d2e2}
+.jdir.buy{color:#1c5e3f;background:var(--green-soft);border-color:var(--green-bd)}
+.jdir.sell{color:#7c302c;background:var(--rose-soft);border-color:var(--rose-bd)}
+.jitem .cltag{font-family:ui-monospace,monospace;font-size:10.5px;border:1px solid var(--blue-bd);
+  background:var(--blue-soft);color:var(--blue-d);border-radius:5px;padding:1px 6px}
+.jitem .outs{display:flex;gap:5px;flex-wrap:wrap}
+.jitem .outs button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;
+  cursor:pointer;font-size:12px;font-weight:800;color:var(--mut);font-family:inherit}
+.jitem .outs button[aria-pressed=true][data-o=W]{background:var(--green);color:#fff;border-color:var(--green)}
+.jitem .outs button[aria-pressed=true][data-o=L]{background:var(--rose);color:#fff;border-color:var(--rose)}
+.jitem .outs button[aria-pressed=true][data-o=BE]{background:var(--gold);color:#fff;border-color:var(--gold)}
+.jitem .outs button[aria-pressed=true][data-o=C]{background:var(--mut);color:#fff;border-color:var(--mut)}
+.jitem .edit{border:1px solid var(--line);background:#fff;color:var(--blue-d);border-radius:7px;padding:5px 10px;
+  cursor:pointer;font-size:12.5px;font-weight:700;font-family:inherit}
+.jitem .edit:hover{border-color:var(--blue-bd)}
+.jsum{flex-basis:100%;color:var(--mut);font-size:11.5px;margin-top:4px;line-height:1.5}
+.jsum .it{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 7px;margin:2px 3px 0 0}
+.pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px}
+.pager .pageinfo{font-size:13px;color:var(--mut);font-family:ui-monospace,monospace;min-width:120px;text-align:center}
+.csvbox{width:100%;height:120px;margin-top:12px;font-family:ui-monospace,monospace;font-size:11.5px;display:none}
+.csvbox.show{display:block}
+
+/* ---------- analysis ---------- */
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.stat{flex:1 1 120px;background:#f7fafe;border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.stat span{display:block;font-size:11px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.stat b{display:block;font-size:24px;color:var(--ink);margin-top:4px}
+.chart{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.crow{display:flex;align-items:center;gap:10px}
+.crow .cl{width:64px;font-size:12px;color:var(--ink2);font-weight:700;font-family:ui-monospace,monospace;text-align:end}
+.crow .ct{flex:1;height:16px;background:var(--neutral);border-radius:999px;overflow:hidden}
+.crow .cf{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:999px}
+.crow .cv{width:96px;font-size:12px;color:var(--mut);font-family:ui-monospace,monospace}
+.anote{margin-top:14px;color:var(--mut);font-size:12.5px;background:var(--peach);border:1px solid var(--gold-bd);
+  border-radius:11px;padding:11px 13px}
+
+/* ---------- builder ---------- */
+.bl-cat{border:1px solid var(--line);border-radius:13px;background:#fbfdff;padding:12px 14px;margin-top:12px}
+.bl-cathead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bl-cathead .cname{flex:1;min-width:130px;font-weight:800;font-size:15px;color:var(--ink)}
+.bl-factor{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;margin-top:9px}
+.bl-fhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bl-fhead .fnm{flex:1;min-width:120px;font-weight:700;color:var(--ink)}
+.typebadge{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  border-radius:6px;padding:2px 8px;border:1px solid var(--blue-bd);background:var(--blue-soft);color:var(--blue-d)}
+.typebadge.tg{border-color:var(--green-bd);background:var(--green-soft);color:#1c5e3f}
+.bl-opts{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.bl-opt{display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:#f7fafe;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.bl-opt input.olab{flex:1;min-width:120px}
+.bl-opt input.oval{width:74px;text-align:center;font-family:ui-monospace,monospace;font-weight:700}
+.iconbtn{border:1px solid var(--line);background:#fff;color:var(--mut);border-radius:7px;width:30px;height:30px;
+  cursor:pointer;font-size:14px;line-height:1;font-weight:800;padding:0;flex:none;font-family:inherit}
+.iconbtn:hover{border-color:var(--blue-bd);color:var(--blue-d)}
+.iconbtn.del:hover{border-color:var(--rose-bd);color:var(--rose)}
+.gate-edit{display:flex;gap:6px;align-items:center;margin-top:8px}
+.gate-edit input{flex:1}
+.tf-edit{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.tf-chip{display:flex;align-items:center;gap:4px;background:var(--blue-soft);border:1px solid var(--blue-bd);
+  border-radius:999px;padding:4px 6px 4px 12px;font-weight:700;font-size:13px;color:var(--blue-d)}
+.tf-chip button{border:none;background:#fff;color:var(--mut);border-radius:50%;width:20px;height:20px;cursor:pointer;font-weight:800;font-family:inherit}
+.tf-chip button:hover{color:var(--rose)}
+
+/* ---------- calculator ---------- */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
+@media (max-width:720px){ .calc-grid{grid-template-columns:1fr} }
+.calc-sechead{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--blue-d);
+  margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+html.lang-fa .calc-sechead{letter-spacing:.02em}
+/* input + unit */
+.ig{display:flex;align-items:center;border:1px solid var(--line);background:#f7fafe;border-radius:9px;overflow:hidden}
+.ig:focus-within{border-color:var(--blue-bd)}
+.ig .unit{padding:0 11px;font-weight:800;color:var(--mut);font-family:ui-monospace,monospace;font-size:13px;
+  background:var(--neutral);align-self:stretch;display:flex;align-items:center;flex:none}
+.ig input{flex:1;min-width:0;border:none;background:transparent;font-weight:700;font-size:15px}
+.ig input:focus{outline:none}
+/* hide number spinners for a cleaner field */
+.ig input::-webkit-outer-spin-button,.ig input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.ig input[type=number]{-moz-appearance:textfield}
+.riskchips{margin:-4px 0 4px}
+.riskchips button{padding:5px 11px;font-size:12.5px;border-radius:8px;box-shadow:none}
+.riskchips .maxchip{border-color:var(--rose-bd);color:var(--rose)}
+.riskchips .maxchip[aria-pressed=true]{background:var(--rose);border-color:var(--rose);color:#fff}
+/* results */
+.calc-results{background:#fbfdff;border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+.calc-empty{text-align:center;color:var(--mut);font-size:13px;padding:26px 8px}
+.calc-empty .ce-ico{font-size:30px;opacity:.5;margin-bottom:8px}
+.res-main{background:var(--blue-soft);border:1px solid var(--blue-bd);border-radius:12px;padding:14px;text-align:center}
+.res-main .rl{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue-d);font-weight:800}
+html.lang-fa .res-main .rl{letter-spacing:.02em}
+.res-main .rv{display:block;font-size:32px;font-weight:800;color:var(--blue-d);margin-top:4px;line-height:1.15}
+.res-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.res-row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;color:var(--ink2)}
+.res-row b{font-size:15px;color:var(--ink);white-space:nowrap}
+.res-row.danger b{color:var(--rose)}
+/* warnings */
+.warn{margin-top:10px;border-radius:11px;padding:11px 13px;font-size:12.5px;line-height:1.6;border:1px solid}
+.warn b{display:block;margin-bottom:3px;font-size:13px}
+.warn.red{background:var(--rose-soft);border-color:var(--rose-bd);color:#7c302c}
+.warn.amber{background:var(--peach);border-color:var(--gold-bd);color:#6b4f25}
+.warn .fix{display:inline-block;margin-top:6px;background:#fff;border:1px solid currentColor;border-radius:7px;
+  padding:3px 9px;font-weight:800;font-family:ui-monospace,monospace;cursor:pointer;font-size:12px;color:inherit}
+/* house rules */
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+@media (max-width:720px){ .rules{grid-template-columns:1fr} }
+.rules .rule{display:flex;gap:10px;align-items:flex-start;background:#f7fafe;border:1px solid var(--line);
+  border-radius:11px;padding:11px 12px;font-size:12px;color:var(--mut)}
+.rules .rule .ri{font-size:18px;flex:none;line-height:1.2}
+.rules .rule b{display:block;color:var(--ink);font-size:12.5px;margin-bottom:2px}
+/* guide accordion */
+.gd{border:1px solid var(--line);border-radius:11px;background:#f7fafe;margin-top:8px;overflow:hidden}
+.gd summary{cursor:pointer;padding:11px 13px;font-weight:700;font-size:13.5px;color:var(--ink2);list-style:none}
+.gd summary::-webkit-details-marker{display:none}
+.gd summary::after{content:"▸";float:inline-end;color:var(--mut);transition:transform .15s}
+.gd[open] summary::after{content:"▾"}
+.gd summary:hover{background:var(--blue-soft)}
+.gdb{padding:0 13px 13px;font-size:13px;color:var(--ink2);line-height:1.7}
+.gdb .gtable{width:100%;border-collapse:collapse;margin-top:4px}
+.gdb .gtable td{border:1px solid var(--line);padding:7px 9px;vertical-align:top;background:#fff}
+.gdb .gtable td:first-child{font-weight:800;color:var(--ink);white-space:nowrap;background:#f7fafe;width:1%}
+.formula{background:var(--ink);color:#dbe9fb;border-radius:9px;padding:11px 13px;text-align:center;
+  font-size:13px;font-weight:700;margin:4px 0 10px;direction:ltr;overflow-x:auto}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:13.5px;font-weight:700;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .25s;z-index:100;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.quote{max-width:660px;margin:26px auto 0;text-align:center;color:#456;font-style:italic;font-size:13.5px;
+  border-top:1px solid var(--line);padding-top:18px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="kicker" data-i18n="kicker"></div>
+    <h1 data-i18n="appTitle"></h1>
+    <p class="tag" data-i18n="appTag"></p>
+    <div class="topbar">
+      <button class="langbtn" id="langBtn"></button>
+    </div>
+  </header>
+
+  <!-- TAB NAV -->
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="evaluate" data-i18n="tabEvaluate" aria-selected="true"></button>
+    <button class="tab" role="tab" data-tab="journal"  data-i18n="tabJournal"  aria-selected="false"></button>
+    <button class="tab" role="tab" data-tab="analysis" data-i18n="tabAnalysis" aria-selected="false"></button>
+    <button class="tab" role="tab" data-tab="calculator" data-i18n="tabCalculator" aria-selected="false"></button>
+    <button class="tab" role="tab" data-tab="builder"  data-i18n="tabBuilder"  aria-selected="false"></button>
+  </nav>
+
+  <!-- ============================ EVALUATE ============================ -->
+  <section class="panel" id="panel-evaluate" role="tabpanel">
+    <div class="row spread" style="margin-top:6px">
+      <label class="fld" style="margin:0;flex:1;min-width:220px">
+        <span data-i18n="activeChecklist"></span>
+        <select id="evChecklist" style="width:100%"></select>
+      </label>
+    </div>
+    <div class="card" id="evIntro" style="padding:12px 16px;background:var(--peach);border-color:var(--gold-bd);color:#6b4f25;font-size:13.5px"></div>
+
+    <!-- live verdict -->
+    <div class="verdict state-wait" id="verdict">
+      <div class="score-box"><span class="score-num mono" id="scoreNum">0.0</span><span class="score-lab" data-i18n="score"></span></div>
+      <div class="vtext" id="vtext"></div>
+      <div class="max-pill" id="maxPill"></div>
+    </div>
+
+    <!-- meta -->
+    <div class="metarow">
+      <span class="lbl" data-i18n="symbol"></span>
+      <input class="sym" id="evSym" autocomplete="off" list="symlist" placeholder="EURUSD">
+      <datalist id="symlist"></datalist>
+    </div>
+    <div class="metarow">
+      <span class="lbl" data-i18n="timeframe"></span>
+      <div class="chips" id="evTf"></div>
+    </div>
+    <div class="metarow">
+      <span class="lbl" data-i18n="direction"></span>
+      <div class="chips" id="evDir">
+        <button data-dir="Buy" aria-pressed="false" data-i18n="buy"></button>
+        <button data-dir="Sell" aria-pressed="false" data-i18n="sell"></button>
+      </div>
+    </div>
+
+    <!-- factors get rendered here -->
+    <div id="evFactors"></div>
+
+    <!-- gate -->
+    <div class="gate" id="gate">
+      <h3 data-i18n="gateTitle"></h3>
+      <div id="gateList"></div>
+      <div class="plan" id="plan">
+        <div class="ph" data-i18n="approvedTitle"></div>
+        <p id="planNote"></p>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:center;margin-top:22px;gap:10px">
+      <button class="btn ghost" id="evReset" data-i18n="resetEval"></button>
+    </div>
+
+    <!-- save into journal -->
+    <div class="card">
+      <h3 data-i18n="saveTitle"></h3>
+      <p class="sub" data-i18n="saveSub"></p>
+      <div class="jrow">
+        <input class="note" id="evNote" placeholder="">
+        <input class="note" id="evLink" placeholder="">
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="evSave" data-i18n="saveBtn"></button>
+        <button class="btn ghost hidden" id="evCancelEdit" data-i18n="cancelEdit"></button>
+        <span class="mono" id="evEditingHint" style="color:var(--gold);font-weight:700;font-size:12.5px"></span>
+      </div>
+    </div>
+    <div class="quote" data-i18n="quote"></div>
+  </section>
+
+  <!-- ============================ JOURNAL ============================ -->
+  <section class="panel" id="panel-journal" role="tabpanel" hidden>
+    <div class="card">
+      <div class="jtools">
+        <label class="fld" style="margin:0"><span data-i18n="currentJournal"></span>
+          <select class="jname" id="jSelect"></select>
+        </label>
+        <button class="btn ghost sm" id="jNew" data-i18n="newJournal"></button>
+        <button class="btn ghost sm" id="jRen" data-i18n="rename"></button>
+        <button class="btn ghost sm danger" id="jDel" data-i18n="delete"></button>
+      </div>
+      <div class="jtools">
+        <button class="btn ghost sm" id="jExport" data-i18n="exportOne"></button>
+        <button class="btn ghost sm" id="jExportAll" data-i18n="exportAll"></button>
+        <button class="btn ghost sm" id="jImport" data-i18n="import"></button>
+        <button class="btn ghost sm" id="jCsv" data-i18n="csv"></button>
+        <button class="btn gold sm" id="jUndo" data-i18n="undo" disabled></button>
+        <input type="file" id="jFile" accept=".json,application/json" style="display:none">
+      </div>
+
+      <div class="filters">
+        <div class="fl"><span data-i18n="fSymbol"></span>
+          <select id="fSym"><option value=""></option></select></div>
+        <div class="fl"><span data-i18n="fResult"></span>
+          <select id="fRes">
+            <option value="all" data-i18n="fAll"></option>
+            <option value="settled" data-i18n="fSettled"></option>
+            <option value="W" data-i18n="win"></option>
+            <option value="L" data-i18n="loss"></option>
+            <option value="BE" data-i18n="be"></option>
+            <option value="C" data-i18n="cancelled"></option>
+            <option value="open" data-i18n="fOpen"></option>
+          </select></div>
+        <div class="fl"><span data-i18n="fState"></span>
+          <select id="fState">
+            <option value="all" data-i18n="fAll"></option>
+            <option value="approved" data-i18n="vApproved"></option>
+            <option value="qualifies" data-i18n="vQualifies"></option>
+            <option value="no-trade" data-i18n="vNoTrade"></option>
+          </select></div>
+      </div>
+
+      <textarea class="csvbox mono" id="csvBox" readonly></textarea>
+      <div class="jlist" id="jList"></div>
+      <div class="pager" id="pager">
+        <button class="btn ghost sm" id="prevPage" data-i18n="prev"></button>
+        <span class="pageinfo" id="pageInfo"></span>
+        <button class="btn ghost sm" id="nextPage" data-i18n="next"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ ANALYSIS ============================ -->
+  <section class="panel" id="panel-analysis" role="tabpanel" hidden>
+    <div class="card">
+      <h3 data-i18n="analysisTitle"></h3>
+      <p class="sub" id="anForChecklist"></p>
+      <div class="stats" id="anStats"></div>
+      <div class="chart" id="anChart"></div>
+      <div class="anote" id="anNote"></div>
+    </div>
+  </section>
+
+  <!-- ============================ CALCULATOR ============================ -->
+  <section class="panel" id="panel-calculator" role="tabpanel" hidden>
+    <div class="card">
+      <h3 data-i18n="calcTitle"></h3>
+      <p class="sub" data-i18n="calcTag"></p>
+
+      <div class="calc-grid">
+        <!-- inputs -->
+        <div class="calc-inputs">
+          <div class="calc-sechead"><span data-i18n="calcInputs"></span></div>
+
+          <label class="fld"><span data-i18n="capitalLabel"></span>
+            <div class="ig"><span class="unit">$</span><input type="number" id="cCapital" min="0" step="any" placeholder="500"></div>
+          </label>
+
+          <label class="fld"><span data-i18n="riskLabel"></span>
+            <div class="ig"><span class="unit">%</span><input type="number" id="cRisk" min="0" step="any" placeholder="2"></div>
+          </label>
+          <div class="chips riskchips" id="cRiskChips">
+            <button data-risk="0.5">0.5%</button>
+            <button data-risk="1">1%</button>
+            <button data-risk="2">2%</button>
+            <button data-risk="3">3%</button>
+            <button data-risk="5" class="maxchip" data-i18n="riskMax"></button>
+          </div>
+
+          <label class="fld"><span data-i18n="slLabel"></span>
+            <div class="ig"><span class="unit">%</span><input type="number" id="cSl" min="0" step="any" placeholder="6"></div>
+          </label>
+
+          <label class="fld"><span data-i18n="levLabel"></span>
+            <div class="ig"><span class="unit">×</span><input type="number" id="cLev" min="1" step="any" placeholder="5"></div>
+          </label>
+
+          <label class="fld"><span data-i18n="entriesLabel"></span>
+            <div class="ig"><span class="unit">#</span><input type="number" id="cEntries" min="1" step="1" placeholder="3"></div>
+          </label>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="cCalc" data-i18n="calcBtn"></button>
+            <button class="btn ghost" id="cClear" data-i18n="clearBtn"></button>
+          </div>
+        </div>
+
+        <!-- results -->
+        <div class="calc-results">
+          <div class="calc-sechead"><span data-i18n="calcResults"></span></div>
+          <div id="cEmpty" class="calc-empty">
+            <div class="ce-ico">🧮</div>
+            <p data-i18n="resEmpty"></p>
+          </div>
+          <div id="cOut" class="hidden">
+            <div class="res-main">
+              <span class="rl" data-i18n="totalMargin"></span>
+              <b class="rv mono" id="rMargin">—</b>
+            </div>
+            <div class="res-list">
+              <div class="res-row"><span data-i18n="positionSize"></span><b class="mono" id="rSize">—</b></div>
+              <div class="res-row danger"><span data-i18n="positionRisk"></span><b class="mono" id="rRisk">—</b></div>
+              <div class="res-row"><span data-i18n="perEntry"></span><b class="mono" id="rPer">—</b></div>
+            </div>
+            <div id="cWarn"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- house rules -->
+      <div class="rules">
+        <div class="rule"><span class="ri">🛡️</span><div><b data-i18n="rule1t"></b><span data-i18n="rule1b"></span></div></div>
+        <div class="rule"><span class="ri">🔒</span><div><b data-i18n="rule2t"></b><span data-i18n="rule2b"></span></div></div>
+        <div class="rule"><span class="ri">⛔</span><div><b data-i18n="rule3t"></b><span data-i18n="rule3b"></span></div></div>
+      </div>
+    </div>
+
+    <!-- guide -->
+    <div class="card">
+      <h3 data-i18n="guideTitle"></h3>
+      <p class="sub" data-i18n="guideTag"></p>
+      <details class="gd"><summary data-i18n="g1s"></summary><div class="gdb" id="g1b"></div></details>
+      <details class="gd"><summary data-i18n="g2s"></summary><div class="gdb" id="g2b"></div></details>
+      <details class="gd"><summary data-i18n="g3s"></summary>
+        <div class="gdb">
+          <div class="formula mono">margin = (capital × risk%) ÷ (SL% × leverage)</div>
+          <div id="g3b"></div>
+        </div>
+      </details>
+      <details class="gd"><summary data-i18n="g4s"></summary><div class="gdb" id="g4b"></div></details>
+    </div>
+    <div class="quote" data-i18n="calcDisclaimer"></div>
+  </section>
+
+  <!-- ============================ BUILDER ============================ -->
+  <section class="panel" id="panel-builder" role="tabpanel" hidden>
+    <div class="card">
+      <div class="jtools">
+        <label class="fld" style="margin:0"><span data-i18n="editingChecklist"></span>
+          <select class="jname" id="blSelect"></select>
+        </label>
+        <button class="btn ghost sm" id="blNew" data-i18n="newChecklist"></button>
+        <button class="btn ghost sm" id="blDup" data-i18n="duplicate"></button>
+        <button class="btn ghost sm" id="blRen" data-i18n="rename"></button>
+        <button class="btn ghost sm" id="blStar" data-i18n="setDefault"></button>
+        <button class="btn ghost sm danger" id="blDel" data-i18n="delete"></button>
+      </div>
+
+      <label class="fld"><span data-i18n="introLabel"></span>
+        <textarea id="blIntro"></textarea></label>
+      <label class="fld" style="max-width:220px"><span data-i18n="thresholdLabel"></span>
+        <input type="number" id="blThreshold" step="0.5" style="width:100%"></label>
+    </div>
+
+    <!-- categories + factors -->
+    <div class="section">
+      <div class="shead"><span class="n">≡</span><h2 data-i18n="categoriesFactors"></h2><span class="ln"></span></div>
+      <div id="blCats"></div>
+      <button class="btn ghost" id="blAddCat" style="margin-top:12px" data-i18n="addCategory"></button>
+    </div>
+
+    <!-- gate -->
+    <div class="section">
+      <div class="shead"><span class="n">✓</span><h2 data-i18n="gateConfirmations"></h2><span class="ln"></span></div>
+      <div class="card" style="margin-top:0">
+        <p class="sub" data-i18n="gateHelp"></p>
+        <div id="blGate"></div>
+        <button class="btn ghost sm" id="blAddGate" style="margin-top:8px" data-i18n="addConfirmation"></button>
+      </div>
+    </div>
+
+    <!-- timeframes -->
+    <div class="section">
+      <div class="shead"><span class="n">⏱</span><h2 data-i18n="timeframesTitle"></h2><span class="ln"></span></div>
+      <div class="card" style="margin-top:0">
+        <p class="sub" data-i18n="timeframesHelp"></p>
+        <div class="tf-edit" id="blTf"></div>
+        <div class="row" style="margin-top:10px">
+          <input id="blTfNew" style="width:120px" placeholder="H4">
+          <button class="btn ghost sm" id="blTfAdd" data-i18n="add"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   Trade Checklist Builder — single-file, no backend, all client-side.
+   Data lives in localStorage under the "cb:" namespace.
+   Content the USER creates (checklist / factor / option names, notes) is never
+   translated; only interface chrome switches between Persian (RTL) and English.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- i18n ---- */
+const STR = {
+  kicker:            {en:"Trading Journal", fa:"ژورنالِ معاملاتی"},
+  appTitle:          {en:"Trade Checklist Builder", fa:"سازندهٔ چک‌لیستِ معاملاتی"},
+  appTag:            {en:"Build your own pre-entry scorecard, forward-test it, and see what actually has edge.",
+                      fa:"چک‌لیستِ امتیازدهیِ خودت را بساز، فوروارد‌تست کن و ببین کدام معیارها واقعاً برتری می‌سازند."},
+  langToEn:          {en:"", fa:"English"},
+  langToFa:          {en:"فارسی", fa:""},
+  tabEvaluate:       {en:"Evaluate", fa:"ارزیابی"},
+  tabJournal:        {en:"Journal", fa:"ژورنال"},
+  tabAnalysis:       {en:"Analysis", fa:"تحلیل"},
+  tabBuilder:        {en:"Builder", fa:"سازنده"},
+  tabCalculator:     {en:"Calculator", fa:"ماشین‌حساب"},
+
+  /* ---- calculator ---- */
+  calcTitle:         {en:"Position calculator", fa:"محاسبه‌گر پوزیشن"},
+  calcTag:           {en:"Enter your capital and risk to see the margin, position size and per-entry amount instantly.",
+                      fa:"سرمایه و ریسک خودت را بنویس تا مارجین پیشنهادی، سایز پوزیشن و مبلغ هر پله را همان لحظه ببینی."},
+  calcInputs:        {en:"💰 Inputs", fa:"💰 ورودی‌های محاسبه"},
+  capitalLabel:      {en:"Total futures capital (USD)", fa:"کل سرمایه فیوچرز (به دلار)"},
+  riskLabel:         {en:"Position risk (% of capital)", fa:"ریسک پوزیشن (درصد از کل سرمایه)"},
+  riskMax:           {en:"5% max", fa:"۵٪ حداکثر"},
+  slLabel:           {en:"Stop loss (%)", fa:"حد ضرر Stop Loss (درصد)"},
+  levLabel:          {en:"Leverage", fa:"اهرم پیشنهادی Leverage"},
+  entriesLabel:      {en:"Number of entry points", fa:"تعداد نقاط ورود Entry"},
+  calcBtn:           {en:"🧮 Calculate", fa:"🧮 محاسبه کن"},
+  clearBtn:          {en:"Clear", fa:"پاک کردن"},
+  calcResults:       {en:"📊 Results", fa:"📊 نتایج محاسبه"},
+  resEmpty:          {en:"Fill in the form — results appear here instantly.",
+                      fa:"فرم را پر کن؛ نتیجه همان لحظه همین‌جا ظاهر می‌شود."},
+  totalMargin:       {en:"Total margin", fa:"مارجین کل"},
+  positionSize:      {en:"Total position size", fa:"سایز کل پوزیشن"},
+  positionRisk:      {en:"Risk on this position", fa:"ریسک این پوزیشن"},
+  perEntry:          {en:"Per entry", fa:"سرمایه هر پله"},
+  liqT:              {en:"Liquidation risk", fa:"هشدار لیکویید"},
+  liqB:              {en:"Stop loss × leverage = {x}, which reaches liquidation before your stop is hit. You'd lose the whole margin, not your planned risk.",
+                      fa:"حد ضرر × اهرم = {x} است؛ یعنی قیمت قبل از رسیدن به استاپِ تو پوزیشن را لیکویید می‌کند و کل مارجین از بین می‌رود، نه ریسکی که برنامه‌ریزی کردی."},
+  liqNearT:          {en:"Close to liquidation", fa:"نزدیک به لیکویید"},
+  liqNearB:          {en:"Stop loss × leverage = {x}. There's very little room left before liquidation.",
+                      fa:"حد ضرر × اهرم = {x} است؛ فاصلهٔ خیلی کمی تا لیکویید باقی مانده."},
+  safeLev:           {en:"Use max {n}× leverage", fa:"حداکثر اهرم امن: {n}×"},
+  overCapT:          {en:"Margin exceeds your capital", fa:"مارجین از سرمایه‌ات بیشتر است"},
+  overCapB:          {en:"This setup needs {m} margin but you only have {c}. Lower the risk %, or raise the leverage / stop distance.",
+                      fa:"این تنظیمات به {m} مارجین نیاز دارد ولی تو فقط {c} داری. درصد ریسک را کم کن، یا اهرم / فاصلهٔ استاپ را بیشتر کن."},
+  overRiskT:         {en:"Risk above 5%", fa:"ریسک بیشتر از ۵٪"},
+  overRiskB:         {en:"You're risking {r}% of your capital on one position. The house rule is 5% max.",
+                      fa:"داری {r}٪ از کل سرمایه‌ات را روی یک پوزیشن ریسک می‌کنی. قانون خانه حداکثر ۵٪ است."},
+  rule1t:            {en:"Risk 5% max", fa:"ریسک حداکثر ۵٪"},
+  rule1b:            {en:"Never risk more than 5% of your capital on one position.", fa:"هرگز بیش از ۵٪ سرمایه را روی یک پوزیشن ریسک نکن."},
+  rule2t:            {en:"Isolated margin", fa:"پوزیشن ایزوله"},
+  rule2b:            {en:"Set margin to Isolated, not Cross.", fa:"مارجین را ایزوله (Isolated) تنظیم کن، نه Cross."},
+  rule3t:            {en:"Stop loss required", fa:"استاپ‌لاس اجباری"},
+  rule3b:            {en:"Never open a position without setting a stop.", fa:"بدون ثبت حد ضرر، هیچ پوزیشنی باز نکن."},
+  guideTitle:        {en:"Calculator guide", fa:"راهنمای کامل محاسبه‌گر"},
+  guideTag:          {en:"Open any section — everything explained in plain language with examples.",
+                      fa:"هر بخش را باز کن؛ همه‌چیز با مثال و به زبان ساده توضیح داده شده."},
+  g1s:               {en:"🧾 What do the inputs mean?", fa:"🧾 ورودی‌ها دقیقاً یعنی چه؟"},
+  g2s:               {en:"📊 How do I read the outputs?", fa:"📊 خروجی‌ها را چطور بخوانم؟"},
+  g3s:               {en:"🧮 The formula + a real example", fa:"🧮 فرمول محاسبه + مثال واقعی"},
+  g4s:               {en:"⛔ What does the liquidation warning mean?", fa:"⛔ هشدار لیکویید یعنی چه؟"},
+  calcDisclaimer:    {en:"This tool only helps with the arithmetic — it isn't financial advice. Every trade stays your own responsibility.",
+                      fa:"این ابزار صرفاً کمکِ محاسبه است و توصیه مالی نیست؛ مسئولیت نهایی هر معامله با خود شماست."},
+
+  activeChecklist:   {en:"Active checklist", fa:"چک‌لیستِ فعال"},
+  score:             {en:"Score", fa:"امتیاز"},
+  symbol:            {en:"Symbol", fa:"نماد"},
+  timeframe:         {en:"Timeframe", fa:"تایم‌فریم"},
+  direction:         {en:"Direction", fa:"جهت"},
+  buy:               {en:"Buy", fa:"خرید"},
+  sell:              {en:"Sell", fa:"فروش"},
+  pickTf:            {en:"Pick a timeframe to begin.", fa:"برای شروع یک تایم‌فریم انتخاب کن."},
+  vNoTrade:          {en:"No trade", fa:"معامله نکن"},
+  vQualifies:        {en:"Qualifies", fa:"واجدِ شرایط"},
+  vApproved:         {en:"Approved", fa:"تأییدشده"},
+  vNoTradeSub:       {en:"Below your threshold — skip it.", fa:"زیرِ آستانهٔ توست — ردش کن."},
+  vQualifiesSub:     {en:"Score is enough. Confirm the checks below to approve.", fa:"امتیاز کافی‌ست. تأییدهای پایین را بزن تا تأیید شود."},
+  vApprovedSub:      {en:"Score and confirmations met — place the order.", fa:"امتیاز و تأییدها کامل‌اند — سفارش را ثبت کن."},
+  maxOf:             {en:"max", fa:"سقف"},
+  gateTitle:         {en:"Final confirmation", fa:"تأییدِ نهایی"},
+  approvedTitle:     {en:"Approved — place the order.", fa:"تأیید شد — سفارش را ثبت کن."},
+  gateEmpty:         {en:"No confirmations defined. Add some in the Builder tab.", fa:"هیچ تأییدی تعریف نشده. از تبِ سازنده اضافه کن."},
+  resetEval:         {en:"Reset selections", fa:"پاک‌کردنِ انتخاب‌ها"},
+  saveTitle:         {en:"Save this evaluation", fa:"ذخیرهٔ این ارزیابی"},
+  saveSub:           {en:"Stores a full snapshot in your journal for forward-testing.", fa:"یک اسنپ‌شاتِ کامل در ژورنال برای فوروارد‌تست ذخیره می‌کند."},
+  notePlaceholder:   {en:"Note (optional)", fa:"یادداشت (اختیاری)"},
+  linkPlaceholder:   {en:"Chart image link (optional)", fa:"لینکِ تصویرِ چارت (اختیاری)"},
+  saveBtn:           {en:"Save to journal", fa:"ذخیره در ژورنال"},
+  cancelEdit:        {en:"Cancel edit", fa:"لغوِ ویرایش"},
+  editingHint:       {en:"Editing an existing entry", fa:"در حالِ ویرایشِ یک ورودی"},
+  quote:             {en:"“It’s not whether you’re right or wrong that matters, but how much you make when right and how much you lose when wrong.”",
+                      fa:"«مهم درست یا غلط بودن نیست؛ مهم این است که وقتی درستی چقدر می‌بری و وقتی اشتباهی چقدر می‌بازی.»"},
+
+  currentJournal:    {en:"Current journal", fa:"ژورنالِ جاری"},
+  newJournal:        {en:"+ New", fa:"+ جدید"},
+  rename:            {en:"Rename", fa:"تغییرِ نام"},
+  delete:            {en:"Delete", fa:"حذف"},
+  exportOne:         {en:"Export", fa:"خروجی"},
+  exportAll:         {en:"Export all", fa:"خروجیِ همه"},
+  import:            {en:"Import", fa:"ورودی"},
+  csv:               {en:"CSV", fa:"CSV"},
+  undo:              {en:"↶ Undo", fa:"↶ بازگردانی"},
+  fSymbol:           {en:"Symbol", fa:"نماد"},
+  fResult:           {en:"Result", fa:"نتیجه"},
+  fState:            {en:"State", fa:"وضعیت"},
+  fAll:              {en:"All", fa:"همه"},
+  fSettled:          {en:"Settled", fa:"تعیین‌شده"},
+  fOpen:             {en:"Open", fa:"باز"},
+  win:               {en:"Win", fa:"برد"},
+  loss:              {en:"Loss", fa:"باخت"},
+  be:                {en:"Break-even", fa:"سربه‌سر"},
+  cancelled:         {en:"Cancelled", fa:"لغوشده"},
+  prev:              {en:"‹ Prev", fa:"‹ قبلی"},
+  next:              {en:"Next ›", fa:"بعدی ›"},
+  jEmpty:            {en:"No entries yet. Evaluate a setup and save it.", fa:"هنوز ورودی‌ای نیست. یک ستاپ را ارزیابی و ذخیره کن."},
+
+  analysisTitle:     {en:"Win rate by score band", fa:"وین‌ریت بر اساسِ باندِ امتیاز"},
+  anFor:             {en:"For checklist:", fa:"برای چک‌لیست:"},
+  stLogged:          {en:"Logged", fa:"ثبت‌شده"},
+  stSettled:         {en:"Settled", fa:"تعیین‌شده"},
+  stWinRate:         {en:"Win rate", fa:"وین‌ریت"},
+  stAvgWin:          {en:"Avg · win", fa:"میانگینِ برد"},
+  stAvgLoss:         {en:"Avg · loss", fa:"میانگینِ باخت"},
+  anSmall:           {en:"Log ~8–10 settled trades before trusting this — the sample is still small.",
+                      fa:"قبل از اعتماد، حدود ۸ تا ۱۰ معاملهٔ تعیین‌شده ثبت کن — نمونه هنوز کوچک است."},
+  anEdge:            {en:"If higher bands show higher win rate, your score has edge. If not, revisit the factor weights — not your discipline.",
+                      fa:"اگر باندهای بالاتر وین‌ریتِ بالاتری دارند، امتیازت برتری دارد. اگر نه، وزنِ فاکتورها را بازبینی کن — نه انضباطت را."},
+
+  editingChecklist:  {en:"Editing checklist", fa:"در حالِ ویرایشِ چک‌لیست"},
+  newChecklist:      {en:"+ New", fa:"+ جدید"},
+  duplicate:         {en:"Duplicate", fa:"کپی"},
+  setDefault:        {en:"★ Set default", fa:"★ پیش‌فرض"},
+  introLabel:        {en:"Intro shown on the Evaluate tab (optional)", fa:"متنِ معرفیِ بالای تبِ ارزیابی (اختیاری)"},
+  thresholdLabel:    {en:"Qualify threshold (min score)", fa:"آستانهٔ واجدِ شرایط (حداقل امتیاز)"},
+  categoriesFactors: {en:"Categories & factors", fa:"دسته‌ها و فاکتورها"},
+  addCategory:       {en:"+ Add category", fa:"+ افزودنِ دسته"},
+  addFactor:         {en:"+ Add factor", fa:"+ افزودنِ فاکتور"},
+  factorName:        {en:"Factor name", fa:"نامِ فاکتور"},
+  factorHint:        {en:"Short hint (optional)", fa:"توضیحِ کوتاه (اختیاری)"},
+  optLabel:          {en:"Option label", fa:"برچسبِ گزینه"},
+  addOption:         {en:"+ Add option", fa:"+ افزودنِ گزینه"},
+  toggleValue:       {en:"Points when checked", fa:"امتیازِ چک‌شدن"},
+  typeChoice:        {en:"Choice", fa:"چندگزینه‌ای"},
+  typeToggle:        {en:"Toggle", fa:"سوییچی"},
+  moveUp:            {en:"Move up", fa:"بالا"},
+  moveDown:          {en:"Move down", fa:"پایین"},
+  gateConfirmations: {en:"Gate confirmations", fa:"تأییدهای گِیت"},
+  gateHelp:          {en:"All of these must be checked (plus a passing score and a chosen timeframe) to reach Approved.",
+                      fa:"برای رسیدن به «تأییدشده» باید همهٔ اینها تیک بخورند (به‌همراهِ امتیازِ کافی و انتخابِ تایم‌فریم)."},
+  addConfirmation:   {en:"+ Add confirmation", fa:"+ افزودنِ تأیید"},
+  timeframesTitle:   {en:"Timeframes", fa:"تایم‌فریم‌ها"},
+  timeframesHelp:    {en:"Shared across all checklists. Used on the Evaluate tab and stored with each entry.",
+                      fa:"مشترک بینِ همهٔ چک‌لیست‌هاست. در تبِ ارزیابی استفاده و با هر ورودی ذخیره می‌شود."},
+  add:               {en:"Add", fa:"افزودن"},
+
+  /* prompts / toasts */
+  promptNewChecklist:{en:"Name for the new checklist:", fa:"نامِ چک‌لیستِ جدید:"},
+  promptRename:      {en:"New name:", fa:"نامِ جدید:"},
+  promptNewJournal:  {en:"Name for the new journal:", fa:"نامِ ژورنالِ جدید:"},
+  promptCategory:    {en:"Category name:", fa:"نامِ دسته:"},
+  promptFactor:      {en:"Factor name:", fa:"نامِ فاکتور:"},
+  promptConfirmation:{en:"Confirmation text:", fa:"متنِ تأیید:"},
+  confirmDelChecklist:{en:"Delete this checklist? Saved journal entries stay, but keep their snapshot.",
+                      fa:"این چک‌لیست حذف شود؟ ورودی‌های ثبت‌شده می‌مانند و اسنپ‌شاتِ خود را نگه می‌دارند."},
+  confirmDelJournal: {en:"Delete this journal and all its entries?", fa:"این ژورنال و همهٔ ورودی‌هایش حذف شوند؟"},
+  confirmDelCat:     {en:"Delete this category and its factors?", fa:"این دسته و فاکتورهایش حذف شوند؟"},
+  confirmDelFactor:  {en:"Delete this factor?", fa:"این فاکتور حذف شود؟"},
+  cantDeleteLast:    {en:"You need at least one.", fa:"حداقل یکی لازم است."},
+  savedToast:        {en:"Saved to journal.", fa:"در ژورنال ذخیره شد."},
+  updatedToast:      {en:"Entry updated.", fa:"ورودی به‌روزرسانی شد."},
+  resetToast:        {en:"Selections cleared.", fa:"انتخاب‌ها پاک شدند."},
+  needSymbol:        {en:"Add a symbol first.", fa:"اول یک نماد وارد کن."},
+  needTf:            {en:"Pick a timeframe first.", fa:"اول یک تایم‌فریم انتخاب کن."},
+  importDone:        {en:"Imported {n} entries.", fa:"{n} ورودی وارد شد."},
+  importBad:         {en:"Could not read that file.", fa:"فایل خوانده نشد."},
+  copiedCsv:         {en:"CSV ready — select & copy from the box.", fa:"CSV آماده است — از کادر انتخاب و کپی کن."},
+  undoDone:          {en:"Reverted.", fa:"بازگردانده شد."},
+  seedName:          {en:"Example checklist", fa:"چک‌لیستِ نمونه"},
+  seedIntro:         {en:"A generic starter — edit everything in the Builder tab to match your own strategy.",
+                      fa:"یک نقطهٔ شروعِ عمومی — همه‌چیز را در تبِ سازنده مطابقِ استراتژیِ خودت ویرایش کن."},
+  defaultJournal:    {en:"Main", fa:"اصلی"},
+};
+let lang = "en";
+function t(k){ const e = STR[k]; return e ? (e[lang] || e.en) : k; }
+
+/* ---------------------------------------------------- storage layer ------- */
+/* Async wrapper over localStorage with an in-memory fallback (private mode). */
+const store = (function(){
+  try{
+    const ls = window.localStorage, probe = "__cb_probe__";
+    ls.setItem(probe,"1"); ls.removeItem(probe);
+    return {
+      get:   k    => Promise.resolve(ls.getItem(k)),
+      set:   (k,v)=> { ls.setItem(k,v); return Promise.resolve(); },
+      del:   k    => { ls.removeItem(k); return Promise.resolve(); },
+      keys:  p    => { const out=[]; for(let i=0;i<ls.length;i++){ const kk=ls.key(i); if(kk && (!p||kk.indexOf(p)===0)) out.push(kk);} return Promise.resolve(out); }
+    };
+  }catch(e){
+    const m = {};
+    return {
+      get:  k    => Promise.resolve(k in m ? m[k] : null),
+      set:  (k,v)=> { m[k]=v; return Promise.resolve(); },
+      del:  k    => { delete m[k]; return Promise.resolve(); },
+      keys: p    => Promise.resolve(Object.keys(m).filter(x=>!p||x.indexOf(p)===0))
+    };
+  }
+})();
+const K = {
+  lang:"cb:lang", checklists:"cb:checklists", active:"cb:activeChecklist",
+  def:"cb:defaultChecklist", tfs:"cb:timeframes", journals:"cb:journals",
+  activeJournal:"cb:activeJournal", symbols:"cb:symbols",
+  log:(j,ts)=>"cb:log:"+j+":"+ts, logPrefix:(j)=>"cb:log:"+j+":"
+};
+async function getJSON(k, fb){ const v = await store.get(k); if(v==null) return fb; try{ return JSON.parse(v); }catch(e){ return fb; } }
+async function setJSON(k, v){ await store.set(k, JSON.stringify(v)); }
+function uid(p){ return (p||"id")+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3); }
+function fmtNum(n){ n = Math.round(Number(n)*100)/100; return (n>0?"+":"")+(n%1===0? n.toFixed(0): String(n)); }
+function fmtScore(n){ return (Math.round(Number(n)*100)/100).toFixed(1); }
+
+/* --------------------------------------------------- in-memory state ------ */
+let checklists = [];       // array of checklist configs
+let activeId = null;       // active checklist (Evaluate)
+let defaultId = null;      // default checklist (loaded on boot)
+let timeframes = [];
+let journals = [];         // [{id,name}]
+let activeJournal = null;
+let symbols = [];
+
+let evalState = { sym:"", tf:null, dir:null, sel:{}, tog:{}, gate:{} };
+let editingKey = null;     // record key being edited, or null
+
+let records = [];          // records of the active journal, newest first
+let page = 0; const PAGE = 8;
+let filt = { sym:"", res:"all", state:"all" };
+let undoData = null;       // { label, kind, payload }
+
+/* ==========================================================================
+   SEED — a fully generic example checklist (NOT anyone's real strategy).
+   ========================================================================== */
+function seedChecklist(){
+  const c1=uid("cat"), c2=uid("cat"), c3=uid("cat");
+  const opt = (label, value)=>({ id:uid("opt"), label, value });
+  return {
+    id: uid("chk"),
+    name: t("seedName"),
+    intro: t("seedIntro"),
+    threshold: 3,
+    categories: [
+      { id:c1, name: lang==="fa"?"روند":"Trend", order:0 },
+      { id:c2, name: lang==="fa"?"ستاپِ ورود":"Entry setup", order:1 },
+      { id:c3, name: lang==="fa"?"مدیریتِ ریسک":"Risk management", order:2 }
+    ],
+    factors: [
+      { id:uid("fac"), categoryId:c1, order:0, type:"choice",
+        name: lang==="fa"?"هم‌سوییِ روندِ تایم‌بالا":"Higher-timeframe trend",
+        hint: lang==="fa"?"جهتِ کلیِ بازار":"overall market direction",
+        options:[ opt(lang==="fa"?"خلافِ روند":"Against trend",-1), opt(lang==="fa"?"خنثی":"Neutral",0), opt(lang==="fa"?"هم‌سو":"With trend",1) ] },
+      { id:uid("fac"), categoryId:c1, order:1, type:"choice",
+        name: lang==="fa"?"قدرتِ روند":"Trend strength", hint:"",
+        options:[ opt(lang==="fa"?"ضعیف":"Weak",0), opt(lang==="fa"?"متوسط":"Moderate",0.5), opt(lang==="fa"?"قوی":"Strong",1) ] },
+      { id:uid("fac"), categoryId:c2, order:0, type:"choice",
+        name: lang==="fa"?"کیفیتِ ستاپ":"Setup quality",
+        hint: lang==="fa"?"چقدر تمیز است":"how clean it is",
+        options:[ opt(lang==="fa"?"مرزی":"Marginal",0), opt(lang==="fa"?"خوب":"Good",1), opt(lang==="fa"?"کتابی":"Textbook",2) ] },
+      { id:uid("fac"), categoryId:c2, order:1, type:"toggle",
+        name: lang==="fa"?"سیگنالِ تأییدی موجود است":"Confirmation signal present", hint:"", value:1 },
+      { id:uid("fac"), categoryId:c3, order:0, type:"choice",
+        name: lang==="fa"?"نسبتِ ریسک‌به‌ریوارد":"Risk : reward", hint:"",
+        options:[ opt("< 1:1",-1), opt("1:1 – 1:2",0.5), opt("≥ 1:2",1) ] },
+      { id:uid("fac"), categoryId:c3, order:1, type:"toggle",
+        name: lang==="fa"?"حد ضرر و حد سود از پیش تعیین شده":"Stop-loss & take-profit predefined", hint:"", value:0.5 }
+    ],
+    gate: [
+      { id:uid("g"), text: lang==="fa"?"حد ضرر و حد سودم را مشخص کرده‌ام.":"I've set my stop-loss and take-profit." },
+      { id:uid("g"), text: lang==="fa"?"ریسکِ این معامله را می‌پذیرم و بعداً پشیمان نمی‌شوم.":"I accept this trade's risk and won't regret it." }
+    ],
+    createdAt: Date.now(), updatedAt: Date.now()
+  };
+}
+
+/* ============================== scoring ================================== */
+function getChecklist(id){ return checklists.find(c=>c.id===id) || null; }
+function factorsOfCat(cl, catId){ return cl.factors.filter(f=>f.categoryId===catId).sort((a,b)=>a.order-b.order); }
+function sortedCats(cl){ return cl.categories.slice().sort((a,b)=>a.order-b.order); }
+
+function maxScore(cl){
+  let s=0;
+  cl.factors.forEach(f=>{
+    if(f.type==="toggle"){ const v=Number(f.value)||0; if(v>0) s+=v; }
+    else { const vals=(f.options||[]).map(o=>Number(o.value)||0); s+=Math.max(0, ...vals, 0); }
+  });
+  return Math.round(s*100)/100;
+}
+function computeScore(cl, sel, tog){
+  let s=0;
+  cl.factors.forEach(f=>{
+    if(f.type==="toggle"){ if(tog[f.id]) s+=Number(f.value)||0; }
+    else {
+      const oid = sel[f.id];
+      const o = (f.options||[]).find(o=>o.id===oid) || (f.options||[])[0];
+      if(o) s+=Number(o.value)||0;
+    }
+  });
+  return Math.round(s*100)/100;
+}
+function bandLabels(cl){
+  const T = Number(cl.threshold)||0, top = Math.max(T, Math.floor(maxScore(cl)));
+  const labels = [ "< "+ (T%1===0?T:String(T)) ];
+  for(let b=T; b<=top; b++){ labels.push(b===top ? b+"+" : String(b)); }
+  return labels;
+}
+function bandIndex(cl, score){
+  const T = Number(cl.threshold)||0;
+  if(score < T) return 0;
+  const top = Math.max(T, Math.floor(maxScore(cl)));
+  return Math.min(Math.floor(score)-T+1, (top-T)+1);
+}
+function gateAllChecked(cl){
+  if(!cl.gate || !cl.gate.length) return false;
+  return cl.gate.every(g => !!evalState.gate[g.id]);
+}
+function verdictOf(cl, score, gateOk, tfChosen){
+  if(score < (Number(cl.threshold)||0)) return "no-trade";
+  if(gateOk && tfChosen) return "approved";
+  return "qualifies";
+}
+
+/* ============================ DOM helpers ================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function esc(x){ return String(x==null?"":x).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+let toastTimer=null;
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2200); }
+
+/* ============================ language =================================== */
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang==="fa") ? "rtl" : "ltr";
+  document.documentElement.classList.toggle("lang-fa", lang==="fa");
+  $$("[data-i18n]").forEach(el=>{ el.textContent = t(el.getAttribute("data-i18n")); });
+  $("#langBtn").textContent = (lang==="fa") ? "English" : "فارسی";
+  // placeholders
+  $("#evNote").placeholder = t("notePlaceholder");
+  $("#evLink").placeholder = t("linkPlaceholder");
+  $("#evEditingHint").textContent = editingKey ? t("editingHint") : "";
+}
+async function switchLang(){
+  lang = (lang==="fa") ? "en" : "fa";
+  await store.set(K.lang, lang);
+  applyI18n();
+  renderAll();
+}
+
+/* ============================ TABS ====================================== */
+function showTab(name){
+  $$(".tab").forEach(b=> b.setAttribute("aria-selected", b.dataset.tab===name));
+  $$(".panel").forEach(p=> p.hidden = (p.id !== "panel-"+name));
+  if(name==="journal"){ page=0; renderJournal(); }
+  if(name==="analysis") renderAnalysis();
+  if(name==="builder") renderBuilder();
+  if(name==="calculator") renderCalc();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ============================ EVALUATE ================================== */
+function refreshChecklistSelectors(){
+  const opts = checklists.map(c=>`<option value="${c.id}"${c.id===activeId?" selected":""}>${esc(c.name)}${c.id===defaultId?" ★":""}</option>`).join("");
+  $("#evChecklist").innerHTML = opts;
+  const blOpts = checklists.map(c=>`<option value="${c.id}"${c.id===builderId?" selected":""}>${esc(c.name)}${c.id===defaultId?" ★":""}</option>`).join("");
+  $("#blSelect").innerHTML = blOpts;
+}
+function refreshTfChips(){
+  $("#evTf").innerHTML = timeframes.map(tf=>`<button data-tf="${esc(tf)}" aria-pressed="${evalState.tf===tf}">${esc(tf)}</button>`).join("");
+}
+function buildFactorsDOM(){
+  const cl = getChecklist(activeId);
+  const host = $("#evFactors"); host.innerHTML="";
+  if(!cl) return;
+  sortedCats(cl).forEach((cat, si)=>{
+    const wrap = document.createElement("div"); wrap.className="section";
+    wrap.innerHTML = `<div class="shead"><span class="n">${si+1}</span><h2>${esc(cat.name)}</h2><span class="ln"></span></div>`;
+    factorsOfCat(cl, cat.id).forEach(f=>{
+      const card = document.createElement("div"); card.className="factor";
+      if(f.type==="toggle"){
+        const on = !!evalState.tog[f.id];
+        card.innerHTML =
+          `<button class="toggle" data-tog="${f.id}" aria-pressed="${on}">`+
+          `<span class="tick" aria-hidden="true"></span>`+
+          `<span class="tlabel"><span class="fname">${esc(f.name)}</span>${f.hint?`<span class="fhint">${esc(f.hint)}</span>`:""}</span>`+
+          `<span class="tval">${fmtNum(f.value)}</span></button>`;
+      } else {
+        const cur = evalState.sel[f.id] || (f.options[0] && f.options[0].id);
+        const opts = (f.options||[]).map(o=>{
+          const sign = o.value>0?"p":o.value<0?"n":"z";
+          return `<button class="opt ${sign}" data-fac="${f.id}" data-opt="${o.id}" aria-pressed="${o.id===cur}">`+
+                 `<span class="tl">${esc(o.label)}</span><span class="v">${fmtNum(o.value)}</span></button>`;
+        }).join("");
+        card.innerHTML = `<div class="top"><span class="fname">${esc(f.name)}</span>${f.hint?`<span class="fhint">${esc(f.hint)}</span>`:""}</div>`+
+                         `<div class="opts">${opts}</div>`;
+      }
+      wrap.appendChild(card);
+    });
+    host.appendChild(wrap);
+  });
+}
+function buildGateDOM(){
+  const cl = getChecklist(activeId);
+  const host = $("#gateList");
+  if(!cl || !cl.gate || !cl.gate.length){ host.innerHTML = `<div class="empty">${esc(t("gateEmpty"))}</div>`; return; }
+  host.innerHTML = cl.gate.map(g=>
+    `<label class="chk"><input type="checkbox" data-gate="${g.id}" ${evalState.gate[g.id]?"checked":""}><span>${esc(g.text)}</span></label>`
+  ).join("");
+}
+function renderEvaluate(){
+  const cl = getChecklist(activeId);
+  $("#evIntro").style.display = (cl && cl.intro) ? "" : "none";
+  if(cl && cl.intro) $("#evIntro").textContent = cl.intro;
+  refreshTfChips();
+  buildFactorsDOM();
+  buildGateDOM();
+  $$("#evDir button").forEach(b=> b.setAttribute("aria-pressed", b.dataset.dir===evalState.dir));
+  $("#evSym").value = evalState.sym||"";
+  renderVerdict();
+}
+function renderVerdict(){
+  const cl = getChecklist(activeId);
+  const v = $("#verdict"), vt = $("#vtext"), sn = $("#scoreNum"), mp = $("#maxPill");
+  if(!cl){ sn.textContent="0.0"; vt.textContent=""; return; }
+  const score = computeScore(cl, evalState.sel, evalState.tog);
+  sn.textContent = fmtScore(score);
+  mp.textContent = t("maxOf")+" "+fmtScore(maxScore(cl));
+  const tfChosen = !!evalState.tf;
+  const gateOk = gateAllChecked(cl);
+  v.className = "verdict";
+  let state, txt, sub;
+  if(!tfChosen){ state="state-wait"; txt=""; sub=t("pickTf"); }
+  else {
+    const vd = verdictOf(cl, score, gateOk, tfChosen);
+    if(vd==="no-trade"){ state="state-no"; txt=t("vNoTrade"); sub=t("vNoTradeSub"); }
+    else if(vd==="approved"){ state="state-go"; txt=t("vApproved"); sub=t("vApprovedSub"); }
+    else { state="state-ok"; txt=t("vQualifies"); sub=t("vQualifiesSub"); }
+  }
+  v.classList.add(state);
+  vt.innerHTML = (txt?`${esc(txt)}`:"") + `<small>${esc(sub)}</small>`;
+  // gate live/plan
+  const gate = $("#gate"), plan = $("#plan");
+  const canGate = tfChosen && score >= (Number(cl.threshold)||0);
+  gate.classList.toggle("live", canGate);
+  const approved = canGate && gateOk;
+  plan.classList.toggle("show", approved);
+  if(approved){ $("#planNote").textContent = `${esc(cl.name)} · ${t("score")} ${fmtScore(score)} · ${evalState.dir||""} ${evalState.tf||""}`; }
+}
+function resetEval(keepSym){
+  const sym = keepSym ? evalState.sym : "";
+  evalState = { sym, tf:null, dir:null, sel:{}, tog:{}, gate:{} };
+  editingKey = null;
+  $("#evNote").value=""; $("#evLink").value="";
+  $("#evCancelEdit").classList.add("hidden");
+  $("#evEditingHint").textContent="";
+  $("#evSave").classList.remove("editing");
+  renderEvaluate();
+}
+
+/* evaluate event wiring */
+$("#evChecklist").addEventListener("change", async e=>{
+  activeId = e.target.value; await store.set(K.active, activeId);
+  resetEval(false);
+});
+$("#evTf").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-tf]"); if(!b) return;
+  evalState.tf = (evalState.tf===b.dataset.tf) ? null : b.dataset.tf;
+  $$("#evTf button").forEach(x=> x.setAttribute("aria-pressed", x.dataset.tf===evalState.tf));
+  renderVerdict();
+});
+$("#evDir").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-dir]"); if(!b) return;
+  evalState.dir = (evalState.dir===b.dataset.dir) ? null : b.dataset.dir;
+  $$("#evDir button").forEach(x=> x.setAttribute("aria-pressed", x.dataset.dir===evalState.dir));
+});
+$("#evFactors").addEventListener("click", e=>{
+  const opt = e.target.closest(".opt");
+  if(opt){ evalState.sel[opt.dataset.fac] = opt.dataset.opt;
+    opt.parentElement.querySelectorAll(".opt").forEach(x=> x.setAttribute("aria-pressed", x===opt));
+    renderVerdict(); return; }
+  const tg = e.target.closest(".toggle");
+  if(tg){ const id=tg.dataset.tog; evalState.tog[id] = !evalState.tog[id];
+    tg.setAttribute("aria-pressed", !!evalState.tog[id]); renderVerdict(); }
+});
+$("#gateList").addEventListener("change", e=>{
+  const c = e.target.closest("input[data-gate]"); if(!c) return;
+  evalState.gate[c.dataset.gate] = c.checked; renderVerdict();
+});
+$("#evSym").addEventListener("input", e=>{ evalState.sym = e.target.value.toUpperCase(); });
+$("#evReset").addEventListener("click", ()=>{ resetEval(true); toast(t("resetToast")); });
+$("#evCancelEdit").addEventListener("click", ()=> resetEval(false));
+
+/* save evaluation into journal */
+$("#evSave").addEventListener("click", async ()=>{
+  const cl = getChecklist(activeId); if(!cl) return;
+  const sym = (evalState.sym||"").trim().toUpperCase();
+  if(!sym){ toast(t("needSymbol")); return; }
+  if(!evalState.tf){ toast(t("needTf")); return; }
+  const score = computeScore(cl, evalState.sel, evalState.tog);
+  const gateOk = gateAllChecked(cl);
+  const verdict = verdictOf(cl, score, gateOk, true);
+  // compact snapshot so history survives later checklist edits
+  const snapshot = cl.factors.map(f=>{
+    if(f.type==="toggle"){ const on=!!evalState.tog[f.id]; return { factorId:f.id, name:f.name, chosenLabel:on?"✓":"—", value:on?(Number(f.value)||0):0, on }; }
+    const oid = evalState.sel[f.id] || (f.options[0]&&f.options[0].id);
+    const o = (f.options||[]).find(o=>o.id===oid) || (f.options||[])[0] || {label:"",value:0};
+    return { factorId:f.id, name:f.name, chosenLabel:o.label, value:Number(o.value)||0 };
+  });
+  if(editingKey){
+    const raw = await store.get(editingKey);
+    const old = raw ? JSON.parse(raw) : {};
+    const rec = Object.assign({}, old, {
+      checklistId:cl.id, checklistName:cl.name, sym, dir:evalState.dir, tf:evalState.tf,
+      note:$("#evNote").value.trim(), link:$("#evLink").value.trim(),
+      score, verdict, selections:Object.assign({},evalState.sel), toggles:Object.assign({},evalState.tog),
+      gate:Object.assign({},evalState.gate), snapshot, updatedAt:Date.now()
+    });
+    await takeSnapshot("edit"); // for undo
+    await store.set(editingKey, JSON.stringify(rec));
+    toast(t("updatedToast"));
+  } else {
+    const ts = Date.now();
+    const rec = {
+      id: K.log(activeJournal, ts), journalId:activeJournal,
+      checklistId:cl.id, checklistName:cl.name, sym, dir:evalState.dir, tf:evalState.tf,
+      note:$("#evNote").value.trim(), link:$("#evLink").value.trim(),
+      score, verdict, selections:Object.assign({},evalState.sel), toggles:Object.assign({},evalState.tog),
+      gate:Object.assign({},evalState.gate), snapshot, outcome:null, createdAt:ts, updatedAt:ts
+    };
+    await takeSnapshot("save");
+    await store.set(rec.id, JSON.stringify(rec));
+    toast(t("savedToast"));
+  }
+  await rememberSymbol(sym);
+  resetEval(true);
+  await loadRecords();
+});
+
+async function rememberSymbol(sym){
+  if(!sym) return;
+  if(!symbols.includes(sym)){ symbols.push(sym); symbols.sort(); await setJSON(K.symbols, symbols); refreshSymList(); }
+}
+function refreshSymList(){ $("#symlist").innerHTML = symbols.map(s=>`<option value="${esc(s)}">`).join(""); }
+
+/* ============================ JOURNAL =================================== */
+async function loadRecords(){
+  records = [];
+  const keys = await store.keys(K.logPrefix(activeJournal));
+  for(const k of keys){ const raw=await store.get(k); if(raw){ try{ const r=JSON.parse(raw); r.id=k; records.push(r);}catch(e){} } }
+  records.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  refreshFilterSelectors();
+  if($("#panel-journal").hidden===false) renderJournal();
+  if($("#panel-analysis").hidden===false) renderAnalysis();
+}
+function refreshJournalSelector(){
+  $("#jSelect").innerHTML = journals.map(j=>`<option value="${j.id}"${j.id===activeJournal?" selected":""}>${esc(j.name)}</option>`).join("");
+}
+function refreshFilterSelectors(){
+  const syms = [...new Set(records.map(r=>r.sym).filter(Boolean))].sort();
+  $("#fSym").innerHTML = `<option value="">${esc(t("fAll"))}</option>`+syms.map(s=>`<option value="${esc(s)}"${s===filt.sym?" selected":""}>${esc(s)}</option>`).join("");
+}
+function viewRecords(){
+  let v = records.slice();
+  if(filt.sym) v = v.filter(r=>(r.sym||"")===filt.sym);
+  if(filt.res==="settled") v=v.filter(r=>["W","L","BE"].includes(r.outcome));
+  else if(["W","L","BE","C"].includes(filt.res)) v=v.filter(r=>r.outcome===filt.res);
+  else if(filt.res==="open") v=v.filter(r=>!r.outcome);
+  if(filt.state!=="all") v=v.filter(r=>r.verdict===filt.state);
+  return v;
+}
+function recSummary(r){
+  const items = (r.snapshot||[]).filter(s=> s.value!==0 || s.on).map(s=>
+    `<span class="it">${esc(s.name)}: ${esc(s.chosenLabel)} (${fmtNum(s.value)})</span>`).join("");
+  return items;
+}
+function verdictLabel(v){ return v==="approved"?t("vApproved"):v==="qualifies"?t("vQualifies"):t("vNoTrade"); }
+function renderJournal(){
+  refreshJournalSelector();
+  const v = viewRecords();
+  const host = $("#jList");
+  if(!v.length){ host.innerHTML=`<div class="jempty">${esc(t("jEmpty"))}</div>`; $("#pager").style.display="none"; return; }
+  const pages = Math.ceil(v.length/PAGE); if(page>=pages) page=pages-1; if(page<0) page=0;
+  const slice = v.slice(page*PAGE, page*PAGE+PAGE);
+  host.innerHTML = slice.map(r=>{
+    const d = new Date(r.createdAt||Date.now());
+    const dstr = d.toLocaleDateString(lang==="fa"?"fa-IR":"en-GB")+" "+d.toTimeString().slice(0,5);
+    const dir = r.dir? `<span class="jdir ${r.dir==="Buy"?"buy":"sell"}">${r.dir==="Buy"?t("buy"):t("sell")}</span>`:"";
+    return `<div class="jitem v-${r.verdict}">`+
+      `<span class="js">${fmtScore(r.score)}</span>`+
+      `<span class="jmeta"><b>${esc(r.sym||"—")}</b>${dir} · ${esc(r.tf||"")} · ${esc(verdictLabel(r.verdict))}`+
+        (r.note?` · ${esc(r.note)}`:"")+` · <span class="cltag">${esc(r.checklistName||"")}</span>`+
+        (r.link?` · <a href="${esc(r.link)}" target="_blank" rel="noopener">↗</a>`:"")+
+        `<br><span style="font-size:11px;color:var(--mut)">${dstr}</span></span>`+
+      `<div class="outs">`+
+        `<button data-o="W" aria-pressed="${r.outcome==="W"}">${esc(t("win"))}</button>`+
+        `<button data-o="L" aria-pressed="${r.outcome==="L"}">${esc(t("loss"))}</button>`+
+        `<button data-o="BE" aria-pressed="${r.outcome==="BE"}">BE</button>`+
+        `<button data-o="C" aria-pressed="${r.outcome==="C"}">C</button>`+
+      `</div>`+
+      `<button class="edit" data-edit="${esc(r.id)}">✎</button>`+
+      `<button class="edit del" data-del="${esc(r.id)}" style="color:var(--rose)">🗑</button>`+
+      (recSummary(r)?`<div class="jsum">${recSummary(r)}</div>`:"")+
+    `</div>`;
+  }).join("");
+  $("#pager").style.display = pages>1?"flex":"none";
+  $("#pageInfo").textContent = `${page+1} / ${pages}  ·  ${v.length}`;
+  $("#prevPage").disabled = page<=0; $("#nextPage").disabled = page>=pages-1;
+}
+$("#jList").addEventListener("click", async e=>{
+  const out = e.target.closest("button[data-o]");
+  if(out){ const item=out.closest(".jitem"); const key = item.querySelector("[data-edit]").dataset.edit;
+    const raw=await store.get(key); if(!raw) return; const r=JSON.parse(raw);
+    await takeSnapshot("outcome");
+    r.outcome = (r.outcome===out.dataset.o)? null : out.dataset.o; r.updatedAt=Date.now();
+    await store.set(key, JSON.stringify(r)); await loadRecords(); return; }
+  const ed = e.target.closest("[data-edit]");
+  if(ed){ await editRecord(ed.dataset.edit); return; }
+  const dl = e.target.closest("[data-del]");
+  if(dl){ const raw=await store.get(dl.dataset.del); const r=raw?JSON.parse(raw):null;
+    if(confirm((lang==="fa"?"این ورودی حذف شود؟":"Delete this entry?"))){
+      await takeSnapshot("delrec", r); await store.del(dl.dataset.del); await loadRecords(); toast(t("undoDone")?"":""); }
+  }
+});
+async function editRecord(key){
+  const raw = await store.get(key); if(!raw) return;
+  const r = JSON.parse(raw);
+  const cl = getChecklist(r.checklistId);
+  if(!cl){ alert(lang==="fa"?"چک‌لیستِ این ورودی دیگر وجود ندارد.":"This entry's checklist no longer exists."); return; }
+  activeId = cl.id; await store.set(K.active, activeId);
+  evalState = { sym:r.sym||"", tf:r.tf||null, dir:r.dir||null,
+    sel:Object.assign({}, r.selections||{}), tog:Object.assign({}, r.toggles||{}), gate:Object.assign({}, r.gate||{}) };
+  editingKey = key;
+  refreshChecklistSelectors();
+  renderEvaluate();
+  $("#evNote").value = r.note||""; $("#evLink").value = r.link||"";
+  $("#evCancelEdit").classList.remove("hidden");
+  $("#evEditingHint").textContent = t("editingHint");
+  $("#evSave").classList.add("editing");
+  showTab("evaluate");
+}
+$("#prevPage").addEventListener("click", ()=>{ page--; renderJournal(); });
+$("#nextPage").addEventListener("click", ()=>{ page++; renderJournal(); });
+$("#fSym").addEventListener("change", e=>{ filt.sym=e.target.value; page=0; renderJournal(); renderAnalysis(); });
+$("#fRes").addEventListener("change", e=>{ filt.res=e.target.value; page=0; renderJournal(); });
+$("#fState").addEventListener("change", e=>{ filt.state=e.target.value; page=0; renderJournal(); });
+
+/* journals CRUD */
+$("#jSelect").addEventListener("change", async e=>{ activeJournal=e.target.value; await store.set(K.activeJournal, activeJournal); page=0; await loadRecords(); });
+$("#jNew").addEventListener("click", async ()=>{
+  const name = prompt(t("promptNewJournal")); if(!name) return;
+  const j = { id:uid("jrn"), name:name.trim() }; journals.push(j); await setJSON(K.journals, journals);
+  activeJournal=j.id; await store.set(K.activeJournal, activeJournal); page=0; await loadRecords();
+});
+$("#jRen").addEventListener("click", async ()=>{
+  const j = journals.find(x=>x.id===activeJournal); if(!j) return;
+  const name = prompt(t("promptRename"), j.name); if(!name) return;
+  j.name=name.trim(); await setJSON(K.journals, journals); refreshJournalSelector();
+});
+$("#jDel").addEventListener("click", async ()=>{
+  if(journals.length<=1){ toast(t("cantDeleteLast")); return; }
+  if(!confirm(t("confirmDelJournal"))) return;
+  const keys = await store.keys(K.logPrefix(activeJournal)); for(const k of keys) await store.del(k);
+  journals = journals.filter(j=>j.id!==activeJournal); await setJSON(K.journals, journals);
+  activeJournal = journals[0].id; await store.set(K.activeJournal, activeJournal); page=0; await loadRecords();
+});
+
+/* export / import / csv / undo */
+async function allRecords(){
+  const out=[]; const keys=await store.keys("cb:log:");
+  for(const k of keys){ const raw=await store.get(k); if(raw){ try{ const r=JSON.parse(raw); r.id=k; out.push(r);}catch(e){} } }
+  return out;
+}
+function download(name, text, type){
+  const blob=new Blob([text],{type:type||"application/json"}); const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+$("#jExport").addEventListener("click", ()=>{
+  const j = journals.find(x=>x.id===activeJournal);
+  download((j?j.name:"journal")+".json", JSON.stringify({ type:"cb-journal", journal:j, records }, null, 2));
+});
+$("#jExportAll").addEventListener("click", async ()=>{
+  const recs = await allRecords();
+  download("all-journals.json", JSON.stringify({ type:"cb-all", journals, checklists, records:recs }, null, 2));
+});
+$("#jImport").addEventListener("click", ()=> $("#jFile").click());
+$("#jFile").addEventListener("change", async e=>{
+  const file = e.target.files[0]; if(!file) return; e.target.value="";
+  try{
+    const data = JSON.parse(await file.text());
+    let n=0;
+    const list = data.type==="cb-all" ? data.records : (data.records||data);
+    if(data.type==="cb-all" && Array.isArray(data.checklists)){
+      // merge any unknown checklists so imported records render
+      data.checklists.forEach(c=>{ if(!getChecklist(c.id)) checklists.push(c); });
+      await setJSON(K.checklists, checklists);
+    }
+    for(const r of list){
+      const ts = r.createdAt || (Date.now()+(n)); r.createdAt=ts;
+      const key = K.log(activeJournal, ts); r.id=key; r.journalId=activeJournal;
+      await store.set(key, JSON.stringify(r)); n++;
+    }
+    await loadRecords(); refreshChecklistSelectors();
+    toast(t("importDone").replace("{n}", n));
+  }catch(err){ toast(t("importBad")); }
+});
+$("#jCsv").addEventListener("click", ()=>{
+  const v = viewRecords();
+  const cols = ["Date","Symbol","Direction","Timeframe","Score","Verdict","Outcome","Checklist","Note","Link"];
+  const q = x => { x=String(x==null?"":x); return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; };
+  const rows = [cols.join(",")];
+  v.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(r=>{
+    const d=new Date(r.createdAt||Date.now());
+    rows.push([d.toISOString().slice(0,16).replace("T"," "), r.sym||"", r.dir||"", r.tf||"", r.score, r.verdict, r.outcome||"", r.checklistName||"", r.note||"", r.link||""].map(q).join(","));
+  });
+  const box=$("#csvBox"); box.value=rows.join("\n"); box.classList.add("show"); box.select(); toast(t("copiedCsv"));
+});
+/* one-level undo via full snapshot of the active journal */
+async function takeSnapshot(label){
+  const keys = await store.keys(K.logPrefix(activeJournal));
+  const snap = {};
+  for(const k of keys){ snap[k] = await store.get(k); }
+  undoData = { label, journal:activeJournal, snap }; setUndo(true);
+}
+async function doUndo(){
+  if(!undoData) return;
+  const keys = await store.keys(K.logPrefix(undoData.journal));
+  for(const k of keys) await store.del(k);
+  for(const k in undoData.snap){ await store.set(k, undoData.snap[k]); }
+  undoData=null; setUndo(false);
+  await loadRecords(); toast(t("undoDone"));
+}
+function setUndo(on){ $("#jUndo").disabled = !on; }
+$("#jUndo").addEventListener("click", doUndo);
+
+/* ============================ ANALYSIS ================================== */
+function renderAnalysis(){
+  const cl = getChecklist(activeId);
+  $("#anForChecklist").textContent = t("anFor")+" "+(cl?cl.name:"—");
+  const view = viewRecords().filter(r=> !cl || r.checklistId===cl.id);
+  const settled = view.filter(r=> r.outcome==="W"||r.outcome==="L");
+  const wins = settled.filter(r=>r.outcome==="W").length;
+  const wr = settled.length? Math.round(wins/settled.length*100):0;
+  const avg = a => a.length? (a.reduce((s,r)=>s+r.score,0)/a.length).toFixed(1):"–";
+  $("#anStats").innerHTML =
+    `<div class="stat"><span>${esc(t("stLogged"))}</span><b>${view.length}</b></div>`+
+    `<div class="stat"><span>${esc(t("stSettled"))}</span><b>${settled.length}</b></div>`+
+    `<div class="stat"><span>${esc(t("stWinRate"))}</span><b>${settled.length?wr+"%":"–"}</b></div>`+
+    `<div class="stat"><span>${esc(t("stAvgWin"))}</span><b>${avg(settled.filter(r=>r.outcome==="W"))}</b></div>`+
+    `<div class="stat"><span>${esc(t("stAvgLoss"))}</span><b>${avg(settled.filter(r=>r.outcome==="L"))}</b></div>`;
+  if(!cl){ $("#anChart").innerHTML=""; $("#anNote").textContent=""; return; }
+  const labels = bandLabels(cl);
+  $("#anChart").innerHTML = labels.map((lab,idx)=>{
+    const inb = settled.filter(r=> bandIndex(cl, r.score)===idx);
+    const w = inb.filter(r=>r.outcome==="W").length, n=inb.length, rate=n?Math.round(w/n*100):0;
+    return `<div class="crow"><span class="cl">${esc(lab)}</span>`+
+           `<span class="ct"><span class="cf" style="width:${n?rate:0}%"></span></span>`+
+           `<span class="cv">${n?rate+"% · "+w+"/"+n:"—"}</span></div>`;
+  }).join("");
+  $("#anNote").textContent = settled.length<8 ? t("anSmall") : t("anEdge");
+}
+
+/* ============================ BUILDER =================================== */
+let builderId = null; // checklist being edited in Builder
+
+function currentBuilder(){ return getChecklist(builderId); }
+async function saveChecklists(){ await setJSON(K.checklists, checklists); }
+function touch(cl){ cl.updatedAt=Date.now(); }
+
+function renderBuilder(){
+  if(!builderId || !getChecklist(builderId)) builderId = activeId || (checklists[0]&&checklists[0].id);
+  refreshChecklistSelectors();
+  const cl = currentBuilder(); if(!cl) return;
+  $("#blIntro").value = cl.intro||"";
+  $("#blThreshold").value = cl.threshold;
+  renderBuilderCats();
+  renderBuilderGate();
+  renderBuilderTf();
+}
+function renderBuilderCats(){
+  const cl = currentBuilder(); const host=$("#blCats"); host.innerHTML="";
+  sortedCats(cl).forEach((cat, ci, arr)=>{
+    const box=document.createElement("div"); box.className="bl-cat";
+    box.innerHTML =
+      `<div class="bl-cathead">`+
+        `<input class="cname" data-catname="${cat.id}" value="${esc(cat.name)}">`+
+        `<button class="iconbtn" data-catup="${cat.id}" ${ci===0?"disabled":""} title="${esc(t("moveUp"))}">↑</button>`+
+        `<button class="iconbtn" data-catdown="${cat.id}" ${ci===arr.length-1?"disabled":""} title="${esc(t("moveDown"))}">↓</button>`+
+        `<button class="iconbtn del" data-catdel="${cat.id}" title="${esc(t("delete"))}">🗑</button>`+
+      `</div>`+
+      `<div data-catbody="${cat.id}"></div>`+
+      `<button class="btn ghost sm" data-addfac="${cat.id}" style="margin-top:9px">${esc(t("addFactor"))}</button>`;
+    host.appendChild(box);
+    const body = box.querySelector(`[data-catbody="${cat.id}"]`);
+    factorsOfCat(cl, cat.id).forEach((f, fi, farr)=> body.appendChild(factorEditor(f, fi, farr.length)));
+  });
+}
+function factorEditor(f, fi, count){
+  const el=document.createElement("div"); el.className="bl-factor";
+  const badge = f.type==="toggle"
+    ? `<span class="typebadge tg">${esc(t("typeToggle"))}</span>`
+    : `<span class="typebadge">${esc(t("typeChoice"))}</span>`;
+  let inner =
+    `<div class="bl-fhead">`+
+      `<input class="fnm" data-facname="${f.id}" value="${esc(f.name)}" placeholder="${esc(t("factorName"))}">`+
+      badge+
+      `<button class="iconbtn" data-facup="${f.id}" ${fi===0?"disabled":""} title="${esc(t("moveUp"))}">↑</button>`+
+      `<button class="iconbtn" data-facdown="${f.id}" ${fi===count-1?"disabled":""} title="${esc(t("moveDown"))}">↓</button>`+
+      `<button class="iconbtn del" data-facdel="${f.id}" title="${esc(t("delete"))}">🗑</button>`+
+    `</div>`+
+    `<input class="fnm" style="margin-top:6px;flex:none;width:100%" data-fachint="${f.id}" value="${esc(f.hint||"")}" placeholder="${esc(t("factorHint"))}">`;
+  if(f.type==="toggle"){
+    inner += `<div class="row" style="margin-top:8px"><span style="font-size:12px;color:var(--mut);font-weight:700">${esc(t("toggleValue"))}</span>`+
+             `<input type="number" step="0.5" class="oval" data-facval="${f.id}" value="${f.value}"></div>`;
+  } else {
+    const opts = (f.options||[]).map(o=>
+      `<div class="bl-opt">`+
+        `<input class="olab" data-optlabel="${f.id}|${o.id}" value="${esc(o.label)}" placeholder="${esc(t("optLabel"))}">`+
+        `<input type="number" step="0.5" class="oval" data-optval="${f.id}|${o.id}" value="${o.value}">`+
+        `<button class="iconbtn del" data-optdel="${f.id}|${o.id}" title="${esc(t("delete"))}">✕</button>`+
+      `</div>`).join("");
+    inner += `<div class="bl-opts">${opts}</div>`+
+             `<button class="btn ghost sm" data-addopt="${f.id}" style="margin-top:8px">${esc(t("addOption"))}</button>`;
+  }
+  el.innerHTML = inner;
+  return el;
+}
+function renderBuilderGate(){
+  const cl=currentBuilder(); const host=$("#blGate");
+  host.innerHTML = (cl.gate||[]).map(g=>
+    `<div class="gate-edit"><input data-gatetext="${g.id}" value="${esc(g.text)}">`+
+    `<button class="iconbtn del" data-gatedel="${g.id}">🗑</button></div>`).join("");
+}
+function renderBuilderTf(){
+  const host=$("#blTf");
+  host.innerHTML = timeframes.map(tf=>
+    `<span class="tf-chip">${esc(tf)}<button data-tfdel="${esc(tf)}">✕</button></span>`).join("");
+}
+
+/* builder: checklist-level */
+$("#blSelect").addEventListener("change", e=>{ builderId=e.target.value; renderBuilder(); });
+$("#blNew").addEventListener("click", async ()=>{
+  const name=prompt(t("promptNewChecklist")); if(!name) return;
+  const c=seedChecklist(); c.name=name.trim(); c.intro=""; checklists.push(c); await saveChecklists();
+  builderId=c.id; renderBuilder(); refreshChecklistSelectors();
+});
+$("#blDup").addEventListener("click", async ()=>{
+  const cl=currentBuilder(); if(!cl) return;
+  const copy=JSON.parse(JSON.stringify(cl)); copy.id=uid("chk"); copy.name=cl.name+" (copy)";
+  // regenerate inner ids to keep them unique
+  const catMap={}; copy.categories.forEach(c=>{ const nid=uid("cat"); catMap[c.id]=nid; c.id=nid; });
+  copy.factors.forEach(f=>{ f.id=uid("fac"); f.categoryId=catMap[f.categoryId]||f.categoryId; (f.options||[]).forEach(o=>o.id=uid("opt")); });
+  (copy.gate||[]).forEach(g=>g.id=uid("g"));
+  copy.createdAt=copy.updatedAt=Date.now();
+  checklists.push(copy); await saveChecklists(); builderId=copy.id; renderBuilder();
+});
+$("#blRen").addEventListener("click", async ()=>{
+  const cl=currentBuilder(); if(!cl) return;
+  const name=prompt(t("promptRename"), cl.name); if(!name) return;
+  cl.name=name.trim(); touch(cl); await saveChecklists(); refreshChecklistSelectors();
+});
+$("#blStar").addEventListener("click", async ()=>{
+  defaultId = builderId; await store.set(K.def, defaultId); refreshChecklistSelectors();
+});
+$("#blDel").addEventListener("click", async ()=>{
+  if(checklists.length<=1){ toast(t("cantDeleteLast")); return; }
+  if(!confirm(t("confirmDelChecklist"))) return;
+  checklists = checklists.filter(c=>c.id!==builderId); await saveChecklists();
+  if(defaultId===builderId){ defaultId=checklists[0].id; await store.set(K.def, defaultId); }
+  if(activeId===builderId){ activeId=checklists[0].id; await store.set(K.active, activeId); resetEval(false); }
+  builderId=checklists[0].id; renderBuilder(); refreshChecklistSelectors();
+});
+$("#blIntro").addEventListener("input", async e=>{ const cl=currentBuilder(); cl.intro=e.target.value; touch(cl); await saveChecklists(); });
+$("#blThreshold").addEventListener("change", async e=>{ const cl=currentBuilder(); cl.threshold=Number(e.target.value)||0; touch(cl); await saveChecklists(); if(activeId===cl.id) renderVerdict(); });
+
+/* builder: categories + factors (delegated) */
+$("#blAddCat").addEventListener("click", async ()=>{
+  const cl=currentBuilder(); const name=prompt(t("promptCategory")); if(!name) return;
+  const order = cl.categories.length? Math.max(...cl.categories.map(c=>c.order))+1:0;
+  cl.categories.push({ id:uid("cat"), name:name.trim(), order }); touch(cl); await saveChecklists(); renderBuilderCats();
+});
+$("#blCats").addEventListener("click", async e=>{
+  const cl=currentBuilder(); let b;
+  if((b=e.target.closest("[data-catup]"))){ moveCat(cl, b.dataset.catup, -1); }
+  else if((b=e.target.closest("[data-catdown]"))){ moveCat(cl, b.dataset.catdown, +1); }
+  else if((b=e.target.closest("[data-catdel]"))){ if(!confirm(t("confirmDelCat"))) return;
+    if(cl.categories.length<=1){ toast(t("cantDeleteLast")); return; }
+    cl.categories=cl.categories.filter(c=>c.id!==b.dataset.catdel);
+    cl.factors=cl.factors.filter(f=>f.categoryId!==b.dataset.catdel); }
+  else if((b=e.target.closest("[data-addfac]"))){ addFactor(cl, b.dataset.addfac); }
+  else if((b=e.target.closest("[data-facup]"))){ moveFactor(cl, b.dataset.facup, -1); }
+  else if((b=e.target.closest("[data-facdown]"))){ moveFactor(cl, b.dataset.facdown, +1); }
+  else if((b=e.target.closest("[data-facdel]"))){ if(!confirm(t("confirmDelFactor"))) return;
+    cl.factors=cl.factors.filter(f=>f.id!==b.dataset.facdel); }
+  else if((b=e.target.closest("[data-addopt]"))){ const f=cl.factors.find(x=>x.id===b.dataset.addopt);
+    f.options.push({ id:uid("opt"), label:"", value:0 }); }
+  else if((b=e.target.closest("[data-optdel]"))){ const [fid,oid]=b.dataset.optdel.split("|");
+    const f=cl.factors.find(x=>x.id===fid); if(f.options.length<=1){ toast(t("cantDeleteLast")); return; }
+    f.options=f.options.filter(o=>o.id!==oid); }
+  else return;
+  touch(cl); await saveChecklists(); renderBuilderCats();
+  if(activeId===cl.id){ /* keep evaluate consistent later */ }
+});
+function moveCat(cl, id, dir){
+  const arr=sortedCats(cl); const i=arr.findIndex(c=>c.id===id); const j=i+dir;
+  if(j<0||j>=arr.length) return; const a=arr[i], b=arr[j]; const o=a.order; a.order=b.order; b.order=o;
+}
+function moveFactor(cl, id, dir){
+  const f=cl.factors.find(x=>x.id===id); const arr=factorsOfCat(cl, f.categoryId);
+  const i=arr.findIndex(x=>x.id===id); const j=i+dir; if(j<0||j>=arr.length) return;
+  const a=arr[i], b=arr[j]; const o=a.order; a.order=b.order; b.order=o;
+}
+function addFactor(cl, catId){
+  const name=prompt(t("promptFactor")); if(!name) return;
+  // ask type via confirm: OK=choice, Cancel=toggle
+  const isChoice = confirm(lang==="fa"
+    ? "نوع: تأیید = چندگزینه‌ای، لغو = سوییچی"
+    : "Type: OK = Choice, Cancel = Toggle");
+  const order = factorsOfCat(cl, catId).length;
+  if(isChoice){
+    cl.factors.push({ id:uid("fac"), categoryId:catId, order, type:"choice", name:name.trim(), hint:"",
+      options:[ {id:uid("opt"),label:(lang==="fa"?"نه":"No"),value:0}, {id:uid("opt"),label:(lang==="fa"?"بله":"Yes"),value:1} ] });
+  } else {
+    cl.factors.push({ id:uid("fac"), categoryId:catId, order, type:"toggle", name:name.trim(), hint:"", value:0.5 });
+  }
+}
+/* live text/number edits inside builder (delegated 'input'/'change') */
+$("#blCats").addEventListener("input", async e=>{
+  const cl=currentBuilder(); const el=e.target; let m;
+  if((m=el.getAttribute("data-catname"))!=null && el.dataset.catname){ cl.categories.find(c=>c.id===el.dataset.catname).name=el.value; }
+  else if(el.dataset.facname){ cl.factors.find(f=>f.id===el.dataset.facname).name=el.value; }
+  else if(el.dataset.fachint){ cl.factors.find(f=>f.id===el.dataset.fachint).hint=el.value; }
+  else if(el.dataset.facval){ cl.factors.find(f=>f.id===el.dataset.facval).value=Number(el.value)||0; }
+  else if(el.dataset.optlabel){ const [fid,oid]=el.dataset.optlabel.split("|"); cl.factors.find(f=>f.id===fid).options.find(o=>o.id===oid).label=el.value; }
+  else if(el.dataset.optval){ const [fid,oid]=el.dataset.optval.split("|"); cl.factors.find(f=>f.id===fid).options.find(o=>o.id===oid).value=Number(el.value)||0; }
+  else return;
+  touch(cl); await saveChecklists();
+});
+
+/* builder: gate */
+$("#blAddGate").addEventListener("click", async ()=>{
+  const cl=currentBuilder(); const text=prompt(t("promptConfirmation")); if(!text) return;
+  cl.gate=cl.gate||[]; cl.gate.push({ id:uid("g"), text:text.trim() }); touch(cl); await saveChecklists(); renderBuilderGate();
+});
+$("#blGate").addEventListener("click", async e=>{
+  const b=e.target.closest("[data-gatedel]"); if(!b) return;
+  const cl=currentBuilder(); cl.gate=cl.gate.filter(g=>g.id!==b.dataset.gatedel); touch(cl); await saveChecklists(); renderBuilderGate();
+});
+$("#blGate").addEventListener("input", async e=>{
+  const el=e.target.closest("[data-gatetext]"); if(!el) return;
+  const cl=currentBuilder(); cl.gate.find(g=>g.id===el.dataset.gatetext).text=el.value; touch(cl); await saveChecklists();
+});
+
+/* builder: timeframes */
+$("#blTfAdd").addEventListener("click", async ()=>{
+  const v=$("#blTfNew").value.trim().toUpperCase(); if(!v||timeframes.includes(v)) { $("#blTfNew").value=""; return; }
+  timeframes.push(v); await setJSON(K.tfs, timeframes); $("#blTfNew").value=""; renderBuilderTf(); refreshTfChips();
+});
+$("#blTfNew").addEventListener("keydown", e=>{ if(e.key==="Enter") $("#blTfAdd").click(); });
+$("#blTf").addEventListener("click", async e=>{
+  const b=e.target.closest("[data-tfdel]"); if(!b) return;
+  timeframes=timeframes.filter(x=>x!==b.dataset.tfdel);
+  if(evalState.tf===b.dataset.tfdel) evalState.tf=null;
+  await setJSON(K.tfs, timeframes); renderBuilderTf(); refreshTfChips();
+});
+
+/* ============================ CALCULATOR ================================
+   margin = (capital × risk%) ÷ (SL% × leverage)
+   Liquidation happens roughly when price moves 100/leverage %. So once
+   SL% × leverage reaches 100, the stop sits beyond the liquidation price and
+   would never fill. We warn at 80 (a 20% safety buffer) and hard-warn at 100.
+   ======================================================================== */
+const LIQ_LIMIT = 100;   // SL% × leverage at which liquidation precedes the stop
+const LIQ_BUFFER = 0.8;  // keep 20% clearance → safe ceiling is 80
+let calc = { capital:"", risk:"", sl:"", lev:"", entries:"" };
+
+function money(n){
+  const s = Number(n).toLocaleString(lang==="fa"?"fa-IR":"en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  return "$"+s;
+}
+function num(n){ return Number(n).toLocaleString(lang==="fa"?"fa-IR":"en-US", {maximumFractionDigits:2}); }
+
+function calcCompute(){
+  const capital = parseFloat(calc.capital);
+  const risk    = parseFloat(calc.risk);
+  const sl      = parseFloat(calc.sl);
+  const lev     = parseFloat(calc.lev);
+  const entries = Math.max(1, parseInt(calc.entries) || 1);
+  if(!(capital>0 && risk>0 && sl>0 && lev>0)) return null;
+  const riskAmt = capital * risk / 100;          // dollars lost if the stop hits
+  const margin  = riskAmt / (sl/100 * lev);      // money actually committed
+  const size    = margin * lev;                  // exchange-side position size
+  const per     = margin / entries;              // money per entry step
+  return { capital, risk, sl, lev, entries, riskAmt, margin, size, per, slLev: sl*lev };
+}
+function renderCalc(){
+  const r = calcCompute();
+  $("#cEmpty").classList.toggle("hidden", !!r);
+  $("#cOut").classList.toggle("hidden", !r);
+  $$("#cRiskChips button").forEach(b=> b.setAttribute("aria-pressed", parseFloat(b.dataset.risk)===parseFloat(calc.risk)));
+  if(!r) return;
+  $("#rMargin").textContent = money(r.margin);
+  $("#rSize").textContent   = money(r.size);
+  $("#rRisk").textContent   = money(r.riskAmt);
+  $("#rPer").textContent    = money(r.per) + (r.entries>1 ? ` × ${num(r.entries)}` : "");
+
+  // warnings, most severe first
+  const w = [];
+  const safeLev = Math.max(1, Math.floor(LIQ_LIMIT * LIQ_BUFFER / r.sl));
+  if(r.slLev >= LIQ_LIMIT){
+    w.push(`<div class="warn red"><b>⛔ ${esc(t("liqT"))}</b>${esc(t("liqB").replace("{x}", num(Math.round(r.slLev))))}`+
+           `<br><button class="fix" data-fixlev="${safeLev}">${esc(t("safeLev").replace("{n}", num(safeLev)))}</button></div>`);
+  } else if(r.slLev >= LIQ_LIMIT*LIQ_BUFFER){
+    w.push(`<div class="warn amber"><b>⚠️ ${esc(t("liqNearT"))}</b>${esc(t("liqNearB").replace("{x}", num(Math.round(r.slLev))))}`+
+           `<br><button class="fix" data-fixlev="${safeLev}">${esc(t("safeLev").replace("{n}", num(safeLev)))}</button></div>`);
+  }
+  if(r.margin > r.capital){
+    w.push(`<div class="warn red"><b>⛔ ${esc(t("overCapT"))}</b>`+
+           esc(t("overCapB").replace("{m}", money(r.margin)).replace("{c}", money(r.capital)))+`</div>`);
+  }
+  if(r.risk > 5){
+    w.push(`<div class="warn amber"><b>⚠️ ${esc(t("overRiskT"))}</b>`+esc(t("overRiskB").replace("{r}", num(r.risk)))+`</div>`);
+  }
+  $("#cWarn").innerHTML = w.join("");
+}
+async function saveCalc(){ await setJSON("cb:calc", calc); }
+function readCalcInputs(){
+  calc.capital = $("#cCapital").value; calc.risk = $("#cRisk").value;
+  calc.sl = $("#cSl").value; calc.lev = $("#cLev").value; calc.entries = $("#cEntries").value;
+}
+function writeCalcInputs(){
+  $("#cCapital").value=calc.capital||""; $("#cRisk").value=calc.risk||"";
+  $("#cSl").value=calc.sl||""; $("#cLev").value=calc.lev||""; $("#cEntries").value=calc.entries||"";
+}
+["cCapital","cRisk","cSl","cLev","cEntries"].forEach(id=>{
+  $("#"+id).addEventListener("input", async ()=>{ readCalcInputs(); renderCalc(); await saveCalc(); });
+});
+$("#cRiskChips").addEventListener("click", async e=>{
+  const b=e.target.closest("button[data-risk]"); if(!b) return;
+  calc.risk = (parseFloat(calc.risk)===parseFloat(b.dataset.risk)) ? "" : b.dataset.risk;
+  writeCalcInputs(); renderCalc(); await saveCalc();
+});
+$("#cWarn").addEventListener("click", async e=>{
+  const b=e.target.closest("[data-fixlev]"); if(!b) return;
+  calc.lev = b.dataset.fixlev; writeCalcInputs(); renderCalc(); await saveCalc();
+});
+$("#cCalc").addEventListener("click", ()=>{ readCalcInputs(); renderCalc(); });
+$("#cClear").addEventListener("click", async ()=>{
+  calc = { capital:"", risk:"", sl:"", lev:"", entries:"" };
+  writeCalcInputs(); renderCalc(); await saveCalc();
+});
+
+/* guide bodies are built in JS so they can be rebuilt on language switch */
+function renderCalcGuide(){
+  const fa = lang==="fa";
+  const row = (k,v)=>`<tr><td>${k}</td><td>${v}</td></tr>`;
+  $("#g1b").innerHTML = `<table class="gtable">`+
+    (fa
+      ? row("کل سرمایه فیوچرز","همهٔ موجودی کیف فیوچرزت، نه فقط پولی که برای این پوزیشن کنار گذاشته‌ای. مثلاً $500.")+
+        row("ریسک پوزیشن","اگر استاپ بخورد، حاضری چند درصد از کل سرمایه‌ات کم شود؟ حداکثر <b>۵٪</b> و پیشنهاد ۱ تا ۳٪.")+
+        row("حد ضرر (SL%)","استاپ چند درصد با نقطهٔ ورود فاصله دارد.")+
+        row("اهرم","سود و ضرر را با هم چند برابر می‌کند؛ اهرمِ بالاتر یعنی ریسک بالاتر، نه شجاعت بیشتر.")+
+        row("تعداد نقاط ورود","چند پله ورود داری؛ مارجین به‌طور مساوی بین پله‌ها تقسیم می‌شود.")
+      : row("Total futures capital","Your whole futures wallet balance, not just what you set aside for this trade. E.g. $500.")+
+        row("Position risk","If the stop hits, what % of your capital are you willing to lose? Cap it at <b>5%</b>; 1–3% is saner.")+
+        row("Stop loss (SL%)","How far your stop sits from your entry, as a percentage.")+
+        row("Leverage","Multiplies gains and losses alike. Higher leverage is more risk, not more courage.")+
+        row("Entry points","How many entry steps you're using; margin is split evenly between them.")
+    )+`</table>`;
+  $("#g2b").innerHTML = `<table class="gtable">`+
+    (fa
+      ? row("مارجین کل","مبلغی که واقعاً وارد پوزیشن می‌کنی (بدون احتساب اهرم).")+
+        row("سایز کل پوزیشن","مارجین ضرب‌در اهرم؛ حجمی که صرافی برایت باز می‌کند.")+
+        row("ریسک این پوزیشن","مبلغ دلاری که اگر استاپ بخورد از دست می‌دهی؛ دقیقاً «سرمایه × ریسک».")+
+        row("سرمایه هر پله","مارجین کل تقسیم بر تعداد ورودها.")
+      : row("Total margin","What you actually commit to the position, before leverage.")+
+        row("Total position size","Margin × leverage — the size the exchange opens for you.")+
+        row("Risk on this position","The dollars you lose if the stop hits: exactly capital × risk%.")+
+        row("Per entry","Total margin divided by your number of entries.")
+    )+`</table>`;
+  $("#g3b").innerHTML = fa
+    ? `<p>مثال: سرمایه $500 · ریسک ۲٪ · حد ضرر ۶٪ · اهرم ۵× · ۳ پله:<br>
+       ریسک دلاری <b>$10</b> می‌شود، مارجین کل <b>$33.33</b>، سایز پوزیشن <b>$166.67</b> و هر پله <b>$11.11</b>.<br>
+       یعنی اگر استاپ بخورد فقط $10 از $500 کم شده؛ دقیقاً همان ۲٪ که خودت انتخاب کردی. <b>مدیریت سرمایه یعنی همین.</b></p>`
+    : `<p>Example: $500 capital · 2% risk · 6% stop · 5× leverage · 3 entries:<br>
+       dollar risk is <b>$10</b>, total margin <b>$33.33</b>, position size <b>$166.67</b>, and each entry <b>$11.11</b>.<br>
+       If the stop hits you're down $10 of $500 — exactly the 2% you chose. <b>That's what position sizing is.</b></p>`;
+  $("#g4b").innerHTML = fa
+    ? `<p>وقتی <b>حد ضرر ضرب‌در اهرم</b> به حدود <b>۱۰۰</b> برسد، قیمت <b>قبل از رسیدن به استاپِ تو پوزیشن را لیکویید می‌کند</b>؛
+       یعنی استاپت هیچ‌وقت اجرا نمی‌شود و کل مارجین از بین می‌رود.<br>
+       این محاسبه‌گر در آن حالت هشدار قرمز نشان می‌دهد و <b>حداکثر اهرم امن</b> را هم پیشنهاد می‌کند (با ۲۰٪ حاشیهٔ اطمینان).
+       مارجین را همیشه <b>ایزوله (Isolated)</b> بگذار تا فقط مارجین همین پوزیشن درگیر باشد، نه کل حساب.</p>`
+    : `<p>When <b>stop loss × leverage</b> approaches <b>100</b>, price liquidates the position <b>before your stop is reached</b> —
+       your stop never fills and the whole margin is gone.<br>
+       This calculator flags that in red and suggests a <b>max safe leverage</b> with a 20% safety buffer.
+       Always use <b>Isolated</b> margin so only this position's margin is at stake, not your whole account.</p>`;
+}
+
+/* ============================ tabs + lang wiring ======================== */
+$("#tabs").addEventListener("click", e=>{ const b=e.target.closest(".tab"); if(b) showTab(b.dataset.tab); });
+$("#langBtn").addEventListener("click", switchLang);
+
+function renderAll(){
+  refreshChecklistSelectors(); refreshSymList(); renderEvaluate();
+  renderCalcGuide(); renderCalc();   // numbers + guide are locale-dependent
+}
+
+/* ============================ BOOT ====================================== */
+(async function boot(){
+  // Use the saved language if present, otherwise guess from the browser locale.
+  const savedLang = await store.get(K.lang);
+  lang = savedLang || ((navigator.language||"en").slice(0,2)==="fa" ? "fa" : "en");
+
+  checklists = await getJSON(K.checklists, null);
+  if(!checklists || !checklists.length){ checklists=[seedChecklist()]; await saveChecklists(); }
+
+  defaultId = await store.get(K.def); if(!defaultId || !getChecklist(defaultId)) defaultId=checklists[0].id;
+  activeId  = await store.get(K.active); if(!activeId || !getChecklist(activeId)) activeId=defaultId;
+  builderId = activeId;
+
+  timeframes = await getJSON(K.tfs, null);
+  if(!timeframes || !timeframes.length){ timeframes=["M5","M15","M30","H1","H4","D1"]; await setJSON(K.tfs, timeframes); }
+
+  journals = await getJSON(K.journals, null);
+  if(!journals || !journals.length){ journals=[{ id:uid("jrn"), name:t("defaultJournal") }]; await setJSON(K.journals, journals); }
+  activeJournal = await store.get(K.activeJournal); if(!activeJournal || !journals.find(j=>j.id===activeJournal)) activeJournal=journals[0].id;
+
+  symbols = await getJSON(K.symbols, []) || [];
+
+  calc = await getJSON("cb:calc", null) || { capital:"", risk:"", sl:"", lev:"", entries:"" };
+  writeCalcInputs();
+
+  applyI18n();
+  renderAll();
+  await loadRecords();
+  showTab("evaluate");
+})();
+</script>
+</body>
+</html>

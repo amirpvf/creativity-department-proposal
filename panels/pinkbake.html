@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><script data-demo-inject>
+(function(){var F='pinkbake.html';
+try{Object.defineProperty(window,'claude',{value:undefined,writable:false,configurable:false});}catch(e){}
+try{var ls=window.localStorage,P=Storage.prototype,orig=P.setItem;
+ P.setItem=function(k,v){orig.call(this,k,v);try{if(this===ls&&String(k).indexOf('demo-')!==0){var rk='demo-keys:'+F,a=JSON.parse(ls.getItem(rk)||'[]');if(a.indexOf(k)<0){a.push(k);orig.call(ls,rk,JSON.stringify(a));}}}catch(e){}};
+ if(!window.storage||typeof window.storage.get!=='function'){window.storage={
+  get:async function(k){var v=ls.getItem('ws:'+k);return v==null?null:{key:k,value:v};},
+  set:async function(k,v){ls.setItem('ws:'+k,v);return {key:k,value:v};},
+  delete:async function(k){ls.removeItem('ws:'+k);return {key:k,deleted:true};},
+  list:async function(p){var out=[];for(var i=0;i<ls.length;i++){var x=ls.key(i);if(x.indexOf('ws:'+(p||''))===0)out.push(x.slice(3));}return {keys:out};}};}
+}catch(e){}
+})();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pinkbake — پنل سفارش</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --icing:#FFF6FA;
+  --sugar:#FFFFFF;
+  --blush:#FFE1EC;
+  --blush-deep:#FFC7DC;
+  --raspberry:#D81B60;
+  --raspberry-soft:#F06292;
+  --plum:#3F1B2B;
+  --cocoa:#8C6B79;
+  --line:#F4D7E2;
+  --pistachio:#6FA84B;
+  --caramel:#E09B3D;
+  --lav:#C3B0DA;
+  --box:#E3BE95;
+  --shadow:0 10px 30px rgba(216,27,96,.10);
+  --shadow-sm:0 4px 14px rgba(216,27,96,.08);
+  --r:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Vazirmatn',Tahoma,system-ui,sans-serif;
+  background:
+    radial-gradient(900px 400px at 100% -5%, #FFEAF2 0%, rgba(255,234,242,0) 60%),
+    radial-gradient(700px 380px at 0% 0%, #FFF1D9 0%, rgba(255,241,217,0) 55%),
+    var(--icing);
+  color:var(--plum);
+  font-size:15px;
+  line-height:1.75;
+  min-height:100vh;
+  padding:0 0 104px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 14px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2.5px solid var(--raspberry);outline-offset:2px;border-radius:8px}
+
+/* header */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 4px 16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo svg{width:44px;height:44px;filter:drop-shadow(0 6px 10px rgba(216,27,96,.22))}
+.brand{font-weight:800;font-size:26px;letter-spacing:-.5px;line-height:1}
+.brand{color:var(--raspberry)}
+.brand span{color:#fff;-webkit-text-stroke:1.1px var(--raspberry);text-shadow:0 2px 6px rgba(216,27,96,.28)}
+.brand small{display:block;font-size:11.5px;font-weight:500;color:var(--cocoa);letter-spacing:2px;margin-top:3px}
+.today{margin-inline-start:auto;text-align:left;font-size:12.5px;color:var(--cocoa);line-height:1.6}
+.today b{display:block;color:var(--plum);font-size:14.5px;font-weight:700}
+.saved{display:inline-flex;align-items:center;gap:6px;background:#EAF6E2;color:#41682A;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;opacity:0;transition:opacity .3s}
+.saved.on{opacity:1}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--sugar);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow-sm);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--cocoa);transition:.18s}
+.tab:hover{background:var(--icing);color:var(--raspberry)}
+.tab.on{background:var(--raspberry);color:#fff;box-shadow:0 6px 14px rgba(216,27,96,.28)}
+
+/* cards */
+.card{background:var(--sugar);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);margin-top:16px}
+.card h2{margin:0 0 4px;font-size:17px;font-weight:800}
+.card p.hint{margin:0 0 14px;color:var(--cocoa);font-size:12.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--cocoa);margin-bottom:5px}
+input[type=text],input[type=tel],input[type=number],input[type=time],select,textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#FFFBFD;transition:.15s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--raspberry-soft);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(240,98,146,.15)}
+textarea{resize:vertical;min-height:64px}
+.fldhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--cocoa);margin-bottom:5px}
+.steps{display:flex;gap:8px;margin-top:16px}
+.step{flex:1;display:flex;align-items:center;gap:9px;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--sugar);font-weight:700;font-size:13.5px;color:var(--cocoa);transition:.16s;text-align:start}
+.step:hover{border-color:var(--blush-deep)}
+.step.on{border-color:var(--raspberry);background:#fff;color:var(--plum);box-shadow:0 6px 16px rgba(216,27,96,.13)}
+.step .n{width:26px;height:26px;border-radius:50%;background:var(--blush);color:var(--raspberry);display:grid;place-items:center;font-size:12.5px;flex:none}
+.step.on .n{background:var(--raspberry);color:#fff}
+.step.done .n{background:#EAF6E2;color:#41682A}
+.step small{display:block;font-weight:500;font-size:11px;opacity:.75;margin-top:1px}
+@media(max-width:720px){.steps{flex-direction:column;gap:6px}.step small{display:none}}
+.mini-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:#FFF1F6;border:1.5px dashed var(--blush-deep);margin-top:14px;font-size:13px}
+.mini-summary b{color:var(--raspberry)}
+.optbox{margin-top:14px;border:1.5px dashed var(--line);border-radius:14px;padding:12px}
+.optbox.on{border-style:solid;border-color:var(--blush-deep);background:#FFFBFD}
+.ihelp{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
+ background:var(--blush);color:var(--raspberry);font-size:11px;font-weight:800;margin-inline-start:6px;
+ cursor:help;position:relative;flex:none;font-family:inherit;border:none;vertical-align:middle}
+.ihelp:hover,.ihelp:focus-visible{background:var(--raspberry);color:#fff}
+.ihelp .tip{display:none;position:absolute;z-index:70;bottom:calc(100% + 8px);inset-inline-start:50%;
+ transform:translateX(50%);width:250px;max-width:70vw;background:var(--plum);color:#fff;font-weight:500;
+ font-size:12.5px;line-height:1.75;padding:9px 12px;border-radius:12px;box-shadow:0 10px 28px rgba(63,27,43,.3);
+ text-align:start;cursor:default;pointer-events:none}
+.ihelp .tip:after{content:'';position:absolute;top:100%;inset-inline-start:50%;transform:translateX(50%);
+ border:6px solid transparent;border-top-color:var(--plum)}
+.ihelp:hover .tip,.ihelp:focus-visible .tip{display:block}
+h2 .ihelp{vertical-align:2px}
+.faq{border:1.5px solid var(--line);border-radius:14px;margin-top:10px;overflow:hidden;background:#FFFCFD}
+.faq>summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.faq>summary::-webkit-details-marker{display:none}
+.faq>summary:before{content:'▾';color:var(--raspberry);font-size:12px;transition:.15s}
+.faq[open]>summary:before{transform:rotate(180deg)}
+.faq>summary:hover{background:var(--icing)}
+.faq .inner{padding:0 16px 14px;font-size:13.5px;line-height:1.95;color:var(--plum)}
+.faq .inner p{margin:0 0 8px}
+.faq .inner ol,.faq .inner ul{margin:0 0 8px;padding-inline-start:20px}
+.faq .inner li{margin-bottom:5px}
+.faq .inner b{color:var(--raspberry)}
+.kbd{display:inline-block;background:var(--blush);color:var(--raspberry);border-radius:7px;padding:1px 7px;font-size:12px;font-weight:700}
+.navrow{display:flex;gap:10px;margin-top:16px}
+.locked{border:2px solid var(--blush-deep);background:linear-gradient(180deg,#FFF9FC,#FFF4F8)}
+.locked h2{color:var(--raspberry)}
+.lineno{width:24px;height:24px;border-radius:50%;background:var(--raspberry);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.tstar{margin-inline-start:7px;font-size:12px;opacity:.7;cursor:pointer}
+.tstar.on{color:var(--caramel);opacity:1}
+.tab.on .tstar{color:#fff}
+.tab.on .tstar.on{color:#FFE08A}
+.dd{position:relative}
+.dd-btn{width:100%;text-align:start;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#FFFBFD;font-weight:600;display:flex;align-items:center;gap:8px}
+.dd-btn i{margin-inline-start:auto;font-style:normal;color:var(--cocoa);font-size:11px}
+.dd.open .dd-btn{border-color:var(--raspberry-soft);box-shadow:0 0 0 3px rgba(240,98,146,.15)}
+.dd-list{display:none;position:absolute;z-index:60;top:calc(100% + 4px);inset-inline:0;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);max-height:280px;overflow:auto;padding:6px}
+.dd.open .dd-list{display:block}
+.dd-row{display:flex;align-items:center;border-radius:10px}
+.dd-row:hover{background:var(--icing)}
+.dd-row.on{background:var(--blush)}
+.dd-opt{flex:1;text-align:start;padding:8px;font-size:14px}
+.dd-star{width:30px;padding:7px 0;font-size:15px;color:#D6BDC8;line-height:1}
+.dd-star.on{color:var(--caramel)}
+.dd-star.ph{display:inline-block}
+.starbtn{background:none;border:none;color:var(--raspberry);font-size:16px;line-height:1;padding:0 4px;cursor:pointer}
+.starbtn.off{color:#D6BDC8}
+.starbtn:hover{transform:scale(1.15)}
+.mini-sw{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11.5px;font-weight:700;color:var(--raspberry);white-space:nowrap}
+.mini-sw input{width:15px;height:15px;accent-color:var(--raspberry);cursor:pointer}
+.mini-sw.off{color:var(--cocoa)}
+.fld.offbox input{opacity:.5}
+.sw{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1.5px solid var(--line);border-radius:12px;background:#FFFBFD;cursor:pointer;font-weight:600;font-size:13.5px}
+.sw input{width:18px;height:18px;accent-color:var(--raspberry);cursor:pointer}
+.sw.off{color:var(--cocoa);background:#FFF7FA}
+.dayhead{display:flex;align-items:center;gap:10px;margin:16px 0 8px;font-weight:800;font-size:13.5px;color:var(--raspberry)}
+.dayhead:after{content:'';flex:1;height:1px;background:var(--line)}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
+.stat{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:#FFFCFD}
+.stat b{display:block;font-size:16px;color:var(--raspberry)}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.moneyin{direction:ltr;text-align:right;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.btn{background:var(--raspberry);color:#fff;padding:11px 20px;border-radius:12px;font-weight:700;box-shadow:0 6px 16px rgba(216,27,96,.25);transition:.15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 9px 20px rgba(216,27,96,.3)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:var(--blush);color:var(--raspberry);box-shadow:none}
+.btn.ghost:hover{background:var(--blush-deep)}
+.btn.mini{padding:6px 12px;font-size:12.5px;border-radius:10px;box-shadow:none}
+.btn.danger{background:#fff;color:#B3245C;border:1.5px solid var(--line);box-shadow:none}
+.btn.danger:hover{background:#FFF0F5}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{margin-inline-start:auto}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
+.chip.new{background:var(--blush);color:var(--raspberry)}
+.chip.baking{background:#FDF0DC;color:#9A6516}
+.chip.done{background:#EAF6E2;color:#41682A}
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+/* cake-layer cost bar (signature) */
+.slice{margin-top:12px}
+.slice-bar{display:flex;height:26px;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);background:#fff}
+.slice-bar i{display:block;height:100%}
+.slice-key{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:12px;color:var(--cocoa)}
+.slice-key span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* lists */
+.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.item{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#FFFCFD}
+.item.hi{border-color:var(--blush-deep);background:#FFF6FA}
+.item b.name{font-size:15px}
+.muted{color:var(--cocoa);font-size:12.5px}
+.price{font-weight:800;color:var(--raspberry);font-size:15px}
+.empty{text-align:center;color:var(--cocoa);padding:26px 10px;font-size:13.5px}
+.empty .cake{font-size:30px;display:block;margin-bottom:6px}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:12px}
+.cal-title{font-weight:800;font-size:16px;min-width:170px;text-align:center}
+.nav{width:34px;height:34px;border-radius:50%;background:var(--blush);color:var(--raspberry);font-weight:800;display:grid;place-items:center}
+.nav:hover{background:var(--blush-deep)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .wd{text-align:center;font-size:11.5px;font-weight:700;color:var(--cocoa);padding-bottom:4px}
+.day{position:relative;aspect-ratio:1;border-radius:12px;border:1.5px solid transparent;background:#FFFAFC;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:600;transition:.15s;min-height:42px}
+.day:hover{border-color:var(--blush-deep)}
+.day.off{color:#D9C4CC;background:transparent}
+.day.fri{color:var(--raspberry-soft)}
+.day.today{border-color:var(--raspberry);color:var(--raspberry);font-weight:800}
+.day.sel{background:var(--raspberry);color:#fff;border-color:var(--raspberry)}
+.day .g{font-size:9px;font-weight:500;opacity:.6;line-height:1}
+.day .pips{position:absolute;bottom:5px;display:flex;gap:2px}
+.day .pips i{width:5px;height:5px;border-radius:50%;background:var(--raspberry-soft)}
+.day.sel .pips i{background:#fff}
+
+/* picker popover */
+.pick{position:relative}
+.pop{position:absolute;z-index:40;top:calc(100% + 6px);inset-inline-start:0;background:var(--sugar);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px;width:320px;max-width:92vw;display:none}
+.pop.on{display:block}
+.date-btn{width:100%;text-align:start;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#FFFBFD;font-weight:600}
+.date-btn .g2{color:var(--cocoa);font-weight:500;font-size:12px}
+
+/* toast */
+#toast{position:fixed;bottom:96px;inset-inline-start:50%;transform:translateX(50%) translateY(20px);background:var(--plum);color:#fff;padding:11px 20px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:90}
+#toast.on{opacity:1;transform:translateX(50%) translateY(0)}
+.savebar{position:fixed;bottom:0;inset-inline:0;z-index:80;display:flex;justify-content:center;
+ padding:16px 12px 20px;pointer-events:none;
+ background:linear-gradient(to top,rgba(255,246,250,.97) 45%,rgba(255,246,250,0))}
+.saveall{pointer-events:auto;display:inline-flex;align-items:center;gap:9px;padding:13px 30px;border-radius:999px;
+ font-weight:800;font-size:15px;background:#fff;color:var(--cocoa);border:1.5px solid var(--line);
+ box-shadow:var(--shadow);transition:.18s}
+.saveall.dirty{background:var(--raspberry);color:#fff;border-color:var(--raspberry);box-shadow:0 10px 26px rgba(216,27,96,.35)}
+.saveall.dirty:hover{transform:translateY(-2px)}
+.saveall .ic{font-size:17px;line-height:1}
+.bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg .fl{position:absolute;bottom:-16vh;opacity:.10;color:var(--raspberry);animation:drift linear infinite}
+.bg .fl svg{width:100%;height:100%;display:block}
+@keyframes drift{
+ 0%{transform:translateY(0) rotate(-8deg)}
+ 50%{transform:translateY(-60vh) translateX(3vw) rotate(6deg)}
+ 100%{transform:translateY(-125vh) translateX(-2vw) rotate(-10deg)}
+}
+.bg .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.30;animation:breathe 18s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.bg .sp{position:absolute;width:7px;height:3px;border-radius:2px;background:var(--raspberry-soft);opacity:.22;animation:fall linear infinite}
+@keyframes fall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(110vh) rotate(320deg)}}
+.wrap{position:relative;z-index:1}
+.savebar{z-index:80}
+@media (prefers-reduced-motion:reduce){.bg{display:none}}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;color:var(--cocoa);text-align:start;padding:6px 4px;font-weight:600}
+td{padding:5px 4px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="blob" style="width:44vw;height:44vw;top:-12vw;right:-10vw;background:#FFD3E4"></div><div class="blob" style="width:34vw;height:34vw;bottom:-12vw;left:-8vw;background:#FFE7C9;animation-delay:-7s"></div><span class="fl" style="left:6%;width:54px;height:54px;animation-duration:52s;animation-delay:0s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 13h18l-2.4 14a2 2 0 0 1-2 1.7H11.4a2 2 0 0 1-2-1.7L7 13z" fill="currentColor"/><path d="M16 4c1.4 2 3 3.2 3 5a3 3 0 1 1-6 0c0-1.8 1.6-3 3-5z" fill="currentColor"/><rect x="5" y="10" width="22" height="4" rx="2" fill="currentColor"/></svg></span><span class="fl" style="left:24%;width:72px;height:72px;animation-duration:64s;animation-delay:-14s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect x="4" y="14" width="24" height="6" rx="3" fill="currentColor"/><rect x="6" y="20" width="20" height="7" rx="3" fill="currentColor"/><rect x="15" y="6" width="2" height="6" rx="1" fill="currentColor"/><circle cx="16" cy="5" r="2" fill="currentColor"/></svg></span><span class="fl" style="left:44%;width:46px;height:46px;animation-duration:46s;animation-delay:-30s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4v9"/><path d="M16 13c-5 2-7 6-6 11"/><path d="M16 13c5 2 7 6 6 11"/><path d="M16 13v11"/><path d="M10 24h12"/></svg></span><span class="fl" style="left:63%;width:38px;height:38px;animation-duration:58s;animation-delay:-8s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 13h18l-2.4 14a2 2 0 0 1-2 1.7H11.4a2 2 0 0 1-2-1.7L7 13z" fill="currentColor"/><path d="M16 4c1.4 2 3 3.2 3 5a3 3 0 1 1-6 0c0-1.8 1.6-3 3-5z" fill="currentColor"/><rect x="5" y="10" width="22" height="4" rx="2" fill="currentColor"/></svg></span><span class="fl" style="left:80%;width:30px;height:30px;animation-duration:44s;animation-delay:-22s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 27S4 19.5 4 12.6C4 8.4 7.2 5.6 10.8 5.6c2.2 0 4.1 1.1 5.2 2.8 1.1-1.7 3-2.8 5.2-2.8C24.8 5.6 28 8.4 28 12.6 28 19.5 16 27 16 27z" fill="currentColor"/></svg></span><span class="fl" style="left:90%;width:58px;height:58px;animation-duration:70s;animation-delay:-40s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><rect x="4" y="14" width="24" height="6" rx="3" fill="currentColor"/><rect x="6" y="20" width="20" height="7" rx="3" fill="currentColor"/><rect x="15" y="6" width="2" height="6" rx="1" fill="currentColor"/><circle cx="16" cy="5" r="2" fill="currentColor"/></svg></span><span class="fl" style="left:15%;width:34px;height:34px;animation-duration:50s;animation-delay:-46s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4v9"/><path d="M16 13c-5 2-7 6-6 11"/><path d="M16 13c5 2 7 6 6 11"/><path d="M16 13v11"/><path d="M10 24h12"/></svg></span><span class="fl" style="left:34%;width:26px;height:26px;animation-duration:40s;animation-delay:-12s"aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 27S4 19.5 4 12.6C4 8.4 7.2 5.6 10.8 5.6c2.2 0 4.1 1.1 5.2 2.8 1.1-1.7 3-2.8 5.2-2.8C24.8 5.6 28 8.4 28 12.6 28 19.5 16 27 16 27z" fill="currentColor"/></svg></span><i class="sp" style="left:43%;animation-duration:20s;animation-delay:-12s"></i><i class="sp" style="left:85%;animation-duration:17s;animation-delay:-2s"></i><i class="sp" style="left:70%;animation-duration:19s;animation-delay:-11s"></i><i class="sp" style="left:76%;animation-duration:17s;animation-delay:-29s"></i><i class="sp" style="left:66%;animation-duration:22s;animation-delay:-1s"></i><i class="sp" style="left:13%;animation-duration:29s;animation-delay:-13s"></i><i class="sp" style="left:10%;animation-duration:23s;animation-delay:-2s"></i><i class="sp" style="left:72%;animation-duration:29s;animation-delay:-1s"></i><i class="sp" style="left:74%;animation-duration:19s;animation-delay:-30s"></i><i class="sp" style="left:30%;animation-duration:34s;animation-delay:-30s"></i><i class="sp" style="left:9%;animation-duration:34s;animation-delay:-18s"></i><i class="sp" style="left:52%;animation-duration:17s;animation-delay:-7s"></i><i class="sp" style="left:7%;animation-duration:33s;animation-delay:-27s"></i><i class="sp" style="left:19%;animation-duration:25s;animation-delay:-13s"></i></div>
+<div class="wrap">
+
+  <div class="top">
+    <div class="logo">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 6c1.8 2.8 4 4.6 4 7a4 4 0 1 1-8 0c0-2.4 2.2-4.2 4-7z" fill="#D81B60"/>
+        <rect x="14" y="24" width="36" height="12" rx="5" fill="#FFC7DC"/>
+        <rect x="10" y="35" width="44" height="12" rx="5" fill="#F06292"/>
+        <rect x="7" y="46" width="50" height="12" rx="6" fill="#D81B60"/>
+        <circle cx="20" cy="30" r="2" fill="#fff"/><circle cx="32" cy="30" r="2" fill="#fff"/><circle cx="44" cy="30" r="2" fill="#fff"/>
+      </svg>
+      <div class="brand">pink<span>bake</span><small>پنل سفارش و قیمت‌گذاری</small></div>
+    </div>
+    <div class="today">
+      <b id="todayFa">—</b>
+      <span id="todayGr" class="ltr" dir="ltr">—</span>
+      <div><span class="saved" id="savedChip">ذخیره شد ✓</span></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div id="view"></div>
+</div>
+<div class="savebar"><button class="saveall" id="resetBar" title="پاک کردن فرم سفارش و شروع دوباره" style="display:none"><span class="ic">↺</span><span>شروع دوباره</span></button><button class="saveall" id="undoBtn" title="بازگشت به قبل"><span class="ic">↶</span><span>بازگشت</span></button><button class="saveall" id="saveAll" title="ذخیره خودکار است؛ برای ذخیره فوری بزنید"><span class="ic">🧁</span><span id="saveAllTxt">ذخیره شده ✓</span></button></div>
+<div id="toast"></div>
+
+<script>
+/* ---------- تبدیل تاریخ شمسی/میلادی ---------- */
+function div(a,b){return Math.trunc(a/b)}
+function mod(a,b){return a-b*Math.floor(a/b)}
+var BR=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+function jalCal(jy,wl){var bl=BR.length,gy=jy+621,leapJ=-14,jp=BR[0],jm,jump,leap,leapG,march,n,i;
+ for(i=1;i<bl;i++){jm=BR[i];jump=jm-jp;if(jy<jm)break;leapJ+=div(jump,33)*8+div(mod(jump,33),4);jp=jm}
+ n=jy-jp;leapJ+=div(n,33)*8+div(mod(n,33)+3,4);
+ if(mod(jump,33)===4&&jump-n===4)leapJ++;
+ leapG=div(gy,4)-div((div(gy,100)+1)*3,4)-150;march=20+leapJ-leapG;
+ if(!wl){if(jump-n<6)n=n-jump+div(jump+4,33)*33;leap=mod(mod(n+1,33)-1,4);if(leap===-1)leap=4}
+ return{leap:leap,gy:gy,march:march}}
+function g2d(gy,gm,gd){var d=div((gy+div(gm-8,6)+100100)*1461,4)+div(153*mod(gm+9,12)+2,5)+gd-34840408;
+ return d-div(div(gy+100100+div(gm-8,6),100)*3,4)+752}
+function d2g(jdn){var j,i,gd,gm,gy;j=4*jdn+139361631;j=j+div(div(4*jdn+183187720,146097)*3,4)*4-3908;
+ i=div(mod(j,1461),4)*5+308;gd=div(mod(i,153),5)+1;gm=mod(div(i,153),12)+1;gy=div(j,1461)-100100+div(8-gm,6);
+ return{gy:gy,gm:gm,gd:gd}}
+function j2d(jy,jm,jd){var r=jalCal(jy,true);return g2d(r.gy,3,r.march)+(jm-1)*31-div(jm,7)*(jm-7)+jd-1}
+function d2j(jdn){var gy=d2g(jdn).gy,jy=gy-621,r=jalCal(jy,false),f=g2d(gy,3,r.march),k=jdn-f,jm,jd;
+ if(k>=0){if(k<=185){jm=1+div(k,31);jd=mod(k,31)+1;return{jy:jy,jm:jm,jd:jd}}k-=186}
+ else{jy--;k+=179;if(r.leap===1)k++}
+ jm=7+div(k,30);jd=mod(k,30)+1;return{jy:jy,jm:jm,jd:jd}}
+function toJ(gy,gm,gd){return d2j(g2d(gy,gm,gd))}
+function toG(jy,jm,jd){return d2g(j2d(jy,jm,jd))}
+var JM=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+var GM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var WD=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+function jLen(jy,jm){if(jm<=6)return 31;if(jm<=11)return 30;return jalCal(jy,false).leap===1?30:29}
+function jKey(d){return d.jy+'-'+String(d.jm).padStart(2,'0')+'-'+String(d.jd).padStart(2,'0')}
+function keyToJ(k){var p=k.split('-');return{jy:+p[0],jm:+p[1],jd:+p[2]}}
+function jToDate(j){var g=toG(j.jy,j.jm,j.jd);return new Date(g.gy,g.gm-1,g.gd)}
+function jWeekday(j){return (jToDate(j).getDay()+1)%7} /* 0 = شنبه */
+function nowParts(){
+ var n=new Date(), tz=(typeof S!=='undefined'&&S&&S.settings)?S.settings.tz:'';
+ if(tz){try{
+  var o={};
+  new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',
+   hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(n).forEach(function(x){o[x.type]=x.value});
+  var hh=+o.hour;if(hh===24)hh=0;
+  return {y:+o.year,m:+o.month,d:+o.day,hh:hh,mm:+o.minute}
+ }catch(e){}}
+ return {y:n.getFullYear(),m:n.getMonth()+1,d:n.getDate(),hh:n.getHours(),mm:n.getMinutes()}
+}
+function today(){var p=nowParts();return toJ(p.y,p.m,p.d)}
+function faDateLong(j){return fa(j.jd)+' '+JM[j.jm-1]+' '+fa(j.jy)}
+function grDate(j){var g=toG(j.jy,j.jm,j.jd);return g.gd+' '+GM[g.gm-1]+' '+g.gy}
+function grHTML(j){return '<span class="ltr">'+grDate(j)+'</span>'}
+function grLong(j){var g=toG(j.jy,j.jm,j.jd);
+ try{return new Date(g.gy,g.gm-1,g.gd).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+ catch(e){return grDate(j)}}
+
+/* ---------- ابزار ---------- */
+var FD='۰۱۲۳۴۵۶۷۸۹';
+function fmtTime(t){
+ if(!t)return '';
+ var p=String(t).split(':'),h=+p[0]||0,m=(p[1]||'00');
+ if(S.settings.time24!==false)return fa((h<10?'0':'')+h+':'+m);
+ var suf=h<12?'قبل‌ازظهر':'بعدازظهر',h12=h%12;if(h12===0)h12=12;
+ return fa(h12+':'+m)+' '+suf;
+}
+function fa(n){return String(n).replace(/[0-9]/g,function(d){return FD[+d]}).replace(/\.(?=[۰-۹])/g,'٫')}
+function money(n){return fa(Math.round(n||0).toLocaleString('en-US'))}
+function toLatin(x){return String(x==null?'':x).replace(/[۰-۹٠-٩]/g,function(c){
+ var a='۰۱۲۳۴۵۶۷۸۹'.indexOf(c);if(a>-1)return a;return '٠١٢٣٤٥٦٧٨٩'.indexOf(c)})}
+function phoneKey(x){return toLatin(x).replace(/[^0-9]/g,'')}
+function waLink(phone,text){
+ var dg=phoneKey(phone);if(!dg)return '';
+ if(dg.charAt(0)==='0')dg='98'+dg.slice(1);else if(dg.slice(0,2)!=='98'&&dg.length===10)dg='98'+dg;
+ return 'https://wa.me/'+dg+(text?'?text='+encodeURIComponent(text):'')}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function dd(key,cur,items,ph){
+ var sel=null;items.forEach(function(x){if(String(x.v)===String(cur))sel=x});
+ var open=UI.ddOpen===key;
+ return '<div class="dd'+(open?' open':'')+'">'+
+  '<button type="button" class="dd-btn" data-ddtoggle="'+key+'">'+
+   (sel?'<span>'+sel.label+'</span>':'<span class="muted">'+esc(ph||'انتخاب کنید')+'</span>')+'<i>▾</i></button>'+
+  '<div class="dd-list">'+
+   '<div class="dd-row'+(sel?'':' on')+'"><span class="dd-star ph"></span>'+
+    '<button type="button" class="dd-opt muted" data-ddpick="'+key+'|">— '+esc(ph||'انتخاب نشده')+' —</button></div>'+
+   items.map(function(it){
+    return '<div class="dd-row'+(String(it.v)===String(cur)?' on':'')+'">'+
+     (it.nostar?'<span class="dd-star ph"></span>'
+      :'<button type="button" class="dd-star'+(it.def?' on':'')+'" data-ddstar="'+key+'|'+esc(it.v)+'" title="'+(it.def?'برداشتن پیش‌فرض':'پیش‌فرض شود')+'">'+(it.def?'★':'☆')+'</button>')+
+     '<button type="button" class="dd-opt" data-ddpick="'+key+'|'+esc(it.v)+'">'+it.label+'</button></div>'}).join('')+
+  '</div></div>'
+}
+function ddPick(key,val){
+ if(key==='P'){UI.selP=val;UI.selS=null}
+ else if(key==='S')UI.selS=val;
+ else if(key==='I')UI.decIng=val;
+ else if(key==='M')UI.decDraft.mult=+val||1;
+ else if(key==='SORT')UI.sort=val||'dateAsc';
+ else if(key==='CSORT')UI.custSort=val||'total';
+ else if(key.slice(0,2)==='U~'){var g=S.ingredients.find(function(x){return x.id===key.slice(2)});
+  if(g){g.unit=val;touch();render();return}}
+ act();render()
+}
+function ddStar(key,val){
+ var st=S.settings,was;
+ if(key==='P'){was=st.defProduct===val;st.defProduct=was?'':val}
+ else if(key==='S'){if(!UI.selP)return toast('اول محصول را انتخاب کنید');
+  st.defSize=st.defSize||{};was=st.defSize[UI.selP]===val;
+  if(was)delete st.defSize[UI.selP];else st.defSize[UI.selP]=val}
+ else if(key==='I'){was=st.defDecIng===val;st.defDecIng=was?'':val}
+ else if(key==='M'){was=+st.defMult===+val;st.defMult=was?0:+val}
+ else if(key==='SORT'){was=st.defSort===val;st.defSort=was?'':val}
+ else if(key==='CSORT'){was=st.defCustSort===val;st.defCustSort=was?'':val}
+ else if(key.slice(0,2)==='U~'){was=st.defUnit===val;st.defUnit=was?'':val}
+ touch();render();
+ toast(was?'پیش‌فرض برداشته شد':'پیش‌فرض شد ★')
+}
+function ihelp(txt){return '<button type="button" class="ihelp" tabindex="0" aria-label="راهنما">i<span class="tip">'+esc(txt)+'</span></button>'}
+function optNone(txt){return '<option value="">— '+(txt||'انتخاب نشده')+' —</option>'}
+function unitOpts(cur){
+ var us=(S.settings.units||[]).slice();
+ if(cur&&us.indexOf(cur)<0)us.push(cur);
+ return optNone()+us.map(function(u){return '<option value="'+esc(u)+'"'+(u===cur?' selected':'')+'>'+
+  (u===S.settings.defUnit?'★ ':'')+esc(u)+'</option>'}).join('')
+}
+function ingOptions(sel,starId){
+ return optNone('ماده را انتخاب کنید')+S.ingredients.map(function(x){
+  return '<option value="'+x.id+'"'+(x.id===sel?' selected':'')+'>'+(x.id===starId?'★ ':'')+
+   esc(x.name)+(x.unit?' ('+esc(x.unit)+')':'')+'</option>'}).join('')
+}
+function grp(n){return (Math.round(+n)||0).toLocaleString('en-US')}
+function unnum(v){return +String(v).replace(/[^0-9.]/g,'')||0}
+function reformatMoney(el){
+ var pos=el.selectionStart==null?el.value.length:el.selectionStart;
+ var dig=(el.value.slice(0,pos).match(/[0-9]/g)||[]).length;
+ var raw=el.value.replace(/[^0-9]/g,'');
+ var out=raw?(+raw).toLocaleString('en-US'):'';
+ el.value=out;
+ var c=0,i=0;for(;i<out.length&&c<dig;i++){if(out[i]>='0'&&out[i]<='9')c++}
+ try{el.setSelectionRange(i,i)}catch(e){}
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on')},2000)}
+function savedFlash(){var c=document.getElementById('savedChip');c.classList.add('on');clearTimeout(c._h);c._h=setTimeout(function(){c.classList.remove('on')},1800)}
+
+/* ---------- داده اولیه ---------- */
+function seed(){
+ var ing=[
+  {id:'i1',name:'آرد قنادی',unit:'کیلوگرم',price:65000},
+  {id:'i2',name:'شکر',unit:'کیلوگرم',price:58000},
+  {id:'i3',name:'تخم‌مرغ',unit:'عدد',price:6500},
+  {id:'i4',name:'کره حیوانی',unit:'کیلوگرم',price:520000},
+  {id:'i5',name:'خامه قنادی',unit:'کیلوگرم',price:280000},
+  {id:'i6',name:'شکلات تلخ',unit:'کیلوگرم',price:750000},
+  {id:'i7',name:'پنیر خامه‌ای',unit:'کیلوگرم',price:690000},
+  {id:'i8',name:'وانیل و افزودنی',unit:'بسته',price:25000},
+  {id:'i9',name:'میوه تزیین',unit:'کیلوگرم',price:190000},
+  {id:'i10',name:'فوندانت',unit:'کیلوگرم',price:480000},
+  {id:'i11',name:'رنگ و پودر خوراکی',unit:'بسته',price:120000}
+ ];
+ var pr=[
+  {id:'p1',name:'کیک تولد خامه‌ای',emoji:'🎂',labor:90,
+   recipe:[{i:'i1',q:.35},{i:'i2',q:.3},{i:'i3',q:5},{i:'i4',q:.15},{i:'i5',q:.5},{i:'i9',q:.25},{i:'i8',q:1}],
+   sizes:[{id:'s1',label:'۱ کیلو',f:1,box:35000},{id:'s2',label:'۱٫۵ کیلو',f:1.5,box:45000},{id:'s3',label:'۲ کیلو',f:2,box:55000},{id:'s4',label:'۳ کیلو',f:3,box:75000}]},
+  {id:'p2',name:'چیزکیک',emoji:'🍰',labor:70,
+   recipe:[{i:'i7',q:.5},{i:'i2',q:.15},{i:'i3',q:3},{i:'i4',q:.1},{i:'i5',q:.2},{i:'i9',q:.15}],
+   sizes:[{id:'s1',label:'قالب کوچک',f:.7,box:30000},{id:'s2',label:'قالب متوسط',f:1,box:40000},{id:'s3',label:'قالب بزرگ',f:1.5,box:50000}]},
+  {id:'p3',name:'کاپ‌کیک',emoji:'🧁',labor:50,
+   recipe:[{i:'i1',q:.2},{i:'i2',q:.18},{i:'i3',q:3},{i:'i4',q:.12},{i:'i5',q:.25},{i:'i8',q:1}],
+   sizes:[{id:'s1',label:'۶ عددی',f:1,box:25000},{id:'s2',label:'۱۲ عددی',f:2,box:40000},{id:'s3',label:'۲۴ عددی',f:4,box:65000}]},
+  {id:'p4',name:'براونی شکلاتی',emoji:'🍫',labor:45,
+   recipe:[{i:'i6',q:.3},{i:'i4',q:.2},{i:'i2',q:.2},{i:'i3',q:4},{i:'i1',q:.12}],
+   sizes:[{id:'s1',label:'نیم کیلو',f:.5,box:20000},{id:'s2',label:'۱ کیلو',f:1,box:30000}]}
+ ];
+ return{ingredients:ing,products:pr,orders:[],
+  settings:{laborRate:120000,decorRate:180000,round:5000,currency:'تومان',
+   prodOver:12,prodProfit:35,prodUseLabor:true,prodUseOver:true,prodUseProfit:true,prodLaborBySize:true,prodLaborScale:1,
+   decOver:12,decProfit:35,decUseLabor:true,decUseOver:true,decUseProfit:true,
+   units:['کیلوگرم','گرم','عدد','بسته','لیتر','قاشق غذاخوری','ورق'],
+   defUnit:'کیلوگرم',defProduct:'',defSize:{},defMult:0,defDecIng:'',time24:true,tz:'',
+   depModes:[{id:'dm0',label:'بدون بیعانه',type:'pct',value:0},
+             {id:'dm30',label:'۳۰٪ پیش‌پرداخت',type:'pct',value:30},
+             {id:'dm50',label:'نصف مبلغ',type:'pct',value:50},
+             {id:'dm100',label:'تسویه کامل',type:'pct',value:100}],
+   defDepMode:'',defTab:'',defFilter:'',defSort:'',defCustSort:''}}
+}
+
+/* ---------- ذخیره‌سازی ---------- */
+function migrateSettings(o){
+ var x=Object.assign({},o);
+ if(x.prodLaborScale==null)x.prodLaborScale=1;
+ if(x.time24==null)x.time24=true;
+ if(x.tz==null)x.tz='';
+ if(!Array.isArray(x.depModes)||!x.depModes.length)x.depModes=[
+  {id:'dm0',label:'بدون بیعانه',type:'pct',value:0},
+  {id:'dm30',label:'۳۰٪ پیش‌پرداخت',type:'pct',value:30},
+  {id:'dm50',label:'نصف مبلغ',type:'pct',value:50},
+  {id:'dm100',label:'تسویه کامل',type:'pct',value:100}];
+ if(!x.defSize||typeof x.defSize!=='object')x.defSize={};
+ if(!Array.isArray(x.units)||!x.units.length)x.units=['کیلوگرم','گرم','عدد','بسته','لیتر','قاشق غذاخوری','ورق'];
+ if(x.overhead!=null&&x.prodOver==null){x.prodOver=x.overhead;x.decOver=x.overhead}
+ if(x.profit!=null&&x.prodProfit==null){x.prodProfit=x.profit;x.decProfit=x.profit}
+ delete x.overhead;delete x.profit;
+ return x
+}
+var KEY='pinkbake:data';
+var S=seed();if(localStorage.getItem("demo-off:pinkbake.html")!=="1"){try{S.orders=(function(){var t=today();
+function sh(n){var d=jToDate(t);d.setDate(d.getDate()+n);return jKey(toJ(d.getFullYear(),d.getMonth()+1,d.getDate()));}
+function it(pid,sid,q,dec){var p=S.products.find(function(x){return x.id===pid});var z=p.sizes.find(function(x){return x.id===sid})||p.sizes[0];var o={pid:p.id,sid:z.id,label:p.emoji+' '+p.name+' — '+z.label,price:calc(p,z).final,qty:q};if(dec){var c=calcDec(dec);o.dec=Object.assign({},dec,{price:c.final});o.label+=' + تزیین '+dec.name;}return o;}
+function man(n,m,h,x){return {mode:'manual',name:n,matCost:m,hours:h,mult:x,priceOverride:0};}
+var P={dm0:0,dm30:30,dm50:50,dm100:100};
+var raw=[[-5,'سارا محمدی','09120000101','11:00','done','dm100','تم آبی پاستلی، نوشتهٔ «تولدت مبارک لیلا»',[['p1','s2',1,man('گل‌های فوندانتی',250000,1.5,1.5)],['p3','s1',1,null]]],
+[-2,'رضا کریمی','09120000102','16:30','done','dm50','جشن خداحافظی همکار',[['p4','s2',2,null]]],
+[0,'نگار احمدی','09120000103','09:30','baking','dm30','کم‌شکر؛ پیش از پخت تأیید شود',[['p2','s3',1,null],['p3','s2',1,null]]],
+[1,'مریم حسینی','09120000104','14:00','new','dm30','ظاهر دوطبقه، سرمه‌ای و سفید',[['p1','s3',1,man('صدف خامه‌ای و پودر طلایی',350000,2,2)]]],
+[3,'علی رضایی','09120000105','10:00','new','dm50','جشن تولد نوزاد، ۲۰ مهمان',[['p3','s3',1,man('تاپر نقاشی دست',200000,1,1.5)],['p2','s2',1,null]]],
+[6,'نیلوفر صادقی','09120000106','','new','dm0','طعم را تا پنجشنبه اعلام می‌کند',[['p1','s1',1,null],['p4','s1',1,null]]],
+[10,'سارا محمدی','09120000101','12:00','new','dm30','سفارش دوباره برای خواهرش',[['p1','s2',1,null]]]];
+return raw.map(function(r,ix){var items=r[7].map(function(a){return it(a[0],a[1],a[2],a[3])});var total=items.reduce(function(s,x){return s+lineTotal(x)},0);
+return {id:'demo'+ix,name:r[1],phone:r[2],items:items,depMode:r[5],day:sh(r[0]),time:r[3],note:r[6],discount:0,deposit:Math.round(total*P[r[5]]/100/1000)*1000,total:total,status:r[4],createdAt:new Date().toISOString()};});})();}catch(e){}}
+
+var BACKENDS=[];
+function hasCloud(){return !!(window.storage&&window.storage.set&&window.storage.get)}
+function hasLocal(){try{window.localStorage.setItem('pb:t','1');window.localStorage.removeItem('pb:t');return true}catch(e){return false}}
+var LASTERR='';
+async function writeAll(str){
+ var ok=[],err=[];
+ if(hasCloud()){
+  try{
+   await window.storage.set(KEY,str,false);
+   var chk=await window.storage.get(KEY,false);
+   if(chk&&chk.value===str)ok.push('حافظه کلود');else err.push('کلود: نوشته شد ولی تأیید نشد');
+  }catch(e){err.push('کلود: '+((e&&e.message)||e))}
+ }else{err.push('کلود: در دسترس نیست')}
+ if(hasLocal()){try{window.localStorage.setItem(KEY,str);ok.push('حافظه مرورگر')}catch(e){err.push('مرورگر: '+((e&&e.message)||e))}}
+ else{err.push('مرورگر: در دسترس نیست')}
+ BACKENDS=ok;LASTERR=err.join(' • ');
+ return ok.length>0;
+}
+async function readBest(){
+ var c=[];
+ if(hasCloud()){try{var r=await window.storage.get(KEY,false);if(r&&r.value)c.push(r.value)}catch(e){}}
+ if(hasLocal()){try{var v=window.localStorage.getItem(KEY);if(v)c.push(v)}catch(e){}}
+ var best=null,bt=-1;
+ c.forEach(function(t){try{var d=JSON.parse(t);var at=d.savedAt||0;if(at>=bt){bt=at;best=d}}catch(e){}});
+ return best;
+}
+async function load(){
+ var d=await readBest();
+ if(d){var sd=seed();
+  S={ingredients:d.ingredients||sd.ingredients,products:d.products||sd.products,
+     orders:d.orders||[],
+     settings:Object.assign(sd.settings,migrateSettings(d.settings||{})),savedAt:d.savedAt||0};
+ }
+ BACKENDS=[];if(hasCloud())BACKENDS.push('حافظه کلود');if(hasLocal())BACKENDS.push('حافظه مرورگر');
+}
+var HIST=[],BASE=null;
+function snapshot(){try{return JSON.stringify({S:S,d:UI.draft,dd:UI.decDraft,p:UI.selP,z:UI.selS,i:UI.decIng,y:DIRTY,e:UI.editItem,qt:UI.qty,dO:UI.decOpen})}catch(e){return null}}
+function pushHist(){
+ var now=snapshot();if(now===BASE)return;
+ if(BASE!=null){HIST.push(BASE);if(HIST.length>40)HIST.shift()}
+ BASE=now;paintUndo()}
+function act(){pushHist()}
+function paintUndo(){var b=document.getElementById('undoBtn');if(!b)return;
+ b.disabled=!HIST.length;b.style.opacity=HIST.length?1:.45}
+function undo(){
+ if(!HIST.length)return toast('چیزی برای بازگشت نیست');
+ var prev=HIST.pop(),o;
+ try{o=JSON.parse(prev)}catch(e){return toast('بازگشت ناموفق')}
+ S=o.S;UI.draft=o.d||UI.draft;UI.decDraft=o.dd||{mode:'pick',mats:[],hours:0,mult:1,name:'',matCost:0,priceOverride:0};
+ UI.selP=o.p||'';UI.selS=o.z||null;UI.decIng=o.i||'';UI.ddOpen=null;
+ UI.editItem=(o.e===undefined?null:o.e);UI.qty=o.qt||1;UI.decOpen=!!o.dO;
+ BASE=prev;DIRTY=o.y===undefined?true:o.y;paintSaveBtn();paintUndo();render();
+ toast('یک مرحله برگشت')}
+var DIRTY=false;
+function paintSaveBtn(){
+ var b=document.getElementById('saveAll'),t=document.getElementById('saveAllTxt');
+ if(!b)return;b.classList.toggle('dirty',DIRTY);
+ t.textContent=DIRTY?'در حال ذخیره…':'ذخیره شده ✓'}
+var AUTO=null;
+function autosave(){clearTimeout(AUTO);AUTO=setTimeout(function(){save(true)},600)}
+function touch(){DIRTY=true;pushHist();paintSaveBtn();autosave()}
+async function save(silent){
+ S.savedAt=Date.now();
+ var ok=await writeAll(JSON.stringify(S));
+ if(ok){DIRTY=false;paintSaveBtn();savedFlash();if(!silent)toast('ذخیره شد در: '+BACKENDS.join(' + '));return true}
+ toast('ذخیره ناموفق — جزئیات در تب تنظیمات');return false;
+}
+window.addEventListener('beforeunload',function(e){if(DIRTY){e.preventDefault();e.returnValue=''}});
+
+/* ---------- محاسبه قیمت ---------- */
+function ingPrice(id){var g=S.ingredients.find(function(x){return x.id===id});return g?g.price:0}
+function calc(p,size){
+ var mat=0;(p.recipe||[]).forEach(function(r){mat+=ingPrice(r.i)*r.q});
+ var f=size?size.f:1, box=size?(size.box||0):0;
+ mat=mat*f;
+ var st=S.settings;
+ var k=st.prodLaborBySize===false?0:(st.prodLaborScale==null?1:+st.prodLaborScale);
+ var lf=1+(f-1)*k;
+ var labor=st.prodUseLabor===false?0:(p.labor||0)/60*st.laborRate*lf;
+ var over=st.prodUseOver?(mat+labor)*(st.prodOver||0)/100:0;
+ var cost=mat+labor+box+over;
+ var profit=st.prodUseProfit?cost*(st.prodProfit||0)/100:0;
+ var raw=cost+profit;
+ var step=S.settings.round||1;
+ var final=Math.ceil(raw/step)*step;
+ return{mat:mat,labor:labor,box:box,over:over,profit:profit,cost:cost,final:final}
+}
+var MULTS=[{v:1,l:'ساده (×۱)'},{v:1.5,l:'متوسط (×۱٫۵)'},{v:2,l:'پیچیده (×۲)'},{v:3,l:'خیلی پیچیده (×۳)'}];
+function calcDec(dd){
+ var mat=0;
+ if(dd.mode==='manual')mat=+dd.matCost||0;
+ else (dd.mats||[]).forEach(function(r){mat+=ingPrice(r.i)*r.q});
+ var m=+dd.mult||1;
+ var st=S.settings;
+ var labor=st.decUseLabor===false?0:(+dd.hours||0)*(st.decorRate||st.laborRate)*m;
+ var over=st.decUseOver?(mat+labor)*(st.decOver||0)/100:0;
+ var cost=mat+labor+over, profit=st.decUseProfit?cost*(st.decProfit||0)/100:0;
+ var step=S.settings.round||1;
+ var fin=Math.ceil((cost+profit)/step)*step;
+ if(dd.mode==='manual'&&+dd.priceOverride>0)fin=+dd.priceOverride;
+ return{mat:mat,labor:labor,box:0,over:over,profit:profit,cost:cost,final:fin,fixed:dd.mode==='manual'&&+dd.priceOverride>0}
+}
+function hasDec(dd){
+ if(!dd)return false;
+ var lb=S.settings.decUseLabor!==false;
+ if(dd.mode==='manual')return !!((dd.name&&dd.name.trim())||+dd.matCost>0||(lb&&+dd.hours>0)||+dd.priceOverride>0);
+ return !!((dd.mats&&dd.mats.length)||(lb&&+dd.hours>0))}
+function multLabel(v){var m=MULTS.find(function(x){return x.v===+v});return m?m.l:'×'+fa(v)}
+function depAmount(m,total){
+ if(!m)return 0;
+ var v=+m.value||0, raw=(m.type==='amt')?v:total*v/100, step=S.settings.round||1;
+ return Math.max(0,Math.round(raw/step)*step)
+}
+function depMode(id){return (S.settings.depModes||[]).find(function(x){return x.id===id})}
+function currentDep(d,total){
+ if(d.depMode&&d.depMode!=='manual'){var m=depMode(d.depMode);if(m)return depAmount(m,total)}
+ return +d.deposit||0
+}
+function lineTotal(it){return (it.price+(it.dec?it.dec.price:0))*it.qty}
+function sliceBar(c){
+ var t=c.mat+c.labor+c.box+c.over+c.profit||1;
+ function w(v){return (v/t*100).toFixed(1)+'%'}
+ var seg=function(v,c,l){return v>0?'<span><i class="dot" style="background:'+c+'"></i>'+l+' '+money(v)+'</span>':''};
+ return '<div class="slice"><div class="slice-bar">'+
+  '<i style="width:'+w(c.mat)+';background:var(--raspberry-soft)"></i>'+
+  '<i style="width:'+w(c.labor)+';background:var(--cocoa)"></i>'+
+  '<i style="width:'+w(c.box)+';background:var(--box)"></i>'+
+  '<i style="width:'+w(c.over)+';background:var(--lav)"></i>'+
+  '<i style="width:'+w(c.profit)+';background:var(--pistachio)"></i></div>'+
+  '<div class="slice-key">'+
+  seg(c.mat,'var(--raspberry-soft)','مواد')+
+  seg(c.labor,'var(--cocoa)','دستمزد')+
+  seg(c.box,'var(--box)','بسته‌بندی')+
+  seg(c.over,'var(--lav)','سربار')+
+  seg(c.profit,'var(--pistachio)','سود')+
+  '</div></div>'
+}
+
+/* ---------- وضعیت رابط ---------- */
+var UI={tab:'new',calM:null,selDay:null,filter:'up',q:'',editP:null,selS:null,step:1,decOpen:false,editItem:null,qty:1,ddOpen:null,decIng:'',custSort:'total',sort:'dateAsc',cust:false,decDraft:{mode:'pick',mats:[],hours:0,mult:1,name:'',matCost:0,priceOverride:0},
+ draft:{name:'',phone:'',date:null,time:'',items:[],note:'',deposit:0,discount:0,depMode:'manual',id:null}};
+
+var V=document.getElementById('view');
+function paint(){
+ var t=UI.tab;
+ V.innerHTML = t==='new'?viewNew(): t==='orders'?viewOrders(): t==='cal'?viewCal():
+               t==='products'?viewProducts(): t==='ing'?viewIng(): t==='bk'?viewBackup(): t==='help'?viewHelp(): viewSet();
+}
+var TABS=[['new','سفارش جدید'],['orders','سفارش‌ها'],['cal','تقویم'],['products','محصولات'],['ing','مواد اولیه'],['set','مالی'],['bk','تنظیمات'],['help','راهنما']];
+var TODAYKEY='';
+function paintToday(){
+ var t=today(),p=nowParts(),k=jKey(t);
+ var fe=document.getElementById('todayFa'),ge=document.getElementById('todayGr');
+ if(fe)fe.textContent=WD[jWeekday(t)]+' '+faDateLong(t);
+ if(ge)ge.textContent=grLong(t)+' • '+((p.hh<10?'0':'')+p.hh+':'+(p.mm<10?'0':'')+p.mm)+
+   (S.settings&&S.settings.tz?' ('+(S.settings.tz==='Asia/Tehran'?'Tehran':'Baku')+')':'');
+ if(TODAYKEY&&TODAYKEY!==k){TODAYKEY=k;render()}else TODAYKEY=k;
+}
+function paintTabs(){
+ var el=document.getElementById('tabs');if(!el)return;
+ el.innerHTML=TABS.map(function(t){
+  var on=UI.tab===t[0],df=S.settings.defTab===t[0];
+  return '<button class="tab'+(on?' on':'')+'" data-t="'+t[0]+'">'+t[1]+
+   ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-tabstar="'+t[0]+'" title="'+(df?'برداشتن پیش‌فرض':'تب پیش‌فرض شود')+'">'+(df?'★':'☆')+'</span>':'')+
+   '</button>'}).join('')
+}
+function goTab(t){UI.tab=t;if(t==='new')applyDefaults();paintTabs();render()}
+function applyDefaults(){
+ var d=UI.draft;
+ if(d.id||d.items.length||d.name)return;
+ UI.step=1;UI.decOpen=false;d.depMode=freshDep();
+ UI.selP=S.settings.defProduct||'';
+ UI.selS=(S.settings.defSize||{})[UI.selP]||null;
+ UI.decIng=S.settings.defDecIng||'';
+ if(!UI.decDraft.mats.length&&!+UI.decDraft.hours)UI.decDraft.mult=+S.settings.defMult||1;
+}
+document.getElementById('tabs').addEventListener('click',function(e){
+ var st=e.target.closest('[data-tabstar]');
+ if(st){e.stopPropagation();var k=st.dataset.tabstar;
+  S.settings.defTab=(S.settings.defTab===k)?'':k;touch();paintTabs();
+  toast(S.settings.defTab?'این تب هنگام باز شدن برنامه اول می‌آید':'پیش‌فرض برداشته شد');return}
+ var b=e.target.closest('.tab');if(!b)return;
+ goTab(b.dataset.t)
+});
+
+/* ---------- سفارش جدید ---------- */
+function viewNew(){
+ var d=UI.draft;
+ var total=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+ var dep=currentDep(d,total);
+ var due=total-(+d.discount||0)-dep;
+ var opts=S.products.map(function(p){
+   return {v:p.id,label:p.emoji+' '+esc(p.name),def:S.settings.defProduct===p.id}});
+ var cur=S.products.find(function(p){return p.id===UI.selP});
+ if(cur&&!cur.sizes.some(function(z){return z.id===UI.selS})){
+  var ds=(S.settings.defSize||{})[cur.id];
+  UI.selS=(ds&&cur.sizes.some(function(z){return z.id===ds}))?ds:(cur.sizes[0]&&cur.sizes[0].id)}
+
+ var sizeOpts=cur?cur.sizes.map(function(s){
+   return {v:s.id,label:esc(s.label)+' — '+money(calc(cur,s).final),def:(S.settings.defSize||{})[cur.id]===s.id}}):[];
+ var dd0=UI.decDraft;
+ var ingOpts=S.ingredients.map(function(x){
+   return {v:x.id,label:esc(x.name)+(x.unit?' <span class="muted">('+esc(x.unit)+')</span>':''),def:S.settings.defDecIng===x.id}});
+ var multOpts=MULTS.map(function(m){return {v:m.v,label:m.l,def:+S.settings.defMult===m.v}});
+ var t24=S.settings.time24!==false;
+ var hasT=!!d.time, tH=hasT?+String(d.time).split(':')[0]:0, tM=hasT?(String(d.time).split(':')[1]||'00'):'00';
+ var hList=[],hi;
+ if(t24){for(hi=0;hi<24;hi++)hList.push([hi,fa((hi<10?'0':'')+hi)])}
+ else {for(hi=1;hi<=12;hi++)hList.push([hi,fa(hi)])}
+ var curH=hasT?(t24?tH:(tH%12||12)):'';
+ var hOpts='<option value="">—</option>'+hList.map(function(x){
+   return '<option value="'+x[0]+'"'+(String(curH)===String(x[0])?' selected':'')+'>'+x[1]+'</option>'}).join('');
+ var mList=['00','05','10','15','20','25','30','35','40','45','50','55'];
+ if(hasT&&mList.indexOf(tM)<0)mList.push(tM);
+ mList.sort();
+ var mOpts=mList.map(function(m){return '<option value="'+m+'"'+(hasT&&tM===m?' selected':'')+'>'+fa(m)+'</option>'}).join('');
+ var apOpts='<option value="am"'+(hasT&&tH<12?' selected':'')+'>قبل‌ازظهر</option>'+
+            '<option value="pm"'+(hasT&&tH>=12?' selected':'')+'>بعدازظهر</option>';
+ var decLaborOn=S.settings.decUseLabor!==false;
+ var decRows=dd0.mats.map(function(r,ix){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'؟',unit:'',price:0};
+  return '<tr><td>'+esc(g.name)+'</td><td>'+fa(r.q)+' '+esc(g.unit)+'</td>'+
+  '<td class="muted">'+money(ingPrice(r.i))+'</td>'+
+  '<td class="muted">'+money(ingPrice(r.i)*r.q)+'</td>'+
+  '<td><button class="btn danger mini" data-drm="'+ix+'">×</button></td></tr>'}).join('');
+  var stepDone1=!!(d.name.trim()&&d.date);
+ var stepDone2=d.items.length>0;
+ var dirtyDraft=!!(d.name.trim()||d.phone.trim()||d.date||d.time||d.items.length||d.note||+d.discount||+d.deposit||hasDec(dd0));
+ var resetTop='<div class="row" style="margin-top:14px"><span class="muted">'+
+   (d.id?'در حال ویرایش یک سفارش ثبت‌شده':(dirtyDraft?'سفارش در حال نوشتن':'سفارش تازه'))+'</span>'+
+   '<button class="btn danger mini sp" id="resetTop">↺ شروع دوباره</button></div>';
+ var steps='<div class="steps">'+
+  [[1,'مشتری و زمان',(d.name.trim()||'—')+(d.date?' • '+faDateLong(d.date):''),stepDone1],
+   [2,'اقلام سفارش',d.items.length?fa(d.items.length)+' قلم • '+money(total):'هنوز قلمی اضافه نشده',stepDone2],
+   [3,'مبلغ و ثبت',d.items.length?'باقی‌مانده '+money(due):'—',false]]
+  .map(function(x){
+   return '<button class="step'+(UI.step===x[0]?' on':'')+(x[3]?' done':'')+'" data-step="'+x[0]+'">'+
+    '<span class="n">'+(x[3]?'✓':fa(x[0]))+'</span><span>'+x[1]+'<small>'+esc(x[2])+'</small></span></button>'}).join('')+
+  '</div>';
+
+ var summary=(d.items.length||d.name.trim())?'<div class="mini-summary">'+
+   (d.name.trim()?'<span>👤 '+esc(d.name)+'</span>':'')+
+   (d.date?'<span>📅 '+faDateLong(d.date)+(d.time?' • '+fmtTime(d.time):'')+'</span>':'')+
+   (d.items.length?'<span class="sp">'+fa(d.items.length)+' قلم</span><b>'+money(total)+' '+S.settings.currency+'</b>':'')+
+  '</div>':'';
+
+ var nav=function(back,next,nextLabel){
+  return '<div class="navrow">'+
+   (back?'<button class="btn ghost" data-step="'+back+'">‹ مرحله قبل</button>':'')+
+   '<button class="btn danger mini" data-resetdraft="1">↺ شروع دوباره</button>'+
+   (next?'<button class="btn sp" data-step="'+next+'">'+nextLabel+' ›</button>':'')+'</div>'};
+
+ /* ===== step 1 ===== */
+ if(UI.step===1)return steps+resetTop+summary+
+ '<div class="card"><h2>مشتری و زمان تحویل'+ihelp('مرحلهٔ اول: مشخصات مشتری و اینکه سفارش کِی باید آماده باشد. نام و تاریخ اجباری‌اند.')+'</h2><p class="hint">تاریخ تحویل هم شمسی و هم میلادی ذخیره می‌شود.</p>'+
+ '<div class="grid2">'+
+  '<div><label class="f">نام مشتری'+ihelp('سفارش‌هایی که شمارهٔ تماس یکسان دارند، زیر یک پروندهٔ مشتری در بخش «مشتری‌ها» جمع می‌شوند.')+'</label><input type="text" id="cName" value="'+esc(d.name)+'" placeholder="مثلاً خانم رضایی"></div>'+
+  '<div><label class="f">شماره تماس'+ihelp('با همین شماره، دکمه‌های تماس و واتساپ روی کارت سفارش فعال می‌شوند.')+'</label><input type="tel" id="cPhone" value="'+esc(d.phone)+'" placeholder="۰۹۱۲…" dir="ltr" style="text-align:right"></div>'+
+ '</div>'+
+ '<div class="grid2" style="margin-top:12px">'+
+  '<div><label class="f">تاریخ تحویل'+ihelp('از تقویم شمسی انتخاب کنید؛ معادل میلادی هم خودکار ذخیره می‌شود و در تب تقویم دیده خواهد شد.')+'</label>'+
+   '<div class="pick"><button class="date-btn" id="dateBtn">'+
+    (d.date?faDateLong(d.date)+' <span class="g2">('+grDate(d.date)+' — '+WD[jWeekday(d.date)]+')</span>':'انتخاب تاریخ از تقویم شمسی')+
+   '</button><div class="pop" id="pop"></div></div></div>'+
+  '<div><label class="f">ساعت تحویل'+ihelp('اختیاری. ۱۲ یا ۲۴ ساعته بودنِ نمایش را در تب تنظیمات عوض کنید.')+'</label><div class="row" style="gap:6px;flex-wrap:nowrap">'+
+   '<select id="tH" style="max-width:80px">'+hOpts+'</select><span class="muted">:</span>'+
+   '<select id="tM" style="max-width:80px">'+mOpts+'</select>'+
+   (t24?'':'<select id="tAP" style="max-width:120px">'+apOpts+'</select>')+
+   (hasT?'<button class="btn ghost mini" id="tClr">پاک</button>':'')+
+   '</div>'+(hasT?'<div class="muted" style="margin-top:4px">نمایش: '+fmtTime(d.time)+'</div>':'')+'</div>'+
+ '</div>'+
+ nav(0,2,'اقلام سفارش')+'</div>';
+
+ /* ===== step 2 ===== */
+ if(UI.step===2){
+  var decOn=UI.decOpen||hasDec(dd0);
+  return steps+resetTop+summary+
+  '<div class="card'+(UI.editItem!=null?' locked':'')+'"><div class="row"><h2 style="margin:0">'+
+   (UI.editItem!=null?'ویرایش قلم '+fa(UI.editItem+1):'افزودن قلم به سفارش')+
+   ihelp('هر سفارش می‌تواند چند قلم داشته باشد. این کادر یک قلم می‌سازد و با «افزودن به سفارش» به لیست پایین می‌رود.')+'</h2>'+
+   (UI.editItem!=null?'<button class="btn ghost mini sp" id="cancelItem">انصراف از ویرایش</button>':'')+'</div>'+
+  '<div class="grid3">'+
+   '<div><label class="f">محصول'+ihelp('محصولات را در تب «محصولات» تعریف می‌کنید. ستارهٔ کنار هر گزینه آن را پیش‌فرض سفارش‌های بعدی می‌کند.')+'</label>'+dd('P',UI.selP,opts,'محصول را انتخاب کنید')+'</div>'+
+   '<div><label class="f">اندازه'+ihelp('قیمت هر اندازه خودکار از روی مواد اولیه و تنظیمات مالی حساب می‌شود. هر محصول می‌تواند پیش‌فرض اندازهٔ خودش را داشته باشد.')+'</label>'+dd('S',UI.selS,sizeOpts,cur?'اندازه را انتخاب کنید':'اول محصول را انتخاب کنید')+'</div>'+
+   '<div><label class="f">تعداد'+ihelp('چند عدد از همین محصول با همین اندازه و تزیین. قیمت قلم در تعداد ضرب می‌شود.')+'</label><input type="number" id="selQ" value="'+(UI.qty||1)+'" min="1"></div>'+
+  '</div>'+
+
+  '<div class="optbox'+(decOn?' on':'')+'">'+
+   (decOn
+    ?'<div class="row"><b>🎀 تزیین این قلم</b>'+ihelp('تزیین جدا از خود محصول قیمت می‌خورد و به همین قلم می‌چسبد. دو راه دارد: برداشتن مواد از انبار، یا تایپ دستی همه‌چیز.')+'<span class="sp"></span>'+
+      '<button class="btn '+(dd0.mode==='manual'?'ghost':'')+' mini" data-decmode="pick">از لیست مواد</button>'+
+      ihelp('مواد تزیین را از انبار برمی‌دارید. مزیتش این است که با گران شدن مواد، قیمت تزیین در سفارش‌های بعدی خودکار اصلاح می‌شود.')+
+      '<button class="btn '+(dd0.mode==='manual'?'':'ghost')+' mini" data-decmode="manual">ورود دستی</button>'+
+      ihelp('همه‌چیز را خودتان تایپ می‌کنید، بدون ربط به انبار. مناسب تزیین‌های یکبارمصرف یا وقتی عجله دارید.')+
+      '<button class="btn danger mini" id="decClose">بستن</button>'+
+      ihelp('بخش تزیین را می‌بندد و آنچه وارد کرده‌اید پاک می‌شود. این قلم بدون تزیین به سفارش اضافه خواهد شد.')+'</div>'+
+     (dd0.mode==='manual'
+      ?'<div class="grid3" style="margin-top:10px">'+
+        '<div><label class="f">عنوان تزیین'+ihelp('اسمی که در فاکتور و کارت سفارش دیده می‌شود، مثلاً «گل فوندانت دست‌ساز».')+'</label><input type="text" id="decName" value="'+esc(dd0.name||'')+'" placeholder="مثلاً گل فوندانت"></div>'+
+        '<div><label class="f">هزینه مواد ('+S.settings.currency+')'+ihelp('تخمین خودتان از مواد مصرفی این تزیین. با انبار مواد اولیه کاری ندارد.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="decMat" value="'+grp(dd0.matCost||0)+'"></div>'+
+        '<div><label class="f">قیمت نهایی دستی'+ihelp('اگر پرش کنید، هیچ محاسبه‌ای انجام نمی‌شود و دقیقاً همین عدد قیمت تزیین می‌شود. خالی بگذارید تا خودکار حساب شود.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="decFix" value="'+grp(dd0.priceOverride||0)+'"></div>'+
+       '</div>'
+      :'<div class="grid3" style="margin-top:10px">'+
+        '<div><label class="f">ماده تزیین'+ihelp('از همان انبار مواد اولیه. با تغییر قیمت آن ماده، قیمت تزیین هم خودکار به‌روز می‌شود.')+'</label>'+dd('I',UI.decIng,ingOpts,'ماده را انتخاب کنید')+'</div>'+
+        '<div><label class="f">مقدار'+ihelp('به واحد همان ماده (کیلوگرم، عدد، بسته…). مثلاً ۰٫۲۵ یعنی ربع کیلو.')+'</label><input type="number" step="0.01" min="0" id="decQ" value="0.1"></div>'+
+        '<div style="display:flex;align-items:flex-end"><button class="btn ghost mini" id="decAdd">+ افزودن ماده</button></div>'+
+       '</div>'+
+       (dd0.mats.length?'<table style="margin-top:10px"><tr><th>ماده</th><th>مقدار</th><th>قیمت واحد</th><th>هزینه</th><th></th></tr>'+decRows+'</table>':''))+
+     (decLaborOn?'<div class="grid2" style="margin-top:12px">'+
+      '<div><label class="f">ساعت کار تزیین'+ihelp('چند ساعت وقت می‌برد. در نرخ ساعتی تزیین (تب مالی) و ضریب سختی ضرب می‌شود.')+'</label><input type="number" step="0.25" min="0" id="decH" value="'+(dd0.hours||0)+'"></div>'+
+      '<div><label class="f">ضریب سختی'+ihelp('فقط روی دستمزد اثر دارد، نه مواد. کار ظریف‌تر یعنی ساعت گران‌تر: ساده ×۱ تا خیلی پیچیده ×۳.')+'</label>'+dd('M',dd0.mult,multOpts,'ضریب انتخاب نشده (×۱)')+'</div>'+
+     '</div>'
+     :'<p class="hint" style="margin-top:10px">دستمزد ساعتی تزیین در تب مالی خاموش است، پس ساعت کار پرسیده نمی‌شود.</p>')+
+     (hasDec(dd0)?'<div class="item" id="decBreak" style="margin-top:10px">'+decBreakHTML(dd0)+'</div>':'<div id="decBreak"></div>')
+    :'<div class="row"><span class="muted">این قلم تزیین دارد؟</span>'+
+      '<button class="btn ghost mini sp" id="decOpenBtn">+ افزودن تزیین</button></div>')+
+  '</div>'+
+
+  '<div class="row" style="margin-top:14px">'+ihelp('پیش‌نمایش زندهٔ قیمت این قلم پیش از افزودن، با تفکیک سهم محصول و تزیین.')+'<span class="muted" id="itemPrev"></span>'+
+  '<button class="btn sp" id="addItem">'+(UI.editItem!=null?'ذخیره تغییرات این قلم':'+ افزودن به سفارش')+'</button></div></div>'+
+
+  '<div class="card locked"><div class="row"><h2 style="margin:0">اقلام ثبت‌شدهٔ این سفارش'+ihelp('قلم‌های قطعی‌شده. هر کدام قابل ویرایش یا حذف است. تا سفارش را ذخیره نکنید، هنوز ثبت نهایی نشده.')+'</h2>'+
+  '<span class="chip new">'+fa(d.items.length)+' قلم</span>'+
+  (d.items.length?'<b class="sp price">'+money(total)+' '+S.settings.currency+'</b>':'')+'</div>'+
+  (d.items.length?'<div class="list">'+d.items.map(function(it,ix){
+    return '<div class="item"><div class="row"><span class="lineno">'+fa(ix+1)+'</span><b class="name">'+esc(it.label)+'</b>'+
+    '<span class="muted">× '+fa(it.qty)+'</span><span class="sp price">'+money(lineTotal(it))+' '+S.settings.currency+'</span>'+
+    '<button class="btn ghost mini" data-edit="'+ix+'">ویرایش</button>'+
+    '<button class="btn danger mini" data-rm="'+ix+'">حذف</button></div>'+
+    (it.dec?'<div class="muted">🎀 تزیین: '+decSummary(it.dec)+'</div>':'')+
+    '<div class="muted">محصول: '+money(it.price)+(it.dec?' + تزیین: '+money(it.dec.price):'')+'</div></div>'}).join('')+'</div>'+
+    '<div class="divider"></div><div class="row"><span class="muted">جمع اقلام</span><b class="sp price">'+money(total)+' '+S.settings.currency+'</b>'+
+    '<button class="btn danger mini" id="clearItems">خالی کردن لیست</button></div>'
+   :'<div class="empty"><span class="cake">🧁</span>هنوز قلمی اضافه نشده.</div>')+
+  nav(1,3,'مبلغ و ثبت')+'</div>'}
+
+ /* ===== step 3 ===== */
+ return steps+resetTop+summary+
+ '<div class="card"><h2>مبلغ و یادداشت'+ihelp('مرحلهٔ آخر: تخفیف، بیعانه و توضیحات. بعد دکمهٔ «ذخیره سفارش» را بزنید.')+'</h2>'+
+ '<div class="grid2">'+
+  '<div><label class="f">تخفیف ('+S.settings.currency+')'+ihelp('مبلغی که از جمع کل کم می‌شود. روی محاسبهٔ درصدی بیعانه اثر ندارد.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="cDisc" value="'+grp(d.discount||0)+'"></div>'+
+  '<div><label class="f">بیعانه دریافتی'+ihelp('پولی که مشتری از قبل داده. یا دکمه‌های آماده را بزنید یا دستی عدد بنویسید.')+'</label><input type="text" inputmode="numeric" class="moneyin" id="cDep" value="'+grp(dep)+'"></div>'+
+ '</div>'+
+ '<div class="row" style="margin-top:10px;gap:6px">'+
+  ihelp('دکمه‌های آمادهٔ بیعانه. مبلغ روی هر دکمه بر اساس جمع همین سفارش حساب شده. حالت‌ها را در تب مالی می‌سازید.')+
+  (S.settings.depModes||[]).map(function(m){
+   var on=d.depMode===m.id,df=S.settings.defDepMode===m.id;
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-dep="'+m.id+'">'+esc(m.label)+
+    ' — '+money(depAmount(m,total))+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-depmstar="'+m.id+'">'+(df?'★':'☆')+'</span>':'')+'</button>'}).join('')+
+  (function(){var on=(!d.depMode||d.depMode==='manual'),df=S.settings.defDepMode==='manual';
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-dep="manual">مبلغ دستی'+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-depmstar="manual">'+(df?'★':'☆')+'</span>':'')+'</button>'})()+
+ '</div>'+
+ '<div style="margin-top:12px"><label class="f">یادداشت (طرح، رنگ، پیام روی کیک…)'+ihelp('هر چیزی که موقع پخت لازم است یادتان بماند. در جستجوی سفارش‌ها هم پیدا می‌شود.')+'</label>'+
+ '<textarea id="cNote" placeholder="مثلاً: تم صورتی، نوشته «تولدت مبارک مریم»">'+esc(d.note)+'</textarea></div>'+
+ '<div class="divider"></div>'+
+ '<div class="grid3">'+
+  '<div class="stat"><span class="muted">جمع اقلام'+ihelp('جمع قیمت همهٔ قلم‌های این سفارش، پیش از کسر تخفیف و بیعانه.')+'</span><b><span id="sumTotal">'+money(total)+'</span> '+S.settings.currency+'</b></div>'+
+  '<div class="stat"><span class="muted">بیعانه'+ihelp('مبلغی که همین حالا از مشتری گرفته‌اید یا قرار است بگیرید.')+'</span><b>'+money(dep)+'</b></div>'+
+  '<div class="stat"><span class="muted">باقی‌مانده'+ihelp('جمع اقلام منهای تخفیف و بیعانه — پولی که موقع تحویل باید دریافت شود.')+'</span><b><span id="sumDue">'+money(due)+'</span></b></div>'+
+ '</div>'+
+ '<div class="navrow"><button class="btn ghost" data-step="2">‹ مرحله قبل</button>'+
+ '<button class="btn danger mini" data-resetdraft="1">↺ شروع دوباره</button><span class="sp"></span>'+
+ '<button class="btn" id="saveOrder">'+(d.id?'ذخیره تغییرات':'ذخیره سفارش')+'</button>'+
+ (d.id?'<button class="btn ghost" id="cancelEdit">انصراف</button>':'')+'</div></div>'
+}
+
+function bindNew(){
+ var d=UI.draft;
+ var g=function(id){return document.getElementById(id)};
+ ['cName:name','cPhone:phone','cNote:note'].forEach(function(p){
+  var a=p.split(':'),el=g(a[0]);if(el){
+   el.addEventListener('input',function(){d[a[1]]=el.value});
+   el.addEventListener('change',function(){d[a[1]]=el.value;act()})}});
+ var readTime=function(){
+  var H=g('tH'),M=g('tM'),AP=g('tAP');
+  if(!H)return;
+  if(H.value===''){d.time='';render();return}
+  var h=+H.value,m=(M&&M.value)||'00';
+  if(AP){if(AP.value==='pm'&&h<12)h+=12;if(AP.value==='am'&&h===12)h=0}
+  d.time=(h<10?'0':'')+h+':'+m;render()};
+ ['tH','tM','tAP'].forEach(function(id){var el=g(id);if(el)el.addEventListener('change',readTime)});
+ var tc=g('tClr');
+ if(tc)tc.addEventListener('click',function(){d.time='';render()});
+ ['cDisc:discount','cDep:deposit'].forEach(function(p){
+  var a=p.split(':'),el=g(a[0]);if(el)el.addEventListener('change',function(){
+   d[a[1]]=unnum(el.value);
+   if(a[1]==='deposit')d.depMode='manual';
+   var tot=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+   var st=g('sumTotal'),sd=g('sumDue');
+   if(st)st.textContent=money(tot);
+   if(sd)sd.textContent=money(tot-(+d.discount||0)-currentDep(d,tot));
+   V.querySelectorAll('[data-dep]').forEach(function(b){
+    b.classList.toggle('ghost',b.dataset.dep!==(d.depMode||'manual'))})})});
+ V.querySelectorAll('[data-depmstar]').forEach(function(b){b.addEventListener('click',function(e){
+  e.stopPropagation();var k=b.dataset.depmstar;
+  S.settings.defDepMode=(S.settings.defDepMode===k)?'':k;touch();render();
+  toast(S.settings.defDepMode?'این حالت بیعانه پیش‌فرض شد':'پیش‌فرض برداشته شد')})});
+ V.querySelectorAll('[data-dep]').forEach(function(b){b.addEventListener('click',function(e){
+  if(e.target.closest('[data-depmstar]'))return;
+  d.depMode=b.dataset.dep;
+  if(d.depMode!=='manual'){var tot=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+   d.deposit=currentDep(d,tot)}
+  act();render()})});
+
+ V.querySelectorAll('[data-decmode]').forEach(function(b){b.addEventListener('click',function(){
+  UI.decDraft.mode=b.dataset.decmode;act();render()})});
+ ['decName:name','decMat:matCost','decFix:priceOverride'].forEach(function(x){
+  var a=x.split(':'),el=g(a[0]);
+  if(el)el.addEventListener('change',function(){
+   UI.decDraft[a[1]]=(a[1]==='name')?el.value:unnum(el.value);act();itemPreview()})});
+ var decAdd=g('decAdd');
+ if(decAdd)decAdd.addEventListener('click',function(){
+  if(!UI.decIng)return toast('اول ماده تزیین را انتخاب کنید');
+  var q=+g('decQ').value||0;if(q<=0)return toast('مقدار ماده تزیین را وارد کنید');
+  UI.decDraft.mats.push({i:UI.decIng,q:q});act();render()});
+ V.querySelectorAll('[data-drm]').forEach(function(b){b.addEventListener('click',function(){
+  UI.decDraft.mats.splice(+b.dataset.drm,1);act();render()})});
+ var decH=g('decH');
+ if(decH)decH.addEventListener('change',function(){UI.decDraft.hours=+decH.value||0;act();itemPreview()});
+
+ itemPreview();
+ var add=g('addItem');
+ if(add)add.addEventListener('click',function(){
+  var p=S.products.find(function(x){return x.id===UI.selP});
+  if(!p)return toast('اول محصول را انتخاب کنید');
+  var s=p.sizes.find(function(x){return x.id===UI.selS});
+  if(!s)return toast('اندازه را انتخاب کنید');
+  var q=Math.max(1,+g('selQ').value||1);
+  UI.qty=q;
+  var it={pid:p.id,sid:s.id,label:p.emoji+' '+p.name+' — '+s.label,price:calc(p,s).final,qty:q};
+  var dc=UI.decDraft;
+  if(hasDec(dc)){
+   it.dec=(dc.mode==='manual')
+    ?{mode:'manual',name:(dc.name||'').trim(),matCost:+dc.matCost||0,hours:+dc.hours||0,mult:+dc.mult||1,
+      priceOverride:+dc.priceOverride||0,price:calcDec(dc).final}
+    :{mats:dc.mats.slice(),hours:+dc.hours||0,mult:+dc.mult||1,price:calcDec(dc).final};
+   it.label+=' + تزیین'+(dc.mode==='manual'&&dc.name?' '+dc.name.trim():'')}
+  if(UI.editItem!=null&&d.items[UI.editItem]){d.items[UI.editItem]=it;toast('قلم به‌روز شد')}
+  else{d.items.push(it);toast('به سفارش اضافه شد')}
+  cancelItemEdit();act();render()});
+ V.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){
+  var ix=+b.dataset.rm;
+  d.items.splice(ix,1);
+  if(UI.editItem===ix)cancelItemEdit();
+  else if(UI.editItem!=null&&UI.editItem>ix)UI.editItem--;
+  act();render()})});
+ V.querySelectorAll('[data-edit]').forEach(function(b){b.addEventListener('click',function(){
+  var ix=+b.dataset.edit,it=d.items[ix];if(!it)return;
+  UI.editItem=ix;UI.selP=it.pid;UI.selS=it.sid;UI.qty=it.qty||1;
+  var c=it.dec;
+  if(c){UI.decOpen=true;
+   UI.decDraft=(c.mode==='manual')
+    ?{mode:'manual',mats:[],hours:+c.hours||0,mult:+c.mult||1,name:c.name||'',matCost:+c.matCost||0,priceOverride:+c.priceOverride||0}
+    :{mode:'pick',mats:(c.mats||[]).slice(),hours:+c.hours||0,mult:+c.mult||1,name:'',matCost:0,priceOverride:0}}
+  else{UI.decOpen=false;
+   UI.decDraft={mode:'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0}}
+  act();render();window.scrollTo({top:0,behavior:'smooth'})})});
+ var ci2=g('cancelItem');
+ if(ci2)ci2.addEventListener('click',function(){cancelItemEdit();render()});
+ var ci=g('clearItems');
+ if(ci)ci.addEventListener('click',function(){
+  if(!confirm('همهٔ اقلام این سفارش پاک شوند؟'))return;
+  d.items=[];cancelItemEdit();act();render()});
+ var db=g('dateBtn');
+ if(db)db.addEventListener('click',function(e){e.stopPropagation();var pop=g('pop');
+  pop.classList.toggle('on');if(pop.classList.contains('on'))drawPicker()});
+ V.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){
+  UI.step=+b.dataset.step||1;render();window.scrollTo({top:0,behavior:'smooth'})})});
+ var dob=g('decOpenBtn');
+ if(dob)dob.addEventListener('click',function(){UI.decOpen=true;render()});
+ var dcb=g('decClose');
+ if(dcb)dcb.addEventListener('click',function(){
+  UI.decOpen=false;
+  UI.decDraft={mode:UI.decDraft.mode||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};
+  act();render()});
+ var so=g('saveOrder');if(so)so.addEventListener('click',saveOrder);
+ var doReset=function(){
+  if(!confirm('کل این فرم پاک شود و از اول شروع کنیم؟ (با دکمهٔ بازگشت قابل برگرداندن است)'))return;
+  resetDraft();act();render();window.scrollTo({top:0,behavior:'smooth'});toast('فرم خالی شد')};
+ var rt=g('resetTop');if(rt)rt.addEventListener('click',doReset);
+ V.querySelectorAll('[data-resetdraft]').forEach(function(b){b.addEventListener('click',doReset)});
+ var ce=g('cancelEdit');if(ce)ce.addEventListener('click',function(){resetDraft();render()});
+}
+function decBreakHTML(dd){
+ if(!hasDec(dd))return '<span class="muted">هنوز چیزی برای تزیین وارد نشده.</span>';
+ var c=calcDec(dd), rate=S.settings.decorRate||S.settings.laborRate, m=+dd.mult||1, h=+dd.hours||0;
+ if(c.fixed)return '<div class="muted">قیمت تزیین دستی وارد شده و محاسبه‌ای انجام نمی‌شود.</div>'+
+  '<div class="row" style="margin-top:6px"><span class="muted">قیمت تزیین</span><b class="sp price">'+money(c.final)+' '+S.settings.currency+'</b></div>';
+ return (dd.mode==='manual'&&dd.name?'<div class="muted">عنوان: <b>'+esc(dd.name)+'</b></div>':'')+
+  (c.mat>0?'<div class="muted">مواد تزیین: <b>'+money(c.mat)+'</b></div>':'')+
+  (S.settings.decUseLabor===false?''
+    :'<div class="muted">دستمزد: '+fa(h)+' ساعت × '+money(rate)+' (نرخ تزیین) × '+fa(m)+' (ضریب) = <b>'+money(c.labor)+'</b></div>')+
+  (S.settings.decUseOver?'<div class="muted">سربار '+fa(S.settings.decOver)+'٪: <b>'+money(c.over)+'</b></div>':'')+
+  (S.settings.decUseProfit?'<div class="muted">سود '+fa(S.settings.decProfit)+'٪: <b>'+money(c.profit)+'</b></div>':'')+
+  '<div class="row" style="margin-top:6px"><span class="muted">قیمت تزیین (رند شده)</span><b class="sp price">'+money(c.final)+' '+S.settings.currency+'</b></div>'
+}
+function decSummary(dc){
+ if(dc.mode==='manual'){
+  return (dc.name?esc(dc.name)+' • ':'')+(+dc.matCost>0?'مواد '+money(dc.matCost)+' • ':'')+
+   ((S.settings.decUseLabor!==false&&+dc.hours>0)?fa(dc.hours)+' ساعت کار • '+multLabel(dc.mult)+' • ':'')+money(dc.price)+' (دستی)'}
+ var mats=(dc.mats||[]).map(function(r){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'؟',unit:''};
+  return esc(g.name)+' '+fa(r.q)+' '+esc(g.unit)}).join('، ');
+ return (mats?mats+' • ':'')+((S.settings.decUseLabor!==false&&+dc.hours>0)?fa(dc.hours)+' ساعت کار • '+multLabel(dc.mult)+' • ':'')+money(dc.price);
+}
+function cancelItemEdit(){
+ UI.editItem=null;UI.qty=1;UI.decOpen=false;
+ UI.decDraft={mode:(UI.decDraft&&UI.decDraft.mode)||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};
+}
+function itemPreview(){
+ var el=document.getElementById('itemPrev');if(!el)return;
+ var p=S.products.find(function(x){return x.id===UI.selP});
+ var z=p?(p.sizes.find(function(x){return x.id===UI.selS})||p.sizes[0]):null;
+ var base=(p&&z)?calc(p,z).final:0;
+ var dd=UI.decDraft, on=hasDec(dd), dp=on?calcDec(dd).final:0;
+ var pe=document.getElementById('decBreak');
+ if(pe)pe.innerHTML=decBreakHTML(dd);
+ if(!p||!z){el.innerHTML='<span class="muted">محصول و اندازه را انتخاب کنید'+(on?' — قیمت تزیین: '+money(dp):'')+'</span>';return}
+ el.innerHTML=on?('محصول '+money(base)+' + تزیین '+money(dp)+' = <b class="price">'+money(base+dp)+' '+S.settings.currency+'</b>')
+  :('قیمت این قلم: <b class="price">'+money(base)+' '+S.settings.currency+'</b>');
+}
+function freshDep(){return S.settings.defDepMode||'manual'}
+function resetDraft(){UI.step=1;UI.decOpen=false;UI.editItem=null;UI.qty=1;UI.decDraft={mode:(UI.decDraft&&UI.decDraft.mode)||'pick',mats:[],hours:0,mult:+S.settings.defMult||1,name:'',matCost:0,priceOverride:0};UI.selP=S.settings.defProduct||'';
+ UI.selS=(S.settings.defSize||{})[UI.selP]||null;UI.decIng=S.settings.defDecIng||'';UI.draft={name:'',phone:'',date:null,time:'',items:[],note:'',deposit:0,discount:0,depMode:freshDep(),id:null}}
+
+function drawPicker(){
+ var pop=document.getElementById('pop');if(!pop)return;
+ var m=UI.pickM||(UI.draft.date?{jy:UI.draft.date.jy,jm:UI.draft.date.jm}:{jy:today().jy,jm:today().jm});
+ UI.pickM=m;
+ pop.innerHTML=calendarHTML(m,UI.draft.date,false);
+ pop.onclick=function(e){e.stopPropagation()};
+ pop.querySelectorAll('[data-nav]').forEach(function(b){b.addEventListener('click',function(){
+  var s=+b.dataset.nav,jm=m.jm+s,jy=m.jy;if(jm>12){jm=1;jy++}if(jm<1){jm=12;jy--}
+  UI.pickM={jy:jy,jm:jm};drawPicker()})});
+ pop.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+  UI.draft.date=keyToJ(b.dataset.day);document.getElementById('pop').classList.remove('on');act();render()})});
+}
+document.addEventListener('click',function(){var p=document.getElementById('pop');if(p)p.classList.remove('on')});
+
+async function saveOrder(){
+ var d=UI.draft;
+ if(!d.name.trim())return toast('نام مشتری را وارد کنید');
+ if(!d.date)return toast('تاریخ تحویل را انتخاب کنید');
+ if(!d.items.length)return toast('حداقل یک محصول اضافه کنید');
+ var total=d.items.reduce(function(s,it){return s+lineTotal(it)},0);
+ var g=toG(d.date.jy,d.date.jm,d.date.jd);
+ var depNow=currentDep(d,total);
+ var o={id:d.id||uid(),name:d.name.trim(),phone:d.phone.trim(),items:d.items.slice(),depMode:d.depMode||'manual',
+  jalali:jKey(d.date),gregorian:g.gy+'-'+String(g.gm).padStart(2,'0')+'-'+String(g.gd).padStart(2,'0'),
+  time:d.time,note:d.note,discount:+d.discount||0,deposit:depNow,total:total,
+  status:d.status||'new',createdAt:d.createdAt||new Date().toISOString()};
+ var ix=S.orders.findIndex(function(x){return x.id===o.id});
+ if(ix>-1)S.orders[ix]=o;else S.orders.push(o);
+ pushHist();
+ await save();
+ resetDraft();goTab('orders')
+}
+
+/* ---------- سفارش‌ها ---------- */
+function statusChip(s){return s==='done'?'<span class="chip done">تحویل شد</span>':
+ s==='baking'?'<span class="chip baking">در حال آماده‌سازی</span>':'<span class="chip new">جدید</span>'}
+function orderCard(o){
+ var j=keyToJ(o.jalali),due=o.total-o.discount-o.deposit;
+ var t=today(),dd=j2d(j.jy,j.jm,j.jd)-j2d(t.jy,t.jm,t.jd);
+ var when=dd===0?'امروز':dd===1?'فردا':dd>0?fa(dd)+' روز مانده':fa(-dd)+' روز گذشته';
+ return '<div class="item'+(dd>=0&&dd<=1&&o.status!=='done'?' hi':'')+'">'+
+ '<div class="row"><b class="name">'+esc(o.name)+'</b>'+statusChip(o.status)+
+ '<span class="sp price">'+money(o.total)+' '+S.settings.currency+'</span></div>'+
+ '<div class="muted">'+faDateLong(j)+(o.time?' • ساعت '+fmtTime(o.time):'')+' — '+WD[jWeekday(j)]+' • '+grHTML(j)+' • '+when+'</div>'+
+ '<div class="muted">'+o.items.map(function(i){return esc(i.label)+' ×'+fa(i.qty)}).join(' | ')+'</div>'+
+ o.items.filter(function(i){return i.dec}).map(function(i){
+   return '<div class="muted">🎀 '+(i.dec.mats?decSummary(i.dec):esc(i.dec.name||'')+' • '+money(i.dec.price))+'</div>'}).join('')+
+ (o.phone?'<div class="muted">تماس: '+fa(o.phone)+'</div>':'')+
+ (o.note?'<div class="muted">یادداشت: '+esc(o.note)+'</div>':'')+
+ '<div class="muted">بیعانه '+money(o.deposit)+' • باقی‌مانده '+money(due)+'</div>'+
+ '<div class="row" style="margin-top:8px">'+
+  '<button class="btn ghost mini" data-st="'+o.id+'">تغییر وضعیت</button>'+
+  '<button class="btn ghost mini" data-ed="'+o.id+'">ویرایش</button>'+
+  '<button class="btn ghost mini" data-cp="'+o.id+'">کپی فاکتور</button>'+
+  (o.phone?'<a class="btn ghost mini" href="tel:'+esc(phoneKey(o.phone))+'">تماس</a>':'')+
+  (o.phone&&waLink(o.phone)?'<a class="btn ghost mini" href="'+waLink(o.phone,invoiceText(o))+'" target="_blank" rel="noopener">واتساپ</a>':'')+
+  '<button class="btn danger mini sp" data-del="'+o.id+'">حذف</button></div></div>'
+}
+function invoiceText(o){
+ var j=keyToJ(o.jalali);
+ return '🧁 pinkbake\nمشتری: '+o.name+'\nتحویل: '+faDateLong(j)+(o.time?' ساعت '+fmtTime(o.time):'')+'\n'+
+  o.items.map(function(i){return '• '+i.label+' ×'+i.qty+' — '+Math.round(lineTotal(i)).toLocaleString('en-US')}).join('\n')+
+  '\nجمع: '+o.total.toLocaleString('en-US')+' '+S.settings.currency+
+  '\nبیعانه: '+o.deposit.toLocaleString('en-US')+'\nباقی‌مانده: '+(o.total-o.discount-o.deposit).toLocaleString('en-US')}
+function dayLabel(j){
+ var t=today(),dd=j2d(j.jy,j.jm,j.jd)-j2d(t.jy,t.jm,t.jd);
+ return dd===0?'امروز':dd===1?'فردا':dd===-1?'دیروز':dd>0?fa(dd)+' روز مانده':fa(-dd)+' روز گذشته'}
+function customers(){
+ var m={};
+ S.orders.forEach(function(o){
+  var k=phoneKey(o.phone)||('n:'+(o.name||'').trim());
+  var c=m[k]||(m[k]={key:k,name:o.name,phone:o.phone,n:0,total:0,due:0,last:'',first:'',open:0});
+  c.n++;c.total+=o.total-o.discount;c.due+=o.total-o.discount-o.deposit;
+  if(o.status!=='done')c.open++;
+  if(!c.phone&&o.phone)c.phone=o.phone;
+  if(!c.last||o.jalali>c.last)c.last=o.jalali;
+  if(!c.first||o.jalali<c.first)c.first=o.jalali;
+ });
+ return Object.keys(m).map(function(k){return m[k]}).sort(function(a,b){return b.total-a.total})
+}
+function filterOrders(){
+ var t=today(),tk=j2d(t.jy,t.jm,t.jd),mk=jKey(t).slice(0,7);
+ var q=toLatin(UI.q||'').trim().toLowerCase(), qd=q.replace(/[^0-9]/g,'');
+ return S.orders.filter(function(o){
+  var j=keyToJ(o.jalali),k=j2d(j.jy,j.jm,j.jd),f=UI.filter;
+  var pass = f==='all'?true:
+   f==='today'?k===tk:
+   f==='tomorrow'?k===tk+1:
+   f==='week'?(k>=tk&&k<tk+7):
+   f==='month'?o.jalali.slice(0,7)===mk:
+   f==='overdue'?(k<tk&&o.status!=='done'):
+   f==='done'?o.status==='done':
+   /* up */ (k>=tk&&o.status!=='done');
+  if(!pass)return false;
+  if(!q)return true;
+  var hay=toLatin((o.name||'')+' '+(o.note||'')+' '+o.items.map(function(i){return i.label}).join(' ')).toLowerCase();
+  if(hay.indexOf(q)>-1)return true;
+  return !!(qd&&phoneKey(o.phone).indexOf(qd)>-1)
+ })
+}
+function sortOrders(list){
+ var s=UI.sort||'dateAsc';
+ var by={
+  dateAsc:function(a,b){return a.jalali<b.jalali?-1:a.jalali>b.jalali?1:0},
+  dateDesc:function(a,b){return a.jalali>b.jalali?-1:a.jalali<b.jalali?1:0},
+  amount:function(a,b){return (b.total-b.discount)-(a.total-a.discount)},
+  due:function(a,b){return (b.total-b.discount-b.deposit)-(a.total-a.discount-a.deposit)},
+  newest:function(a,b){return (b.createdAt||'')<(a.createdAt||'')?-1:1},
+  name:function(a,b){return (a.name||'').localeCompare(b.name||'','fa')}
+ };
+ return list.slice().sort(by[s]||by.dateAsc)
+}
+function viewOrders(){
+ var t=today(),tk=j2d(t.jy,t.jm,t.jd);
+ var list=sortOrders(filterOrders());
+ var sumAll=list.reduce(function(a,o){return a+o.total-o.discount},0);
+ var sumDue=list.reduce(function(a,o){return a+o.total-o.discount-o.deposit},0);
+ var late=S.orders.filter(function(o){var j=keyToJ(o.jalali);return j2d(j.jy,j.jm,j.jd)<tk&&o.status!=='done'}).length;
+ var f=[['today','امروز'],['tomorrow','فردا'],['week','۷ روز آینده'],['month','این ماه'],
+        ['overdue','عقب‌افتاده'+(late?' ('+fa(late)+')':'')],['up','در پیش رو'],['done','تحویل‌شده'],['all','همه']]
+  .map(function(x){var on=UI.filter===x[0],df=S.settings.defFilter===x[0];
+   return '<button class="btn '+(on?'':'ghost')+' mini" data-f="'+x[0]+'">'+x[1]+
+    ((on||df)?'<span class="tstar'+(df?' on':'')+'" data-fstar="'+x[0]+'">'+(df?'★':'☆')+'</span>':'')+'</button>'}).join('');
+ var sortItems=[['dateAsc','نزدیک‌ترین تحویل'],['dateDesc','دورترین تحویل'],['amount','بیشترین مبلغ'],
+            ['due','بیشترین باقی‌مانده'],['newest','تازه‌ترین ثبت'],['name','نام مشتری']]
+  .map(function(x){return {v:x[0],label:x[1],def:S.settings.defSort===x[0]}});
+ var csortItems=[['total','بیشترین خرید'],['count','بیشترین تعداد سفارش'],['recent','تازه‌ترین سفارش'],
+            ['due','بیشترین باقی‌مانده'],['name','نام مشتری']]
+  .map(function(x){return {v:x[0],label:x[1],def:S.settings.defCustSort===x[0]}});
+
+ var head='<div class="card">'+
+  '<div class="row">'+ihelp('نام، شماره، یادداشت یا نام محصول را بنویسید. ارقام فارسی و انگلیسی یکی حساب می‌شوند.')+'<input type="text" id="q" placeholder="'+(UI.cust?'جستجوی مشتری: نام یا شماره…':'جستجو: نام، شماره، یادداشت یا محصول…')+'" value="'+esc(UI.q)+'" style="max-width:280px">'+
+  (UI.q?'<button class="btn ghost mini" id="qclr">پاک کردن</button>':'')+
+  '<button class="btn '+(UI.cust?'':'ghost')+' mini sp" id="custBtn">👤 مشتری‌ها</button>'+ihelp('نمای مشتری‌ها: سفارش‌ها بر اساس شمارهٔ تماس زیر یک پرونده جمع می‌شوند و مجموع خرید و بدهی هر نفر دیده می‌شود.')+'</div>'+
+  '<div class="row" style="margin-top:10px">'+ihelp('نمای لیست را محدود می‌کند. «عقب‌افتاده» یعنی تاریخ تحویلش گذشته ولی هنوز تحویل نشده؛ عدد کنارش تعدادشان است.')+f+'</div>'+
+  '<div class="row" style="margin-top:10px"><label class="f" style="margin:0">مرتب‌سازی'+ihelp('ترتیب نمایش لیست. ستارهٔ کنار هر گزینه آن را پیش‌فرض دفعات بعد می‌کند.')+'</label>'+
+  '<div style="min-width:230px">'+(UI.cust
+    ?dd('CSORT',UI.custSort||'total',csortItems,'بیشترین خرید')
+    :dd('SORT',UI.sort||'dateAsc',sortItems,'نزدیک‌ترین تحویل'))+'</div></div>'+
+  '<div class="divider"></div>'+
+  '<div class="grid3">'+
+   '<div class="stat"><span class="muted">سفارش در این نما'+ihelp('این سه عدد فقط مربوط به فیلتر و جستجوی فعلی هستند، نه کل سفارش‌ها.')+'</span><b>'+fa(list.length)+'</b></div>'+
+   '<div class="stat"><span class="muted">جمع مبلغ'+ihelp('جمع مبلغ سفارش‌های همین نما پس از کسر تخفیف، بدون در نظر گرفتن بیعانه.')+'</span><b>'+money(sumAll)+'</b></div>'+
+   '<div class="stat"><span class="muted">باقی‌مانده قابل دریافت</span><b>'+money(sumDue)+'</b></div>'+
+  '</div></div>';
+
+ if(UI.cust){
+  var cs=customers();
+  var cq=toLatin(UI.q||'').trim().toLowerCase(),cqd=cq.replace(/[^0-9]/g,'');
+  if(cq)cs=cs.filter(function(c){
+   return toLatin(c.name||'').toLowerCase().indexOf(cq)>-1||(cqd&&phoneKey(c.phone).indexOf(cqd)>-1)});
+  var cby={total:function(a,b){return b.total-a.total},
+   count:function(a,b){return b.n-a.n},
+   recent:function(a,b){return a.last<b.last?1:-1},
+   due:function(a,b){return b.due-a.due},
+   name:function(a,b){return (a.name||'').localeCompare(b.name||'','fa')}};
+  cs=cs.slice().sort(cby[UI.custSort||'total']||cby.total);
+  return head+'<div class="card"><h2>مشتری‌ها'+ihelp('حذف مشتری یعنی حذف همهٔ سفارش‌هایش. با دکمهٔ بازگشت قابل برگرداندن است.')+'</h2><p class="hint">بر اساس شماره تماس یکی می‌شوند. جستجو و مرتب‌سازی بالای صفحه روی همین لیست هم کار می‌کند.</p>'+
+  (cs.length?'<div class="list">'+cs.map(function(c){
+    var wa=waLink(c.phone,'سلام '+c.name+' عزیز 🧁');
+    return '<div class="item"><div class="row"><b class="name">'+esc(c.name||'بدون نام')+'</b>'+
+     (c.n>=3?'<span class="chip done">مشتری همیشگی</span>':'')+
+     (c.open?'<span class="chip new">'+fa(c.open)+' سفارش باز</span>':'')+
+     '<span class="sp price">'+money(c.total)+'</span></div>'+
+     '<div class="muted">'+fa(c.n)+' سفارش • آخرین: '+faDateLong(keyToJ(c.last))+
+     (c.due>0?' • باقی‌مانده: '+money(c.due):'')+'</div>'+
+     (c.phone?'<div class="muted ltr">'+esc(c.phone)+'</div>':'')+
+     '<div class="row" style="margin-top:8px">'+
+      '<button class="btn ghost mini" data-cq="'+esc(c.phone||c.name)+'">سفارش‌هایش</button>'+
+      '<button class="btn ghost mini" data-cnew="'+esc(c.key)+'">سفارش جدید برایش</button>'+
+      '<button class="btn danger mini" data-cdel="'+esc(c.key)+'">حذف مشتری</button>'+
+      (c.phone?'<a class="btn ghost mini" href="tel:'+esc(phoneKey(c.phone))+'">تماس</a>':'')+
+      (wa?'<a class="btn ghost mini" href="'+wa+'" target="_blank" rel="noopener">واتساپ</a>':'')+
+     '</div></div>'}).join('')+'</div>'
+   :'<div class="empty"><span class="cake">👤</span>هنوز مشتری‌ای ثبت نشده.</div>')+'</div>';
+ }
+
+ var body='';
+ if(!list.length)body='<div class="card"><div class="empty"><span class="cake">🎂</span>سفارشی در این نما نیست.</div></div>';
+ else if((UI.sort||'dateAsc').indexOf('date')===0){
+  var cur='';
+  body='<div class="card">';
+  list.forEach(function(o){
+   if(o.jalali!==cur){cur=o.jalali;var j=keyToJ(o.jalali);
+    body+='<div class="dayhead"><span>'+dayLabel(j)+' — '+faDateLong(j)+' • '+WD[jWeekday(j)]+' • '+grHTML(j)+'</span></div>'}
+   body+=orderCard(o)});
+  body+='</div>';
+ } else body='<div class="card"><div class="list">'+list.map(orderCard).join('')+'</div></div>';
+ return head+body
+}
+function bindOrders(){
+ V.querySelectorAll('[data-fstar]').forEach(function(b){b.addEventListener('click',function(e){
+  e.stopPropagation();var k=b.dataset.fstar;
+  S.settings.defFilter=(S.settings.defFilter===k)?'':k;touch();render();
+  toast(S.settings.defFilter?'این نما پیش‌فرض شد':'پیش‌فرض برداشته شد')})});
+ V.querySelectorAll('[data-f]').forEach(function(b){b.addEventListener('click',function(e){
+  if(e.target.closest('[data-fstar]'))return;
+  UI.filter=b.dataset.f;UI.cust=false;render()})});
+ var cb=document.getElementById('custBtn');
+ if(cb)cb.addEventListener('click',function(){UI.cust=!UI.cust;render()});
+ var cl=document.getElementById('qclr');
+ if(cl)cl.addEventListener('click',function(){UI.q='';render()});
+ var q=document.getElementById('q');
+ if(q)q.addEventListener('input',function(){UI.q=q.value;render();
+  var n=document.getElementById('q');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}});
+ V.querySelectorAll('[data-cq]').forEach(function(b){b.addEventListener('click',function(){
+  UI.q=b.dataset.cq;UI.cust=false;UI.filter='all';render()})});
+ V.querySelectorAll('[data-cdel]').forEach(function(b){b.addEventListener('click',function(){
+  var key=b.dataset.cdel;
+  var mine=S.orders.filter(function(o){return (phoneKey(o.phone)||('n:'+(o.name||'').trim()))===key});
+  if(!mine.length)return;
+  if(!confirm('این مشتری و '+mine.length+' سفارشش حذف شوند؟ با دکمهٔ بازگشت قابل برگرداندن است.'))return;
+  S.orders=S.orders.filter(function(o){return (phoneKey(o.phone)||('n:'+(o.name||'').trim()))!==key});
+  touch();render();toast('مشتری و سفارش‌هایش حذف شدند')})});
+ V.querySelectorAll('[data-cnew]').forEach(function(b){b.addEventListener('click',function(){
+  var c=customers().find(function(x){return x.key===b.dataset.cnew});if(!c)return;
+  resetDraft();UI.draft.name=c.name;UI.draft.phone=c.phone;goTab('new')})});
+ V.querySelectorAll('[data-st]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.st});
+  o.status=o.status==='new'?'baking':o.status==='baking'?'done':'new';touch();render()})});
+ V.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){
+  if(!confirm('این سفارش حذف شود؟'))return;
+  S.orders=S.orders.filter(function(x){return x.id!==b.dataset.del});touch();render()})});
+ V.querySelectorAll('[data-ed]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.ed});
+  UI.draft={id:o.id,name:o.name,phone:o.phone,date:keyToJ(o.jalali),time:o.time,items:o.items.slice(),
+   note:o.note,deposit:o.deposit,discount:o.discount,depMode:o.depMode||'manual',status:o.status,createdAt:o.createdAt};
+  UI.step=1;goTab('new')})});
+ V.querySelectorAll('[data-cp]').forEach(function(b){b.addEventListener('click',function(){
+  var o=S.orders.find(function(x){return x.id===b.dataset.cp});
+  navigator.clipboard.writeText(invoiceText(o)).then(function(){toast('فاکتور کپی شد')},function(){toast('کپی نشد')})})});
+}
+
+/* ---------- تقویم ---------- */
+function ordersByDay(){var m={};S.orders.forEach(function(o){(m[o.jalali]=m[o.jalali]||[]).push(o)});return m}
+function calendarHTML(m,sel,withPips){
+ var map=withPips?ordersByDay():{};
+ var t=today(),len=jLen(m.jy,m.jm),start=jWeekday({jy:m.jy,jm:m.jm,jd:1});
+ var h='<div class="cal-head"><button class="nav" data-nav="-1">‹</button>'+
+  '<div class="cal-title">'+JM[m.jm-1]+' '+fa(m.jy)+'</div>'+
+  '<button class="nav" data-nav="1">›</button></div><div class="cal">';
+ ['ش','ی','د','س','چ','پ','ج'].forEach(function(w){h+='<div class="wd">'+w+'</div>'});
+ for(var i=0;i<start;i++)h+='<div class="day off"></div>';
+ for(var d=1;d<=len;d++){
+  var j={jy:m.jy,jm:m.jm,jd:d},k=jKey(j),g=toG(j.jy,j.jm,j.jd);
+  var cls='day'+(jWeekday(j)===6?' fri':'')+(k===jKey(t)?' today':'')+(sel&&k===jKey(sel)?' sel':'');
+  var n=(map[k]||[]).length;
+  h+='<button class="'+cls+'" data-day="'+k+'"><span>'+fa(d)+'</span><span class="g ltr">'+g.gd+' '+GM[g.gm-1]+'</span>'+
+   (n?'<span class="pips">'+Array(Math.min(n,3)).fill('<i></i>').join('')+'</span>':'')+'</button>'}
+ return h+'</div>'
+}
+function viewCal(){
+ var m=UI.calM||{jy:today().jy,jm:today().jm};UI.calM=m;
+ var sel=UI.selDay,map=ordersByDay();
+ var day=sel?(map[jKey(sel)]||[]):[];
+ return '<div class="card"><h2>تقویم تحویل'+ihelp('نمای ماهانهٔ تحویل‌ها. روی هر روز بزنید تا سفارش‌های همان روز پایین بیاید.')+'</h2><p class="hint">نقطه‌های صورتی یعنی آن روز سفارش دارد. زیر هر روز، تاریخ میلادی هم نوشته شده.</p>'+
+  calendarHTML(m,sel,true)+'</div>'+
+  (sel?'<div class="card"><h2>'+faDateLong(sel)+ihelp('سفارش‌های همین روز. از اینجا هم می‌توانید وضعیتشان را عوض یا ویرایششان کنید.')+'</h2><p class="hint">'+WD[jWeekday(sel)]+' • '+grHTML(sel)+'</p>'+
+   (day.length?'<div class="list">'+day.map(orderCard).join('')+'</div>'
+    :'<div class="empty"><span class="cake">🌸</span>این روز سفارشی ندارد.</div>')+'</div>':'')
+}
+function bindCal(){
+ V.querySelectorAll('[data-nav]').forEach(function(b){b.addEventListener('click',function(){
+  var s=+b.dataset.nav,m=UI.calM,jm=m.jm+s,jy=m.jy;if(jm>12){jm=1;jy++}if(jm<1){jm=12;jy--}
+  UI.calM={jy:jy,jm:jm};render()})});
+ V.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+  UI.selDay=keyToJ(b.dataset.day);render()})});
+ bindOrders()
+}
+
+/* ---------- محصولات ---------- */
+function viewProducts(){
+ var h='<div class="card"><h2>محصولات و دستور ساخت'+ihelp('هر محصول یک دستور ساخت (مواد اندازهٔ پایه) و چند اندازه دارد؛ قیمت‌ها خودکار از این دو حساب می‌شوند.')+'</h2><p class="hint">مقدار مواد را برای «اندازه پایه» وارد کنید؛ بقیه اندازه‌ها با ضریب حساب می‌شوند. هر تغییری همان لحظه در حافظه مرورگر ذخیره می‌شود.</p>'+
+  '<div class="row"><button class="btn ghost mini" id="addP">+ محصول جدید</button></div></div>';
+ S.products.forEach(function(p){
+  var open=UI.editP===p.id;
+  var base=p.sizes[0];
+  h+='<div class="card"><div class="row"><b class="name" id="nm-'+p.id+'">'+p.emoji+' '+esc(p.name)+'</b>'+
+   '<span class="muted" id="hd-'+p.id+'">'+fa(p.sizes.length)+' اندازه'+(S.settings.prodUseLabor!==false?' • دستمزد '+fa(p.labor)+' دقیقه':'')+'</span>'+
+   '<button class="btn ghost mini sp" data-op="'+p.id+'">'+(open?'بستن':'ویرایش')+'</button>'+
+   '<button class="btn danger mini" data-dp="'+p.id+'">حذف</button></div>'+
+   '<div class="row" id="chips-'+p.id+'" style="margin-top:10px;gap:8px">'+p.sizes.map(function(s){
+     return '<span class="chip new">'+esc(s.label)+' — '+money(calc(p,s).final)+'</span>'}).join('')+'</div>'+
+   '<div id="slice-'+p.id+'">'+sliceBar(calc(p,base))+'</div>';
+  if(open){
+   h+='<div class="divider"></div><div class="grid3">'+
+    '<div><label class="f">نام محصول'+ihelp('نامی که در فرم سفارش و روی فاکتور مشتری دیده می‌شود.')+'</label><input type="text" data-pf="name" data-p="'+p.id+'" value="'+esc(p.name)+'"></div>'+
+    '<div><label class="f">ایموجی'+ihelp('نشانهٔ تصویری کوچک کنار نام محصول، فقط برای اینکه در لیست سریع‌تر پیدایش کنید.')+'</label><input type="text" data-pf="emoji" data-p="'+p.id+'" value="'+esc(p.emoji)+'"></div>'+
+    (S.settings.prodUseLabor!==false
+      ?'<div><label class="f">زمان کار (دقیقه)'+ihelp('چند دقیقه طول می‌کشد تا اندازهٔ پایهٔ این محصول آماده شود. در نرخ ساعتی پخت ضرب می‌شود؛ زمان تزیین اینجا حساب نمی‌شود.')+'</label><input type="number" data-pf="labor" data-p="'+p.id+'" value="'+p.labor+'"></div>'
+      :'<div><label class="f">زمان کار</label><div class="muted" style="padding:10px 0">دستمزد پخت خاموش است</div></div>')+'</div>'+
+    '<div class="divider"></div><b>مواد اولیه اندازه پایه</b>'+ihelp('مقدار مواد را برای کوچک‌ترین اندازه بنویسید؛ اندازه‌های بزرگ‌تر با ضریب خودشان حساب می‌شوند. ستون قیمت واحد فقط نمایشی است و در تب مواد اولیه عوض می‌شود.')+'<table><tr><th>ماده'+ihelp('ماده‌ای از انبار که در این محصول مصرف می‌شود.')+'</th>'+
+     '<th>مقدار'+ihelp('مصرف این ماده برای اندازهٔ پایه، به واحد خودش. مثلاً ۰٫۳۵ کیلوگرم آرد.')+'</th>'+
+     '<th>واحد'+ihelp('واحد همین ماده که در تب مواد اولیه تعریف شده. اینجا قابل تغییر نیست.')+'</th>'+
+     '<th>قیمت واحد'+ihelp('قیمت روز یک واحد از این ماده. فقط نمایشی است؛ برای تغییرش به تب مواد اولیه بروید.')+'</th>'+
+     '<th>هزینه'+ihelp('مقدار ضرب در قیمت واحد — یعنی این ماده چقدر از هزینهٔ محصول را می‌سازد.')+'</th><th></th></tr>'+
+    p.recipe.map(function(r,ix){var g=S.ingredients.find(function(x){return x.id===r.i})||{name:'؟',unit:'',price:0};
+     return '<tr><td>'+esc(g.name)+'</td><td><input type="number" step="0.01" style="max-width:90px" data-rq="'+p.id+':'+ix+'" value="'+r.q+'"></td>'+
+     '<td class="muted">'+esc(g.unit)+'</td>'+
+     '<td class="muted" id="pu-'+p.id+'-'+ix+'">'+money(g.price)+'</td>'+
+     '<td class="muted" id="rc-'+p.id+'-'+ix+'">'+money(g.price*r.q)+'</td>'+
+     '<td><button class="btn danger mini" data-rr="'+p.id+':'+ix+'">×</button></td></tr>'}).join('')+
+    '</table><div class="row" style="margin-top:8px"><select data-ai="'+p.id+'" style="max-width:220px">'+
+    ingOptions('')+
+    '</select><button class="btn ghost mini" data-aib="'+p.id+'">+ افزودن ماده</button></div>'+
+    '<div class="divider"></div><b>اندازه‌ها</b>'+ihelp('ضریب یعنی چند برابرِ اندازهٔ پایه مواد می‌برد (۲ کیلو = ۲). بسته‌بندی هزینهٔ جعبهٔ همان اندازه است.')+'<table><tr><th>عنوان'+ihelp('نامی که در کشویی اندازه دیده می‌شود، مثلاً «۱ کیلو» یا «قالب بزرگ».')+'</th>'+
+     '<th>ضریب'+ihelp('چند برابر اندازهٔ پایه مواد می‌برد. اگر دستور را برای ۱ کیلو نوشته‌اید، ۲ کیلو ضریب ۲ می‌گیرد و نیم‌کیلو ۰٫۵.')+'</th>'+
+     '<th>بسته‌بندی'+ihelp('هزینهٔ جعبه و لوازم بسته‌بندی مخصوص همین اندازه. مستقل از ضریب، عیناً به قیمت اضافه می‌شود.')+'</th>'+
+     '<th>قیمت نهایی'+ihelp('قیمت محاسبه‌شدهٔ همین اندازه با تنظیمات فعلی تب مالی، رند شده به بالا.')+'</th><th></th></tr>'+
+    p.sizes.map(function(s,ix){return '<tr><td><input type="text" style="max-width:120px" data-sf="'+p.id+':'+ix+':label" value="'+esc(s.label)+'"></td>'+
+     '<td><input type="number" step="0.1" style="max-width:80px" data-sf="'+p.id+':'+ix+':f" value="'+s.f+'"></td>'+
+     '<td><input type="text" inputmode="numeric" class="moneyin" style="max-width:100px" data-sf="'+p.id+':'+ix+':box" value="'+grp(s.box||0)+'"></td>'+
+     '<td class="price" id="sp-'+p.id+'-'+ix+'">'+money(calc(p,s).final)+'</td>'+
+     '<td><button class="btn danger mini" data-sr="'+p.id+':'+ix+'">×</button></td></tr>'}).join('')+
+    '</table><div class="row" style="margin-top:8px"><button class="btn ghost mini" data-as="'+p.id+'">+ افزودن اندازه</button>'+
+    '<button class="btn ghost mini sp" data-op2="'+p.id+'">بستن ویرایش</button></div>'}
+  h+='</div>'});
+ return h
+}
+function refreshProduct(pid){
+ var p=S.products.find(function(x){return x.id===pid});if(!p)return;
+ var el=function(i){return document.getElementById(i)};
+ var nm=el('nm-'+pid);if(nm)nm.textContent=p.emoji+' '+p.name;
+ var hd=el('hd-'+pid);if(hd)hd.textContent=fa(p.sizes.length)+' اندازه'+(S.settings.prodUseLabor!==false?' • دستمزد '+fa(p.labor)+' دقیقه':'');
+ var ch=el('chips-'+pid);if(ch)ch.innerHTML=p.sizes.map(function(s){return '<span class="chip new">'+esc(s.label)+' — '+money(calc(p,s).final)+'</span>'}).join('');
+ var sl=el('slice-'+pid);if(sl&&p.sizes[0])sl.innerHTML=sliceBar(calc(p,p.sizes[0]));
+ p.recipe.forEach(function(r,ix){var g=S.ingredients.find(function(y){return y.id===r.i})||{price:0};
+  var c=el('rc-'+pid+'-'+ix);if(c)c.textContent=money(g.price*r.q);
+  var u=el('pu-'+pid+'-'+ix);if(u)u.textContent=money(g.price)});
+ p.sizes.forEach(function(s,ix){var c=el('sp-'+pid+'-'+ix);if(c)c.textContent=money(calc(p,s).final)});
+}
+function bindProducts(){
+ var g=function(s){return V.querySelectorAll(s)};
+ var b=document.getElementById('addP');
+ if(b)b.addEventListener('click',async function(){var id=uid();
+  S.products.push({id:id,name:'محصول جدید',emoji:'🍮',labor:60,recipe:[],sizes:[{id:uid(),label:'یک اندازه',f:1,box:0}]});
+  UI.editP=id;touch();render()});
+ g('[data-op]').forEach(function(x){x.addEventListener('click',function(){UI.editP=UI.editP===x.dataset.op?null:x.dataset.op;render()})});
+ g('[data-dp]').forEach(function(x){x.addEventListener('click',async function(){
+  if(!confirm('این محصول حذف شود؟'))return;S.products=S.products.filter(function(p){return p.id!==x.dataset.dp});touch();render()})});
+ g('[data-pf]').forEach(function(x){x.addEventListener('change',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.p});
+  p[x.dataset.pf]=x.dataset.pf==='labor'?+x.value:x.value;refreshProduct(p.id);touch()})});
+ g('[data-rq]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.rq.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.recipe[+a[1]].q=+x.value||0;refreshProduct(p.id);touch()})});
+ g('[data-rr]').forEach(function(x){x.addEventListener('click',async function(){
+  var a=x.dataset.rr.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.recipe.splice(+a[1],1);touch();render()})});
+ g('[data-aib]').forEach(function(x){x.addEventListener('click',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.aib});
+  var sel=V.querySelector('[data-ai="'+x.dataset.aib+'"]');
+  if(!sel.value)return toast('اول ماده را انتخاب کنید');
+  p.recipe.push({i:sel.value,q:0.1});touch();render()})});
+ g('[data-sf]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.sf.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.sizes[+a[1]][a[2]]=a[2]==='label'?x.value:unnum(x.value);refreshProduct(p.id);touch()})});
+ g('[data-sr]').forEach(function(x){x.addEventListener('click',async function(){
+  var a=x.dataset.sr.split(':'),p=S.products.find(function(y){return y.id===a[0]});
+  p.sizes.splice(+a[1],1);touch();render()})});
+ g('[data-as]').forEach(function(x){x.addEventListener('click',async function(){
+  var p=S.products.find(function(y){return y.id===x.dataset.as});
+  p.sizes.push({id:uid(),label:'اندازه تازه',f:1,box:0});touch();render()})});
+ g('[data-op2]').forEach(function(x){x.addEventListener('click',function(){UI.editP=null;render()})});
+}
+
+/* ---------- مواد اولیه ---------- */
+function viewIng(){
+ return '<div class="card"><h2>انبار مواد اولیه'+ihelp('قلب قیمت‌گذاری. قیمت هر ماده را یک بار عوض کنید تا قیمت همهٔ محصولات و تزیین‌هایی که از آن استفاده می‌کنند خودکار به‌روز شود.')+'</h2>'+
+ '<p class="hint">قیمت هر ماده را یک‌بار عوض کنید — قیمت همه محصولاتی که از آن استفاده می‌کنند خودکار به‌روز می‌شود. ذخیره خودکار است.</p>'+
+ '<table><tr><th>نام ماده'+ihelp('همین نام در دستور محصولات و در انتخاب مواد تزیین دیده می‌شود. تغییرش همه‌جا اعمال می‌شود.')+'</th>'+
+ '<th>واحد'+ihelp('مبنای مقداری که در دستور محصول می‌نویسید. اگر آرد را کیلویی وارد کرده‌اید، در دستور هم باید کیلو بنویسید (۰٫۳۵ یعنی ۳۵۰ گرم).')+'</th>'+
+ '<th>قیمت واحد ('+S.settings.currency+')'+ihelp('قیمت خرید یک واحد کامل از این ماده. هر بار که گران خریدید همین را به‌روز کنید تا قیمت همهٔ محصولات خودکار اصلاح شود.')+'</th>'+
+ '<th>استفاده در'+ihelp('در چند محصول از این ماده استفاده شده. قبل از حذف یک ماده، این عدد نشان می‌دهد چند دستور تحت تأثیر قرار می‌گیرند.')+'</th><th></th></tr>'+
+ S.ingredients.map(function(g){
+  var used=S.products.filter(function(p){return p.recipe.some(function(r){return r.i===g.id})}).length;
+  return '<tr><td><input type="text" data-gf="'+g.id+':name" value="'+esc(g.name)+'"></td>'+
+   '<td style="min-width:150px">'+dd('U~'+g.id,g.unit,(function(){
+     var us=(S.settings.units||[]).slice();if(g.unit&&us.indexOf(g.unit)<0)us.push(g.unit);
+     return us.map(function(u){return {v:u,label:esc(u),def:S.settings.defUnit===u}})})(),'انتخاب نشده')+'</td>'+
+   '<td><input type="text" inputmode="numeric" class="moneyin" style="max-width:130px" data-gf="'+g.id+':price" value="'+grp(g.price)+'"></td>'+
+   '<td class="muted">'+fa(used)+' محصول</td>'+
+   '<td><button class="btn danger mini" data-gd="'+g.id+'">×</button></td></tr>'}).join('')+
+ '</table><div class="row" style="margin-top:12px"><button class="btn ghost mini" id="addG">+ ماده جدید</button></div></div>'+
+ '<div class="card"><h2>واحدها'+ihelp('گزینه‌های کشویی «واحد». ★ یعنی مادهٔ جدید با همین واحد ساخته می‌شود.')+'</h2><p class="hint">این‌ها گزینه‌های کشویی «واحد» هستند. می‌توانید واحد تازه بسازید، واحد بی‌استفاده را حذف کنید، و یکی را پیش‌فرض کنید تا مادهٔ جدید با آن ساخته شود.</p>'+
+ '<div class="row" style="gap:8px">'+(S.settings.units||[]).map(function(u,ix){
+   var df=u===S.settings.defUnit;
+   return '<span class="chip '+(df?'baking':'new')+'">'+esc(u)+(df?' ★ پیش‌فرض':'')+
+    (df?'':' <button class="btn ghost mini" style="padding:0 6px" data-ustar="'+ix+'" title="پیش‌فرض شود">★</button>')+
+    ' <button class="btn danger mini" style="padding:0 6px" data-udel="'+ix+'" title="حذف">×</button></span>'}).join('')+'</div>'+
+ '<div class="row" style="margin-top:12px"><input type="text" id="newUnit" placeholder="واحد جدید، مثلاً قالب" style="max-width:220px">'+
+ '<button class="btn ghost mini" id="addUnit">+ افزودن واحد</button></div></div>'
+}
+function bindIng(){
+ V.querySelectorAll('[data-gf]').forEach(function(x){x.addEventListener('change',async function(){
+  var a=x.dataset.gf.split(':'),g=S.ingredients.find(function(y){return y.id===a[0]});
+  g[a[1]]=a[1]==='price'?unnum(x.value):x.value;touch()})});
+ var a=document.getElementById('addG');
+ if(a)a.addEventListener('click',function(){S.ingredients.push({id:uid(),name:'ماده جدید',unit:S.settings.defUnit||'',price:0});touch();render()});
+ var nu=document.getElementById('addUnit');
+ if(nu)nu.addEventListener('click',function(){
+  var el=document.getElementById('newUnit'),v=(el.value||'').trim();
+  if(!v)return toast('نام واحد را بنویسید');
+  if((S.settings.units||[]).indexOf(v)>-1)return toast('این واحد از قبل هست');
+  S.settings.units.push(v);touch();render()});
+ V.querySelectorAll('[data-ustar]').forEach(function(x){x.addEventListener('click',function(){
+  S.settings.defUnit=S.settings.units[+x.dataset.ustar];touch();render()})});
+ V.querySelectorAll('[data-udel]').forEach(function(x){x.addEventListener('click',function(){
+  var u=S.settings.units[+x.dataset.udel];
+  var n=S.ingredients.filter(function(g){return g.unit===u}).length;
+  if(n&&!confirm('این واحد در '+n+' ماده استفاده شده. حذف شود؟'))return;
+  S.settings.units.splice(+x.dataset.udel,1);
+  if(S.settings.defUnit===u)S.settings.defUnit='';
+  touch();render()})});
+ V.querySelectorAll('[data-gd]').forEach(function(x){x.addEventListener('click',async function(){
+  S.ingredients=S.ingredients.filter(function(y){return y.id!==x.dataset.gd});
+  S.products.forEach(function(p){p.recipe=p.recipe.filter(function(r){return r.i!==x.dataset.gd})});
+  touch();render()})});
+}
+
+/* ---------- تنظیمات ---------- */
+function faq(title,inner,open){return '<details class="faq"'+(open?' open':'')+'><summary>'+title+'</summary><div class="inner">'+inner+'</div></details>'}
+function viewHelp(){
+ return '<div class="card"><h2>راهنمای pinkbake</h2>'+
+ '<p class="hint">کنار هر عنوان در پنل یک دکمهٔ کوچک <span class="kbd">i</span> هست؛ ماوس را رویش نگه دارید تا توضیح همان تکه را ببینید. اینجا همه‌چیز کامل‌تر آمده.</p>'+
+
+ faq('🚀 در سه دقیقه شروع کنید',
+  '<p>اگر تازه شروع کرده‌اید، از این ترتیب جلو بروید:</p><ol>'+
+  '<li><b>مواد اولیه</b> — قیمت واقعی خریدهای خودتان را وارد کنید. پایهٔ همهٔ قیمت‌ها همین است.</li>'+
+  '<li><b>مالی</b> — نرخ ساعتی کار، درصد سربار و سود را تنظیم کنید.</li>'+
+  '<li><b>محصولات</b> — برای هر محصول، مواد و اندازه‌هایش را بنویسید. قیمت خودش در می‌آید.</li>'+
+  '<li><b>سفارش جدید</b> — حالا سفارش گرفتن فقط چند کلیک است.</li></ol>'+
+  '<p>محصولات و مواد نمونه از قبل پر شده‌اند؛ فقط اصلاحشان کنید، لازم نیست از صفر بسازید.</p>',true)+
+
+ faq('💾 ذخیره‌سازی، بازگشت و پشتیبان',
+  '<p><b>لازم نیست ذخیره بزنید.</b> هر تغییری خودش در حافظهٔ مرورگر نوشته می‌شود. نشانگر پایین صفحه وضعیت را می‌گوید: «در حال ذخیره…» یا «ذخیره شده ✓». اگر بزنیدش، فوری ذخیره می‌کند.</p>'+
+  '<p><span class="kbd">↶ بازگشت</span> تا ۴۰ مرحله عقب می‌رود — حذف سفارش، تغییر قیمت، پاک کردن فرم، همه برگشت‌پذیرند.</p>'+
+  '<p><b>مهم:</b> اطلاعات روی همین مرورگر و همین دستگاه است. اگر حافظهٔ مرورگر پاک شود، از بین می‌رود. ماهی یک‌بار از تب <b>تنظیمات</b> فایل پشتیبان بگیرید و جایی امن نگه دارید.</p>')+
+
+ faq('🧾 ثبت یک سفارش',
+  '<p>فرم سه مرحله دارد و روی هر مرحله می‌توانید مستقیم کلیک کنید:</p><ol>'+
+  '<li><b>مشتری و زمان</b> — نام، شماره، تاریخ و ساعت تحویل.</li>'+
+  '<li><b>اقلام</b> — محصول و اندازه و تعداد را انتخاب کنید، در صورت نیاز تزیین اضافه کنید، بعد «افزودن به سفارش». هر قلم در کادر پایین می‌نشیند و قابل ویرایش یا حذف است.</li>'+
+  '<li><b>مبلغ و ثبت</b> — تخفیف، بیعانه و یادداشت، بعد «ذخیره سفارش».</li></ol>'+
+  '<p>دکمهٔ <span class="kbd">↺ شروع دوباره</span> هر لحظه فرم را خالی می‌کند و با «بازگشت» قابل برگرداندن است.</p>')+
+
+ faq('🎀 تزیین چطور قیمت می‌خورد',
+  '<p>تزیین جدا از خود محصول حساب می‌شود و به همان قلم می‌چسبد. دو راه دارید:</p>'+
+  '<p><b>از لیست مواد</b> — مواد را از انبار برمی‌دارید و مقدارشان را می‌نویسید. مزیتش این است که با گران شدن مواد، قیمت تزیین هم خودکار به‌روز می‌شود.</p>'+
+  '<p><b>ورود دستی</b> — عنوان، هزینهٔ مواد و حتی قیمت نهایی را خودتان تایپ می‌کنید. اگر «قیمت نهایی دستی» را پر کنید، هیچ محاسبه‌ای انجام نمی‌شود.</p>'+
+  '<p><b>ضریب سختی</b> فقط روی دستمزد اثر می‌گذارد نه مواد — چون یک ساعت گل‌سازی با یک ساعت کار ساده ارزش یکسانی ندارد.</p>')+
+
+ faq('💰 فرمول قیمت‌ها',
+  '<p>قیمت نهایی هر محصول اینطور ساخته می‌شود:</p>'+
+  '<p><b>مواد + دستمزد + بسته‌بندی + سربار + سود ← رند به بالا</b></p>'+
+  '<p><b>سربار</b> هزینه‌هایی است که در هیچ محصولی جا نمی‌گیرد: برق و گاز فر، استهلاک ابزار، ضایعات، رفت‌وآمد خرید. برای کار خانگی معمولاً ۱۰ تا ۱۵ درصد.</p>'+
+  '<p><b>رند کردن</b> یعنی قیمت به مضرب بعدی گرد شود؛ با ۵,۰۰۰ عدد ۱,۲۹۱,۳۴۰ می‌شود ۱,۲۹۵,۰۰۰.</p>'+
+  '<p><b>ضریب اثر اندازه بر دستمزد</b>: کیک ۲ کیلو دو برابر مواد می‌برد ولی معمولاً دو برابر وقت نمی‌برد. با ۰٫۵ فقط نصف این افزایش به دستمزد منتقل می‌شود؛ با ۰ دستمزد ثابت می‌ماند.</p>'+
+  '<p>تیک کنار هر کادر در تب مالی یعنی آن جزء اعمال شود. اگر برش دارید، هم از فرمول حذف می‌شود و هم از فرم سفارش پنهان می‌شود.</p>')+
+
+ faq('👥 مشتری‌ها و پیگیری',
+  '<p>در تب سفارش‌ها دکمهٔ <b>مشتری‌ها</b> سفارش‌ها را بر اساس شمارهٔ تماس زیر یک پرونده جمع می‌کند: تعداد سفارش، مجموع خرید، باقی‌ماندهٔ بدهی و تاریخ آخرین سفارش. از سه سفارش به بالا برچسب «مشتری همیشگی» می‌گیرد.</p>'+
+  '<p>از همان‌جا می‌توانید سفارش‌های همان نفر را ببینید، برایش سفارش تازه بزنید (نام و شماره خودکار پر می‌شود)، یا تماس و واتساپ بگیرید.</p>'+
+  '<p>فیلترها و مرتب‌سازی‌ها و سه شاخص بالای لیست، همه فقط روی نمای فعلی حساب می‌شوند.</p>')+
+
+ faq('⭐ ستاره‌ها یعنی چه',
+  '<p>هر جا ستاره ببینید یعنی «این را پیش‌فرض کن». با کلیک، ☆ پر می‌شود و دفعهٔ بعد همان انتخاب آماده است. دوباره بزنید تا برداشته شود.</p>'+
+  '<p>روی این‌ها کار می‌کند: تب‌ها (کدام تب اول باز شود)، محصول و اندازه و ماده تزیین و ضریب سختی، فیلتر و مرتب‌سازی سفارش‌ها، حالت بیعانه، و واحد مواد اولیه.</p>'+
+  '<p>اندازه برای هر محصول جدا ذخیره می‌شود — مثلاً کیک تولد «۲ کیلو» و کاپ‌کیک «۱۲ عددی».</p>')+
+
+ faq('📅 تاریخ و ساعت',
+  '<p>تقویم شمسی است و زیر هر روز معادل میلادی هم نوشته شده. هر سفارش با هر دو تاریخ ذخیره می‌شود.</p>'+
+  '<p>نقطه‌های صورتی روی روزهای تقویم یعنی آن روز سفارش دارد. روی هر روز بزنید تا سفارش‌هایش پایین بیاید.</p>'+
+  '<p>در تب تنظیمات می‌توانید نمایش ساعت را بین ۱۲ و ۲۴ ساعته عوض کنید و مبنای تاریخ را تعیین کنید.</p>')+
+
+ faq('❓ مشکلات رایج',
+  '<p><b>قیمت یک محصول اشتباه است</b> — اول قیمت مواد اولیه‌اش را چک کنید، بعد نوار رنگی زیر آن محصول را ببینید تا بفهمید کدام بخش قیمت را سنگین کرده.</p>'+
+  '<p><b>ماده‌ای را حذف کردم که در یک محصول بود</b> — از دستور آن محصول هم حذف می‌شود و قیمت پایین می‌آید. با «بازگشت» برمی‌گردد.</p>'+
+  '<p><b>سفارشی را اشتباه حذف کردم</b> — فوراً «بازگشت» را بزنید.</p>'+
+  '<p><b>می‌خواهم روی دستگاه دیگری هم باشد</b> — فایل پشتیبان بگیرید، فایل pinkbake را آنجا باز کنید و بازیابی کنید. توجه: دو دستگاه خودکار همگام نمی‌شوند.</p>')+
+ '</div>'
+}
+function bindHelp(){}
+function viewSet(){
+ var s=S.settings;
+ var t=today(),tk=j2d(t.jy,t.jm,t.jd);
+ var month=S.orders.filter(function(o){return o.jalali.slice(0,7)===jKey(t).slice(0,7)});
+ var rev=month.reduce(function(a,o){return a+o.total-o.discount},0);
+ var sw=function(k,label){return '<label class="sw'+(s[k]?'':' off')+'"><input type="checkbox" data-sw="'+k+'"'+(s[k]?' checked':'')+'>'+label+'</label>'};
+ var fld=function(k,title,inner){var on=s[k]!==false;
+  return '<div class="fld'+(on?'':' offbox')+'"><div class="fldhead"><span>'+title+'</span>'+
+   '<label class="mini-sw'+(on?'':' off')+'"><input type="checkbox" data-sw="'+k+'"'+(on?' checked':'')+'>اعمال شود</label></div>'+
+   inner(on)+'</div>'};
+ var demo=S.products[0]?calc(S.products[0],S.products[0].sizes[0]):null;
+ var demoD=calcDec({mats:[],hours:1,mult:1});
+ return '<div class="card"><h2>قیمت‌گذاری محصولات'+ihelp('فرمول قیمت هر محصول. تیک کنار هر کادر یعنی آن جزء در قیمت اعمال شود؛ برداشتنش آن را از فرمول و از فرم سفارش حذف می‌کند.')+'</h2>'+
+ '<p class="hint">مواد'+(s.prodUseLabor!==false?' + دستمزد':'')+' + بسته‌بندی'+(s.prodUseOver?' + سربار':'')+(s.prodUseProfit?' + سود':'')+' ← رند به بالا. تیک کنار هر کادر یعنی آن جزء در قیمت اعمال شود.</p>'+
+ '<div class="grid2">'+
+  fld('prodUseLabor','دستمزد هر ساعت کار پخت ('+s.currency+')'+ihelp('ارزش یک ساعت کار پخت شما. در «زمان کار» هر محصول (که به دقیقه ثبت می‌شود) ضرب می‌شود. تیک را بردارید تا دستمزد اصلاً در قیمت محصولات نیاید.'),function(on){
+    return '<input type="text" inputmode="numeric" class="moneyin" data-st="laborRate" value="'+grp(s.laborRate)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodLaborBySize','ضریب اثر اندازه بر دستمزد'+ihelp('چقدر از بزرگ‌تر شدن محصول به دستمزد منتقل شود. ۰ یعنی دستمزد در همهٔ اندازه‌ها یکسان، ۱ یعنی کاملاً با ضریب اندازه بالا برود، ۰٫۵ یعنی نصفش. مواد همیشه کامل با اندازه بالا می‌روند.'),function(on){
+    return '<input type="number" step="0.1" min="0" data-st="prodLaborScale" value="'+(s.prodLaborScale==null?1:s.prodLaborScale)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodUseOver','سربار محصول ٪'+ihelp('درصدی که روی مجموع مواد و دستمزد اضافه می‌شود تا هزینه‌های پنهان پوشش داده شود: برق و گاز فر، استهلاک قالب و همزن، شوینده و ضایعات. برای کار خانگی معمولاً ۱۰ تا ۱۵.'),function(on){
+    return '<input type="number" data-st="prodOver" value="'+(s.prodOver||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('prodUseProfit','سود محصول ٪'+ihelp('درصد سود شما، که آخر از همه روی کل هزینه (مواد + دستمزد + بسته‌بندی + سربار) اعمال می‌شود. این همان چیزی است که واقعاً درآمد شماست.'),function(on){
+    return '<input type="number" data-st="prodProfit" value="'+(s.prodProfit||0)+'"'+(on?'':' disabled')+'>'})+
+ '</div>'+
+ '<p class="hint" style="margin-top:10px">ضریب اثر اندازه یعنی چقدر از بزرگ‌تر شدن محصول به دستمزد منتقل شود: '+
+ '<b>۰</b> دستمزد ثابت در همهٔ اندازه‌ها، <b>۱</b> دستمزد دقیقاً با ضریب اندازه بالا می‌رود، <b>۰٫۵</b> نصفِ آن. '+
+ 'الان روی <b>'+(s.prodLaborBySize===false?'خاموش (۰)':fa(s.prodLaborScale==null?1:s.prodLaborScale))+'</b> است.'+
+ (S.products[0]&&S.products[0].sizes[1]?'<br>نمونه: '+esc(S.products[0].sizes[0].label)+' → '+money(calc(S.products[0],S.products[0].sizes[0]).final)+
+   ' • '+esc(S.products[0].sizes[1].label)+' → '+money(calc(S.products[0],S.products[0].sizes[1]).final)+
+   (S.products[0].sizes[2]?' • '+esc(S.products[0].sizes[2].label)+' → '+money(calc(S.products[0],S.products[0].sizes[2]).final):''):'')+'</p>'+
+ (demo?'<div class="divider"></div><div class="muted">نمونه — '+esc(S.products[0].name)+' '+esc(S.products[0].sizes[0].label)+': <b class="price">'+money(demo.final)+' '+s.currency+'</b></div>'+sliceBar(demo):'')+
+ '</div>'+
+
+ '<div class="card"><h2>قیمت‌گذاری تزیین'+ihelp('تزیین فرمول جدا از محصول دارد: مواد تزیین + (ساعت × نرخ تزیین × ضریب سختی) + سربار + سود. بسته‌بندی در آن نقشی ندارد.')+'</h2>'+
+ '<p class="hint">مواد تزیین'+(s.decUseLabor!==false?' + (ساعت × نرخ تزیین × ضریب سختی)':'')+(s.decUseOver?' + سربار':'')+(s.decUseProfit?' + سود':'')+' ← رند به بالا.</p>'+
+ '<div class="grid3">'+
+  fld('decUseLabor','دستمزد هر ساعت کار تزیین ('+s.currency+')'+ihelp('ارزش یک ساعت کار تزیین، جدا از پخت. در «ساعت کار تزیین» هر سفارش و در ضریب سختی ضرب می‌شود. معمولاً کمی بالاتر از نرخ پخت می‌گذارند.'),function(on){
+    return '<input type="text" inputmode="numeric" class="moneyin" data-st="decorRate" value="'+grp(s.decorRate||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('decUseOver','سربار تزیین ٪'+ihelp('سربار مخصوص تزیین. چون تزیین معمولاً برق و فر کمتری می‌برد، می‌توانید عددی پایین‌تر از سربار محصول بگذارید یا کلاً خاموشش کنید.'),function(on){
+    return '<input type="number" data-st="decOver" value="'+(s.decOver||0)+'"'+(on?'':' disabled')+'>'})+
+  fld('decUseProfit','سود تزیین ٪'+ihelp('درصد سود روی تزیین، مستقل از سود محصول. چون تزیین مهارت تخصصی می‌خواهد، خیلی‌ها اینجا درصد بالاتری می‌گذارند.'),function(on){
+    return '<input type="number" data-st="decProfit" value="'+(s.decProfit||0)+'"'+(on?'':' disabled')+'>'})+
+ '</div>'+
+ '<div class="divider"></div><div class="muted">نمونه — یک ساعت تزیین ساده بدون مواد: <b class="price">'+money(demoD.final)+' '+s.currency+'</b></div>'+
+ '</div>'+
+
+ '<div class="card"><h2>عمومی'+ihelp('واحد پول و اینکه قیمت نهایی به چه عددی رند شود.')+'</h2><div class="grid2">'+
+  '<div><label class="f">رند کردن قیمت به'+ihelp('قیمت محاسبه‌شده به نزدیک‌ترین مضرب این عدد، رو به بالا می‌رود. مثلاً با ۵,۰۰۰ عدد ۱,۲۹۱,۳۴۰ می‌شود ۱,۲۹۵,۰۰۰.')+'</label><input type="text" inputmode="numeric" class="moneyin" data-st="round" value="'+grp(s.round)+'"></div>'+
+  '<div><label class="f">واحد پول'+ihelp('متنی که کنار همهٔ مبلغ‌ها نوشته می‌شود، مثلاً تومان یا ریال. فقط نمایشی است و در محاسبه اثری ندارد.')+'</label><input type="text" data-stx="currency" value="'+esc(s.currency)+'"></div>'+
+ '</div></div>'+
+ '<div class="card"><h2>حالت‌های بیعانه'+ihelp('دکمه‌های آمادهٔ بیعانه در فرم سفارش. درصدی با تغییر اقلام خودش دوباره حساب می‌شود؛ مبلغ ثابت نه.')+'</h2><p class="hint">این‌ها دکمه‌های آمادهٔ فرم سفارش می‌شوند. ستاره یعنی حالت پیش‌فرض هر سفارش تازه. «مبلغ دستی» همیشه در فرم هست.</p>'+
+ '<table><tr><th>عنوان'+ihelp('متنی که روی دکمهٔ بیعانه در فرم سفارش نوشته می‌شود، مثلاً «۳۰٪ پیش‌پرداخت».')+'</th>'+
+ '<th>نوع'+ihelp('«درصد از جمع کل» با تغییر اقلام سفارش خودش دوباره حساب می‌شود. «مبلغ ثابت» همیشه همان عدد می‌ماند.')+'</th>'+
+ '<th>مقدار'+ihelp('اگر نوع درصدی است عدد بدون علامت درصد بنویسید (مثلاً ۳۰)؛ اگر مبلغ ثابت است، مبلغ را به '+s.currency+' وارد کنید.')+'</th>'+
+ '<th>پیش‌فرض'+ihelp('ستارهٔ پر یعنی هر سفارش تازه با همین حالت بیعانه باز شود.')+'</th><th></th></tr>'+
+ (s.depModes||[]).map(function(m){
+  return '<tr><td><input type="text" style="max-width:150px" data-dm="'+m.id+'|label" value="'+esc(m.label)+'"></td>'+
+  '<td><select data-dm="'+m.id+'|type" style="max-width:150px">'+
+   '<option value="pct"'+(m.type!=='amt'?' selected':'')+'>درصد از جمع کل</option>'+
+   '<option value="amt"'+(m.type==='amt'?' selected':'')+'>مبلغ ثابت</option></select></td>'+
+  '<td><input type="'+(m.type==='amt'?'text" inputmode="numeric" class="moneyin':'number')+'" style="max-width:120px" data-dm="'+m.id+'|value" value="'+(m.type==='amt'?grp(m.value):(+m.value||0))+'"></td>'+
+  '<td><button class="starbtn'+(s.defDepMode===m.id?'':' off')+'" data-depstar="'+m.id+'">'+(s.defDepMode===m.id?'★':'☆')+'</button></td>'+
+  '<td><button class="btn danger mini" data-depdel="'+m.id+'">×</button></td></tr>'}).join('')+
+ '</table><div class="row" style="margin-top:12px"><button class="btn ghost mini" id="addDep">+ حالت جدید</button>'+
+ '<button class="starbtn sp'+(s.defDepMode?' off':'')+'" data-depstar="">'+(s.defDepMode?'☆':'★')+'</button>'+
+ '<span class="muted">پیش‌فرض: مبلغ دستی</span></div></div>'+
+
+ '<div class="card"><h2>یک نگاه به این ماه'+ihelp('خلاصهٔ ماه شمسی جاری بر اساس تاریخ تحویل سفارش‌ها.')+'</h2><div class="grid3">'+
+  '<div class="item"><div class="muted">سفارش‌های '+JM[t.jm-1]+ihelp('تعداد سفارش‌هایی که تاریخ تحویلشان در همین ماه شمسی است — چه تحویل شده باشند چه نه.')+'</div><b class="price">'+fa(month.length)+'</b></div>'+
+  '<div class="item"><div class="muted">مبلغ کل ماه'+ihelp('جمع مبلغ سفارش‌های این ماه پس از کسر تخفیف. بیعانه در آن کم نشده — این عدد کل فروش ماه است.')+'</div><b class="price">'+money(rev)+'</b></div>'+
+  '<div class="item"><div class="muted">تحویل‌های پیش‌رو'+ihelp('سفارش‌هایی که تاریخشان از امروز به بعد است و هنوز تحویل نشده‌اند — یعنی کارهایی که در صف دارید.')+'</div><b class="price">'+fa(S.orders.filter(function(o){var j=keyToJ(o.jalali);return j2d(j.jy,j.jm,j.jd)>=tk&&o.status!=='done'}).length)+'</b></div>'+
+ '</div></div>'
+}
+function viewBackup(){
+ var s=S.settings;
+ return '<div class="card"><h2>نمایش و ظاهر'+ihelp('تنظیمات ظاهری. روی محاسبات و داده‌ها اثری ندارند.')+'</h2><div class="grid2">'+
+ '<div><label class="f">نمایش ساعت تحویل'+ihelp('فقط شکل نمایش را عوض می‌کند؛ ساعت همیشه یکسان ذخیره می‌شود، پس سفارش‌های قدیمی هم درست نشان داده می‌شوند.')+'</label><select data-stb="time24">'+
+   '<option value="1"'+(s.time24!==false?' selected':'')+'>۲۴ ساعته — ۱۷:۳۰</option>'+
+   '<option value="0"'+(s.time24===false?' selected':'')+'>۱۲ ساعته — ۵:۳۰ بعدازظهر</option>'+
+  '</select></div>'+
+  '<div><label class="f">مبنای تاریخ و ساعت'+ihelp('اگر ساعت دستگاه با محل کارتان فرق دارد، اینجا شهر درست را انتخاب کنید تا «امروز» و «فردا» درست حساب شوند.')+'</label><select data-stx="tz">'+
+   '<option value=""'+(!s.tz?' selected':'')+'>ساعت همین دستگاه</option>'+
+   '<option value="Asia/Tehran"'+(s.tz==='Asia/Tehran'?' selected':'')+'>ساعت ایران (تهران)</option>'+
+   '<option value="Asia/Baku"'+(s.tz==='Asia/Baku'?' selected':'')+'>ساعت باکو</option>'+
+  '</select>'+
+  '<div class="muted" style="margin-top:6px">اکنون: '+WD[jWeekday(today())]+' '+faDateLong(today())+' • '+
+   fa((nowParts().hh<10?'0':'')+nowParts().hh+':'+(nowParts().mm<10?'0':'')+nowParts().mm)+'</div></div>'+
+ '</div></div>'+
+ '<div class="card"><h2>وضعیت ذخیره‌سازی'+ihelp('همه‌چیز خودکار ذخیره می‌شود. اینجا می‌بینید کجا و کِی ذخیره شده.')+'</h2>'+
+ '<p class="hint">محل ذخیره‌سازی فعال: <b>'+(BACKENDS.length?esc(BACKENDS.join(' + ')):'هیچ‌کدام — فقط تا بستن صفحه')+'</b>'+
+ (S.savedAt?' • آخرین ذخیره: '+fa(new Date(S.savedAt).toLocaleString('fa-IR')):' • هنوز ذخیره‌ای انجام نشده')+'</p>'+
+ (LASTERR?'<p class="hint" style="color:#B3245C">گزارش آخرین ذخیره: '+esc(LASTERR)+'</p>':'')+
+ '<div class="row"><span class="muted">'+fa(S.orders.length)+' سفارش • '+fa(S.products.length)+' محصول • '+fa(S.ingredients.length)+' ماده اولیه</span>'+
+ ihelp('ذخیره خودکار است و لازم نیست این را بزنید؛ فقط وقتی می‌خواهید مطمئن شوید همین لحظه نوشته شده.')+
+ '<button class="btn sp" id="saveNow">ذخیره فوری</button></div></div>'+
+ '<div class="card"><h2>فایل پشتیبان'+ihelp('یک فایل از کل اطلاعات. اگر حافظهٔ مرورگر پاک شود یا به دستگاه دیگری بروید، همه‌چیز از همین فایل برمی‌گردد.')+'</h2><p class="hint">ماهی یک‌بار فایل پشتیبان بگیرید و جایی امن نگه دارید؛ اگر حافظه مرورگر پاک شود، همه‌چیز از همین فایل برمی‌گردد.</p>'+
+ '<div class="row">'+ihelp('یک فایل json می‌سازد که همهٔ سفارش‌ها، محصولات، مواد و تنظیمات در آن است. در ایمیل یا تلگرام خودتان نگه دارید.')+
+ '<button class="btn ghost" id="exp">دریافت فایل پشتیبان</button>'+
+ ihelp('فایل پشتیبان را برمی‌گرداند. هشدار: اطلاعات فعلی با محتوای فایل جایگزین می‌شود؛ اگر اشتباه شد دکمهٔ بازگشت را بزنید.')+
+ '<label class="btn ghost" style="display:inline-block">بازیابی از فایل<input type="file" id="imp" accept="application/json" style="display:none"></label></div></div>'+
+ '<div class="card"><h2>پاک‌سازی'+ihelp('فقط سفارش‌ها را پاک می‌کند. محصولات، مواد اولیه و تنظیمات دست‌نخورده می‌مانند.')+'</h2><p class="hint">سفارش‌ها پاک می‌شوند؛ محصولات، مواد اولیه و تنظیمات مالی دست‌نخورده می‌مانند. اگر اشتباه شد، دکمهٔ بازگشت پایین صفحه برش می‌گرداند.</p>'+
+ '<div class="row"><button class="btn danger" id="wipe">پاک کردن همه سفارش‌ها</button></div></div>'
+}
+function bindSet(){
+ V.querySelectorAll('[data-st]').forEach(function(x){x.addEventListener('change',function(){S.settings[x.dataset.st]=unnum(x.value);touch();render()})});
+ V.querySelectorAll('[data-stb]').forEach(function(x){x.addEventListener('change',function(){
+  S.settings[x.dataset.stb]=x.value==='1';touch();render()})});
+ V.querySelectorAll('[data-dm]').forEach(function(x){x.addEventListener('change',function(){
+  var a=x.dataset.dm.split('|'),m=depMode(a[0]);if(!m)return;
+  if(a[1]==='label')m.label=x.value;
+  else if(a[1]==='type'){m.type=x.value;touch();render();return}
+  else m.value=unnum(x.value);
+  touch()})});
+ V.querySelectorAll('[data-depstar]').forEach(function(x){x.addEventListener('click',function(){
+  var id=x.dataset.depstar;
+  S.settings.defDepMode=(S.settings.defDepMode===id)?'':id;
+  touch();render()})});
+ V.querySelectorAll('[data-depdel]').forEach(function(x){x.addEventListener('click',function(){
+  S.settings.depModes=(S.settings.depModes||[]).filter(function(m){return m.id!==x.dataset.depdel});
+  if(S.settings.defDepMode===x.dataset.depdel)S.settings.defDepMode='';
+  touch();render()})});
+ var ad=document.getElementById('addDep');
+ if(ad)ad.addEventListener('click',function(){
+  S.settings.depModes.push({id:uid(),label:'حالت جدید',type:'pct',value:20});touch();render()});
+ V.querySelectorAll('[data-stx]').forEach(function(x){x.addEventListener('change',function(){
+  var k=x.dataset.stx;S.settings[k]=(k==='currency'?(x.value||'تومان'):x.value);touch();render()})});
+ V.querySelectorAll('[data-sw]').forEach(function(x){x.addEventListener('change',function(){S.settings[x.dataset.sw]=x.checked;touch();render()})});
+}
+function bindBackup(){
+ V.querySelectorAll('[data-stb]').forEach(function(x){x.addEventListener('change',function(){
+  S.settings[x.dataset.stb]=x.value==='1';touch();render()})});
+ var sn=document.getElementById('saveNow');
+ if(sn)sn.addEventListener('click',async function(){await save();render()});
+ var e=document.getElementById('exp');
+ if(e)e.addEventListener('click',function(){
+  var blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='pinkbake-backup-'+jKey(today())+'.json';a.click();toast('فایل پشتیبان ساخته شد')});
+ var i=document.getElementById('imp');
+ if(i)i.addEventListener('change',function(){
+  var f=i.files[0];if(!f)return;var r=new FileReader();
+  r.onload=async function(){try{var d=JSON.parse(r.result);
+    S={ingredients:d.ingredients||[],products:d.products||[],orders:d.orders||[],settings:Object.assign(seed().settings,d.settings||{})};
+    pushHist();await save(true);render();toast('اطلاعات بازیابی شد')}catch(err){toast('فایل معتبر نیست')}};
+  r.readAsText(f)});
+ var w=document.getElementById('wipe');
+ if(w)w.addEventListener('click',async function(){if(!confirm('همه سفارش‌ها پاک شوند؟ محصولات و مواد باقی می‌مانند.'))return;
+  S.orders=[];touch();render()});
+}
+
+/* ---------- راه‌اندازی ---------- */
+function render(){paint();
+ var rb=document.getElementById('resetBar');
+ if(rb)rb.style.display=(UI.tab==='new')?'inline-flex':'none';
+ if(UI.tab==='new')bindNew();else if(UI.tab==='orders')bindOrders();
+ else if(UI.tab==='cal')bindCal();else if(UI.tab==='products')bindProducts();
+else if(UI.tab==='ing')bindIng();else if(UI.tab==='bk')bindBackup();else if(UI.tab==='help')bindHelp();else bindSet()}
+V.addEventListener('click',function(e){
+ var t=e.target.closest?e.target.closest('[data-ddtoggle]'):null;
+ if(t){e.stopPropagation();UI.ddOpen=(UI.ddOpen===t.dataset.ddtoggle)?null:t.dataset.ddtoggle;render();return}
+ var pk=e.target.closest?e.target.closest('[data-ddpick]'):null;
+ if(pk){e.stopPropagation();var a=pk.dataset.ddpick.split('|');UI.ddOpen=null;ddPick(a[0],a.slice(1).join('|'));return}
+ var st=e.target.closest?e.target.closest('[data-ddstar]'):null;
+ if(st){e.stopPropagation();var b=st.dataset.ddstar.split('|');ddStar(b[0],b.slice(1).join('|'));return}
+});
+document.addEventListener('click',function(){if(UI.ddOpen){UI.ddOpen=null;render()}});
+V.addEventListener('input',function(e){
+ var t=e.target;
+ if(t&&t.classList&&t.classList.contains('moneyin'))reformatMoney(t)});
+document.getElementById('resetBar').addEventListener('click',function(){
+ if(UI.tab!=='new')return;
+ if(!confirm('کل فرم سفارش پاک شود و از اول شروع کنیم؟ (با دکمهٔ بازگشت قابل برگرداندن است)'))return;
+ resetDraft();act();render();window.scrollTo({top:0,behavior:'smooth'});toast('فرم خالی شد')});
+document.getElementById('undoBtn').addEventListener('click',function(){undo()});
+document.getElementById('saveAll').addEventListener('click',async function(){
+ var a=document.activeElement;
+ if(a&&a.blur&&a!==document.body)a.blur();
+ await save();
+ render()
+});
+(async function(){
+ await load();
+(function(){})();
+ UI.selP=S.settings.defProduct||'';UI.selS=(S.settings.defSize||{})[UI.selP]||null;
+ UI.decDraft.mult=+S.settings.defMult||1;UI.decIng=S.settings.defDecIng||'';
+ UI.tab=S.settings.defTab||'new';
+ UI.filter=S.settings.defFilter||'up';
+ UI.sort=S.settings.defSort||'dateAsc';
+ UI.custSort=S.settings.defCustSort||'total';
+ applyDefaults();paintTabs();
+ BASE=snapshot();
+ render();
+ paintSaveBtn();paintUndo();
+ paintToday();
+ setInterval(paintToday,20000);
+ document.addEventListener('visibilitychange',function(){if(!document.hidden)paintToday()});
+ window.addEventListener('focus',paintToday)
+})();
+</script>
+</body>
+</html>
