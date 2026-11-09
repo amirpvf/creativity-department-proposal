@@ -66,11 +66,21 @@ button{font-family:inherit}
 .ap:hover{transform:scale(1.06)}.ap svg{width:22px;height:22px}.ap .i-pause{display:none}.ap.on .i-play{display:none}.ap.on .i-pause{display:block}
 .am{flex:1;min-width:0}.at{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px}.at b{font-weight:700}.at span{font-size:12px;opacity:.9;direction:ltr;font-variant-numeric:tabular-nums}
 .abar{height:6px;border-radius:99px;background:rgba(255,255,255,.35);margin:7px 0;cursor:pointer;position:relative;overflow:hidden}.abar i{position:absolute;inset:0 auto 0 0;width:0;background:#fff;border-radius:99px}
-.hero .abar i{right:0;left:auto}
+.abar i{right:0;left:auto}
 .asp{display:flex;align-items:center;gap:5px;font-size:12px}.asp span{opacity:.85;margin-inline-end:2px}
 .asp button{border:1px solid rgba(255,255,255,.55);background:none;color:#fff;border-radius:99px;font:inherit;font-size:12px;font-weight:600;padding:0 9px;line-height:1.9;cursor:pointer}
 .asp button.on{background:#fff;color:var(--navy);border-color:#fff}
-.hero p.anote{font-size:12.5px;opacity:.88;margin:8px 0 0;max-width:440px;line-height:1.9}
+
+.hero p.anote{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;opacity:1;margin:14px 0 0;max-width:520px;line-height:1.9}
+.golisten{flex:none;display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.6);color:#fff;transition:.2s;animation:nudge 2.4s ease-in-out infinite}
+.golisten svg{width:21px;height:21px}.golisten:hover{background:#fff;color:var(--navy)}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.listen{margin:10px auto 40px;max-width:640px;border-radius:24px;padding:24px 22px;color:#fff;text-align:center;background:linear-gradient(to left,#5ab6e6 0%,#5ec0de 50%,#69c9cf 80%,#79cfc4 100%);box-shadow:var(--shadow);scroll-margin-top:90px}
+.listen h2{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 4px;font-size:21px}.listen h2 svg{width:22px;height:22px}
+.listen>p{margin:0 0 6px;font-size:14px;opacity:.92}
+.listen .aud{margin:12px auto 0;text-align:right}
+@media (prefers-reduced-motion:reduce){.golisten{animation:none}}
+
 .hear{display:inline-flex;align-items:center;gap:4px;margin-inline-start:auto;border:1px solid var(--sky2);background:var(--white);color:var(--blue);border-radius:99px;font:inherit;font-family:var(--ui);font-size:12px;font-weight:600;padding:2px 10px;cursor:pointer;transition:.2s}
 .hear svg{width:14px;height:14px}.hear:hover,.hear.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .invite h2 .hear{margin-inline-start:12px}
@@ -81,7 +91,7 @@ button{font-family:inherit}
 .amr,.amx{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:99px;font:inherit;font-size:12px;font-weight:700;height:28px;min-width:38px;cursor:pointer}
 .amx{min-width:28px;font-size:16px}
 @media (max-width:560px){.aud{max-width:none}.amt{max-width:34%}}
-@media print{.aud,.anote,.amini,.hear{display:none!important}}
+@media print{.aud,.anote,.amini,.hear,.listen{display:none!important}}
 
 .hlogo{position:absolute;right:3%;top:50%;transform:translateY(-50%);width:clamp(150px,17vw,235px);height:auto;z-index:1;opacity:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.18))}
 @media (max-width:1240px){.hlogo{opacity:.13;right:-20px;width:240px;filter:none}}
@@ -374,17 +384,8 @@ button{font-family:inherit}
       <span class="eyebrow">پروپوزال</span>
       <h1>دپارتمان خلاقیت تایم‌کوچ</h1>
       <p class="sub">پرسشگری و خلاقیت؛ دو بال پرواز انسان آینده</p>
+      <p class="anote">برای صرفه‌جویی در وقت شما، متن کامل پروپوزال به‌صورت صوتی هم آماده شده است.<a class="golisten" href="#listen" aria-label="رفتن به نسخهٔ صوتی در پایین صفحه"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><rect x="16.8" y="12.5" width="4.2" height="6" rx="1.5" fill="currentColor"/><path d="M12 15.5v6m0 0l-2.3-2.3M12 21.5l2.3-2.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
       <p class="rt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>زمان مطالعهٔ پروپوزال: حدود ۱۵ دقیقه</p>
-      <div class="aud" id="aud">
-        <button type="button" class="ap" id="apBtn" aria-label="پخش نسخهٔ صوتی پروپوزال"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg></button>
-        <div class="am">
-          <div class="at"><b>شنیدن پروپوزال</b><span id="apTime">۰:۰۰ / ۱۲:۵۶</span></div>
-          <div class="abar" id="apBar" role="slider" aria-label="پیشرفت پخش" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="apFill"></i></div>
-          <div class="asp" role="group" aria-label="سرعت پخش"><span>سرعت</span><button type="button" data-r="1" class="on">۱×</button><button type="button" data-r="1.5">۱٫۵×</button><button type="button" data-r="2">۲×</button></div>
-        </div>
-      </div>
-      <p class="anote">برای صرفه‌جویی در وقت شما، متن کامل پروپوزال به‌صورت صوتی هم آماده شده است؛ با سرعت ۱٫۵ یا ۲ برابر، شنیدنش حدود ۹ یا ۷ دقیقه طول می‌کشد.</p>
-      <audio id="apA" preload="none" src="proposal-audio.mp3"></audio>
       <div class="scroll-hint">
         <a class="btn btn-w" href="#s1" data-scroll>خواندن پروپوزال</a>
         <a class="btn btn-o" href="#gallery">گالری خلاقیت</a>
@@ -502,6 +503,20 @@ button{font-family:inherit}
       در عصر هوش مصنوعی، پرسشگری و خلاقیت دو بال پرواز انسان آینده‌اند؛ امید دارم تایم‌کوچ آشیانه‌ای باشد که این دو بال در آن گشوده می‌شوند.
       <div style="margin-top:14px;font-size:15px;color:var(--gray);font-weight:600">امیرحسین پرورنده فریمانی</div>
     </div>
+
+    <section class="listen" id="listen">
+      <h2><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg>نسخهٔ صوتی پروپوزال</h2>
+      <p>متن کامل پروپوزال، با امکان تغییر سرعت پخش.</p>
+      <div class="aud" id="aud">
+        <button type="button" class="ap" id="apBtn" aria-label="پخش نسخهٔ صوتی پروپوزال"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg></button>
+        <div class="am">
+          <div class="at"><b>شنیدن پروپوزال</b><span id="apTime">۰:۰۰ / ۱۲:۵۶</span></div>
+          <div class="abar" id="apBar" role="slider" aria-label="پیشرفت پخش" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="apFill"></i></div>
+          <div class="asp" role="group" aria-label="سرعت پخش"><span>سرعت</span><button type="button" data-r="1" class="on">۱×</button><button type="button" data-r="1.5">۱٫۵×</button><button type="button" data-r="2">۲×</button></div>
+        </div>
+      </div>
+      <audio id="apA" preload="none" src="proposal-audio.mp3"></audio>
+    </section>
   </div>
 </main>
 
@@ -524,7 +539,7 @@ button{font-family:inherit}
   <div class="wrap guide">
     <div class="gstep"><span class="gn">۱</span><div><h3>خواندن پروپوزال</h3>
       <p>پروپوزال از هفت بخش تشکیل شده است؛ از «خلق، از سر کمال» تا حوزه‌های فعالیت و دعوت پایانی. با دکمهٔ «خواندن پروپوزال» در بالای صفحه می‌توانید مستقیم به ابتدای متن بروید.</p>
-      <p>اگر فرصت خواندن ندارید، می‌توانید کل پروپوزال را <b>بشنوید</b>: پخش‌کنندهٔ بالای صفحه را بزنید و سرعت را روی ۱٫۵ یا ۲ برابر بگذارید. کنار عنوان هر بخش هم دکمهٔ «شنیدن» هست که پخش را از همان بخش شروع می‌کند. با پایین رفتن در صفحه، یک پخش‌کنندهٔ کوچک پایین صفحه همراهتان می‌ماند.</p></div></div>
+      <p>اگر فرصت خواندن ندارید، می‌توانید کل پروپوزال را <b>بشنوید</b>: روی آیکون هدفون در بالای صفحه بزنید تا به پخش‌کنندهٔ پایین صفحه بروید؛ سرعت را هم می‌توانید روی ۱٫۵ یا ۲ برابر بگذارید. کنار عنوان هر بخش هم دکمهٔ «شنیدن» هست که پخش را از همان بخش شروع می‌کند. با پایین رفتن در صفحه، یک پخش‌کنندهٔ کوچک پایین صفحه همراهتان می‌ماند.</p></div></div>
     <div class="gstep"><span class="gn">۲</span><div><h3>کارت‌های «چه می‌شد اگر…؟»</h3>
       <p>روی هر کارت کلیک کنید تا برگردد و یک پاسخ ممکن را نشان دهد؛ با کلیک دوباره به حالت اول بازمی‌گردد.</p>
       <p>در کارت آخر می‌توانید <b>پرسش «چه می‌شد اگر» خودتان</b> را بنویسید. پاسخی مرتبط از دل همین پروپوزال ساخته می‌شود و اگر نمونه‌ای در گالری داشته باشد، پیوند آن هم نمایش داده می‌شود.</p></div></div>
@@ -598,6 +613,7 @@ $$('[data-scroll]').forEach(function(a){a.addEventListener('click',function(e){e
 $$('.flip').forEach(function(b){b.addEventListener('click',function(){var on=b.classList.toggle('on');b.setAttribute('aria-pressed',on)})});
 
 /* ---------- audio narration ---------- */
+document.addEventListener('click',function(e){var g=e.target.closest('.golisten');if(!g)return;e.preventDefault();var L=$('#listen');L.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){var b=$('#apBtn');if(b)b.focus({preventScroll:true})},700);});
 (function(){
  var A=$('#apA'),btn=$('#apBtn'),fill=$('#apFill'),bar=$('#apBar'),tm=$('#apTime');
  var mini=$('#amini'),mb=$('#amBtn'),mf=$('#amFill'),mbar=$('#amBar'),mr=$('#amRate'),ms=$('#amSec');
