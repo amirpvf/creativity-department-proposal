@@ -61,6 +61,28 @@ button{font-family:inherit}
 .hero p.sub{font-size:clamp(17px,3vw,21px);margin:0;opacity:.92;font-weight:400}
 .hero p.rt{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;font-size:13.5px;opacity:.85}
 .hero p.rt svg{width:15px;height:15px}
+.aud{display:flex;align-items:center;gap:12px;margin:16px 0 0;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);border-radius:18px;padding:10px 12px;max-width:440px;backdrop-filter:blur(6px);text-shadow:none}
+.ap{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:#fff;color:var(--navy);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 18px -8px rgba(0,60,90,.5);transition:transform .15s}
+.ap:hover{transform:scale(1.06)}.ap svg{width:22px;height:22px}.ap .i-pause{display:none}.ap.on .i-play{display:none}.ap.on .i-pause{display:block}
+.am{flex:1;min-width:0}.at{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px}.at b{font-weight:700}.at span{font-size:12px;opacity:.9;direction:ltr;font-variant-numeric:tabular-nums}
+.abar{height:6px;border-radius:99px;background:rgba(255,255,255,.35);margin:7px 0;cursor:pointer;position:relative;overflow:hidden}.abar i{position:absolute;inset:0 auto 0 0;width:0;background:#fff;border-radius:99px}
+.hero .abar i{right:0;left:auto}
+.asp{display:flex;align-items:center;gap:5px;font-size:12px}.asp span{opacity:.85;margin-inline-end:2px}
+.asp button{border:1px solid rgba(255,255,255,.55);background:none;color:#fff;border-radius:99px;font:inherit;font-size:12px;font-weight:600;padding:0 9px;line-height:1.9;cursor:pointer}
+.asp button.on{background:#fff;color:var(--navy);border-color:#fff}
+.hero p.anote{font-size:12.5px;opacity:.88;margin:8px 0 0;max-width:440px;line-height:1.9}
+.hear{display:inline-flex;align-items:center;gap:4px;margin-inline-start:auto;border:1px solid var(--sky2);background:var(--white);color:var(--blue);border-radius:99px;font:inherit;font-family:var(--ui);font-size:12px;font-weight:600;padding:2px 10px;cursor:pointer;transition:.2s}
+.hear svg{width:14px;height:14px}.hear:hover,.hear.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.invite h2 .hear{margin-inline-start:12px}
+.amini{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:70;display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;border-radius:99px;padding:6px 8px 6px 12px;box-shadow:0 12px 30px -10px rgba(20,70,110,.55);width:min(460px,calc(100vw - 24px));font-family:var(--ui);animation:fade .3s}
+.ap.sm{width:36px;height:36px}.ap.sm svg{width:17px;height:17px}
+.amt{display:flex;flex-direction:column;line-height:1.35;min-width:0;flex:none;max-width:42%}.amt b{font-size:12.5px}.amt span{font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abar.sm{flex:1;margin:0;height:5px}.abar.sm i{right:0;left:auto}
+.amr,.amx{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:99px;font:inherit;font-size:12px;font-weight:700;height:28px;min-width:38px;cursor:pointer}
+.amx{min-width:28px;font-size:16px}
+@media (max-width:560px){.aud{max-width:none}.amt{max-width:34%}}
+@media print{.aud,.anote,.amini,.hear{display:none!important}}
+
 .hlogo{position:absolute;right:3%;top:50%;transform:translateY(-50%);width:clamp(150px,17vw,235px);height:auto;z-index:1;opacity:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.18))}
 @media (max-width:1240px){.hlogo{opacity:.13;right:-20px;width:240px;filter:none}}
 .hero .q{position:absolute;left:5%;top:12%;width:230px;opacity:.13;line-height:0}.hero .q svg{width:100%;height:auto}
@@ -353,6 +375,16 @@ button{font-family:inherit}
       <h1>دپارتمان خلاقیت تایم‌کوچ</h1>
       <p class="sub">پرسشگری و خلاقیت؛ دو بال پرواز انسان آینده</p>
       <p class="rt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>زمان مطالعهٔ پروپوزال: حدود ۱۵ دقیقه</p>
+      <div class="aud" id="aud">
+        <button type="button" class="ap" id="apBtn" aria-label="پخش نسخهٔ صوتی پروپوزال"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg></button>
+        <div class="am">
+          <div class="at"><b>شنیدن پروپوزال</b><span id="apTime">۰:۰۰ / ۱۲:۵۶</span></div>
+          <div class="abar" id="apBar" role="slider" aria-label="پیشرفت پخش" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="apFill"></i></div>
+          <div class="asp" role="group" aria-label="سرعت پخش"><span>سرعت</span><button type="button" data-r="1" class="on">۱×</button><button type="button" data-r="1.5">۱٫۵×</button><button type="button" data-r="2">۲×</button></div>
+        </div>
+      </div>
+      <p class="anote">برای صرفه‌جویی در وقت شما، متن کامل پروپوزال به‌صورت صوتی هم آماده شده است؛ با سرعت ۱٫۵ یا ۲ برابر، شنیدنش حدود ۹ یا ۷ دقیقه طول می‌کشد.</p>
+      <audio id="apA" preload="none" src="proposal-audio.mp3"></audio>
       <div class="scroll-hint">
         <a class="btn btn-w" href="#s1" data-scroll>خواندن پروپوزال</a>
         <a class="btn btn-o" href="#gallery">گالری خلاقیت</a>
@@ -363,31 +395,31 @@ button{font-family:inherit}
 
   <div class="wrap">
     <section class="sec" id="s1">
-      <h2><span class="n">۱</span>خلق، از سر کمال</h2>
+      <h2><span class="n">۱</span>خلق، از سر کمال<button type="button" class="hear" data-t="9.3" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p class="lead">در روایت‌های کهن آمده است که خداوند انسان را آفرید تا موجودی دیگر نیز از کمال او بهره‌مند شود و از آن لذت ببرد. از میان همهٔ نیازها، تنها نیازی که نه از نقص و کمبود، بلکه برخاسته از کمال پروردگار بود، خلق کردن و خلاقیت است. از این منظر، والاترین مرتبهٔ رسالت انسانی نیز آفرینش است؛ خلاقیتی که در خدمت بهبود زندگی انسان‌ها و همسو با مسیر خالق خویش است.</p>
     </section>
 
     <section class="sec">
-      <h2><span class="n">۲</span>چرا امروز بیش از همیشه</h2>
+      <h2><span class="n">۲</span>چرا امروز بیش از همیشه<button type="button" class="hear" data-t="45.3" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p>در روزگار هوش مصنوعی، اطلاعات، دانش و حتی امکان خلق کردن در دسترس بسیاری از انسان‌ها قرار گرفته است. با این همه، ارزش خلاقیت نه‌تنها کاسته نشده، بلکه بیش از پیش آشکار شده است. ذهن انسان امروز بیش از هر زمان دیگری به خوراک‌های آماده خو گرفته، کمتر به خود زحمت پرسشگری، کنجکاوی و نگریستن از لنزی دیگر را می‌دهد و اغلب ساده‌ترین راه را برمی‌گزیند.</p>
       <p>از سوی دیگر، هوش مصنوعی هر اندازه پیشرفت کند، گام بعدی خود را از دل دانسته‌هایش برمی‌دارد و پاسخ‌هایی هرچه آماده‌تر فراهم می‌کند، اما طرح پرسشی تازه و گشودن نگاهی نو همچنان از آنِ انسان است.</p>
       <div class="pull">از این رو، خلاقیت افزون بر آنکه مسیر رسالت اصلی انسان است، در این روزگار توانایی منحصربه‌فرد او نیز به شمار می‌آید.</div>
     </section>
 
     <section class="sec">
-      <h2><span class="n">۳</span>پیوند کوچینگ و خلاقیت</h2>
+      <h2><span class="n">۳</span>پیوند کوچینگ و خلاقیت<button type="button" class="hear" data-t="99.0" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p>مهم‌ترین عامل تقویت خلاقیت، پرسشگری و ساختن لنزهای تازه برای نگاه‌های تازه است؛ مهارتی که در کانون کوچینگ نیز قرار دارد. ست گودین در کتاب خود دربارهٔ خلاقیت یادآور می‌شود که خلاقیت رویدادی نیست که یک بار رخ دهد و به پایان برسد؛ تمرینی است که باید پیوسته انجامش داد و آن را زیست. این نگاه با رسالت کوچینگ و با روح صلاحیت دوم، یعنی زیستن طرز فکر کوچینگ، هم‌راستاست.</p>
       <p>پیوند این دو می‌تواند هر یک را تقویت کند و راه‌ها و محصولاتی تازه پدید آورد؛ کاری سخاوتمندانه برای تحول مثبت انسان‌ها، تا در اوج سخاوت از کمال یکدیگر بهره‌مند شوند، زیرا کوچینگ و خلاقیت هر دو در زمین حاصلخیز سخاوت می‌رویند.</p>
     </section>
 
     <section class="sec">
-      <h2><span class="n">۴</span>خاستگاه این پیشنهاد</h2>
+      <h2><span class="n">۴</span>خاستگاه این پیشنهاد<button type="button" class="hear" data-t="161.0" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p>این پیشنهاد از تجربه‌ای زیسته برآمده است. سال‌ها فعالیت در بازارهای مالی و حوزهٔ فناوری اطلاعات، ارزش خلاقیت را به من آموخت. در هر دو حوزه، ماندن در جایگاهی شاخص با تکرار راه‌های پیشین ممکن نبود. همگامی با بازار و رقبا، ساختن پیوستهٔ استراتژی‌ها و محصولات تازه را می‌طلبید. این مسیر قوهٔ خلاقهٔ مرا پرورش داد و نگاهم به مسائل را دگرگون کرد؛ نگاه و لنزی که خود یکی از انگیزه‌های اصلی آغاز مسیر کوچینگ برای من بود.</p>
       <p>در طول دورهٔ آموزش کوچینگ کوشیدم همین نگاه را با پرسشگری عمیق‌تر کنم و از زوایای تازه به فرایند یادگیری بنگرم. هر جا نیازی دیده شد، از خود پرسیدم چگونه می‌توان آن را به تجربه‌ای زنده‌تر بدل کرد، و پاسخ را در قالب ابزاری ساختم؛ از جزوه‌های تعاملی و آزمون‌های مفهومی تا بانک تمرین صلاحیت‌ها، ابزار پیاده‌سازی متن جلسات منتورینگ و پنل زیستن کوچینگ. همین رویکرد را فراتر از کوچینگ نیز به کار گرفته‌ام: در ابزارهایی برای مدیریت زندگی روزانه، همسو کردن انتخاب‌ها با ارزش‌ها، و پشتیبانی از کسب‌وکارهای کوچک. امیدوارم این تلاش فردی بتواند در قالب دپارتمانی منسجم، در خدمت خانوادهٔ تایم‌کوچ ادامه یابد.</p>
     </section>
 
     <section class="sec">
-      <h2><span class="n">۵</span>حوزه‌های فعالیت</h2>
+      <h2><span class="n">۵</span>حوزه‌های فعالیت<button type="button" class="hear" data-t="258.0" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p>تایم‌کوچ می‌تواند ترکیب کوچینگ و خلاقیت را در حوزه‌های گوناگونی به کار گیرد:</p>
       <div class="areas">
         <div class="area"><h3><i></i>فرایند آموزش</h3><p>جزوه‌های زنده، آزمون‌های مفهومی، کارت‌های لنز و پرسش، نقشه‌های تعاملی صلاحیت‌ها، و بازی‌های آموزشی برای درک عمیق‌تر رویکردهایی چون گشتالت، روایتی و ACT.</p></div>
@@ -404,7 +436,7 @@ button{font-family:inherit}
     </section>
 
     <section class="sec">
-      <h2><span class="n">۶</span>چه می‌شد اگر…؟</h2>
+      <h2><span class="n">۶</span>چه می‌شد اگر…؟<button type="button" class="hear" data-t="434.2" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p style="color:var(--gray)">روی هر کارت کلیک کنید.</p>
       <div class="flips">
         <button class="flip" type="button" aria-pressed="false"><div class="in">
@@ -454,7 +486,7 @@ button{font-family:inherit}
     </section>
 
     <section class="invite">
-      <h2>دعوت</h2>
+      <h2>دعوت<button type="button" class="hear" data-t="744.9" aria-label="شنیدن این بخش"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="3" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/><rect x="16.5" y="13.5" width="4.5" height="6.5" rx="1.6" fill="currentColor"/></svg><span>شنیدن</span></button></h2>
       <p>این صفحه آغاز یک گفت‌وگوست، نه پایان آن. اگر این نگاه را شایستهٔ ادامه بدانید، با اشتیاق آماده‌ام تا در فرصتی مناسب، مسیر شکل‌گیری این دپارتمان را با هم ترسیم کنیم.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px">
         <a class="btn btn-b" href="#gallery">گالری خلاقیت</a>
@@ -491,7 +523,8 @@ button{font-family:inherit}
   </div></section>
   <div class="wrap guide">
     <div class="gstep"><span class="gn">۱</span><div><h3>خواندن پروپوزال</h3>
-      <p>پروپوزال از هفت بخش تشکیل شده است؛ از «خلق، از سر کمال» تا حوزه‌های فعالیت و دعوت پایانی. با دکمهٔ «خواندن پروپوزال» در بالای صفحه می‌توانید مستقیم به ابتدای متن بروید.</p></div></div>
+      <p>پروپوزال از هفت بخش تشکیل شده است؛ از «خلق، از سر کمال» تا حوزه‌های فعالیت و دعوت پایانی. با دکمهٔ «خواندن پروپوزال» در بالای صفحه می‌توانید مستقیم به ابتدای متن بروید.</p>
+      <p>اگر فرصت خواندن ندارید، می‌توانید کل پروپوزال را <b>بشنوید</b>: پخش‌کنندهٔ بالای صفحه را بزنید و سرعت را روی ۱٫۵ یا ۲ برابر بگذارید. کنار عنوان هر بخش هم دکمهٔ «شنیدن» هست که پخش را از همان بخش شروع می‌کند. با پایین رفتن در صفحه، یک پخش‌کنندهٔ کوچک پایین صفحه همراهتان می‌ماند.</p></div></div>
     <div class="gstep"><span class="gn">۲</span><div><h3>کارت‌های «چه می‌شد اگر…؟»</h3>
       <p>روی هر کارت کلیک کنید تا برگردد و یک پاسخ ممکن را نشان دهد؛ با کلیک دوباره به حالت اول بازمی‌گردد.</p>
       <p>در کارت آخر می‌توانید <b>پرسش «چه می‌شد اگر» خودتان</b> را بنویسید. پاسخی مرتبط از دل همین پروپوزال ساخته می‌شود و اگر نمونه‌ای در گالری داشته باشد، پیوند آن هم نمایش داده می‌شود.</p></div></div>
@@ -543,6 +576,8 @@ button{font-family:inherit}
  <div class="dlg-act"><button type="button" class="btn btn-b" id="dlgOk">دانلود</button><button type="button" class="btn" id="dlgNo" style="border:1px solid var(--sky2);color:var(--navy)">انصراف</button></div>
 </div></div>
 <div class="toast" id="toast" hidden></div>
+<div class="amini" id="amini" hidden><button type="button" class="ap sm" id="amBtn" aria-label="پخش یا توقف"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg></button><div class="amt"><b>شنیدن پروپوزال</b><span id="amSec"></span></div><div class="abar sm" id="amBar"><i id="amFill"></i></div><button type="button" class="amr" id="amRate" aria-label="تغییر سرعت">۱×</button><button type="button" class="amx" id="amX" aria-label="بستن">×</button></div>
+
 <script>
 (function(){
 var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
@@ -561,6 +596,43 @@ $$('[data-scroll]').forEach(function(a){a.addEventListener('click',function(e){e
 
 /* ---------- flip cards ---------- */
 $$('.flip').forEach(function(b){b.addEventListener('click',function(){var on=b.classList.toggle('on');b.setAttribute('aria-pressed',on)})});
+
+/* ---------- audio narration ---------- */
+(function(){
+ var A=$('#apA'),btn=$('#apBtn'),fill=$('#apFill'),bar=$('#apBar'),tm=$('#apTime');
+ var mini=$('#amini'),mb=$('#amBtn'),mf=$('#amFill'),mbar=$('#amBar'),mr=$('#amRate'),ms=$('#amSec');
+ if(!A)return;
+ var D=776, rates=[1,1.5,2], dismissed=false;
+ var CH=[[0,'آغاز']].concat($$('.hear').map(function(b){var h=b.closest('h2');var t=h.cloneNode(true);t.querySelectorAll('.n,.hear').forEach(function(x){x.remove()});return [+b.dataset.t,t.textContent.trim()];}));
+ function fa(n){return String(n).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})}
+ function f(t){t=Math.max(0,Math.floor(t));return fa(Math.floor(t/60)+':'+String(t%60).padStart(2,'0'))}
+ function chap(t){var c=CH[0];CH.forEach(function(x){if(t>=x[0]-.3)c=x});return c}
+ function ui(){var d=isFinite(A.duration)&&A.duration?A.duration:D,p=Math.min(100,A.currentTime/d*100);
+   fill.style.width=mf.style.width=p+'%';bar.setAttribute('aria-valuenow',Math.round(p));tm.textContent=f(A.currentTime)+' / '+f(d);
+   var c=chap(A.currentTime);ms.textContent=c[1];
+   $$('.hear').forEach(function(b){b.classList.toggle('on',!A.paused&&c[0]===+b.dataset.t)});}
+ function state(){var on=!A.paused;btn.classList.toggle('on',on);mb.classList.toggle('on',on);btn.setAttribute('aria-label',on?'توقف':'پخش نسخهٔ صوتی پروپوزال');miniVis();}
+ function play(){var p=A.play();if(p&&p.catch)p.catch(function(){toast('پخش صدا ممکن نشد؛ لطفاً دوباره امتحان کنید.')});}
+ function toggle(){A.paused?play():A.pause()}
+ btn.addEventListener('click',toggle);mb.addEventListener('click',toggle);
+ function seekFrom(e,el){var r=el.getBoundingClientRect();var x=(r.right-e.clientX)/r.width;var d=isFinite(A.duration)&&A.duration?A.duration:D;A.currentTime=Math.max(0,Math.min(1,x))*d;ui();}
+ bar.addEventListener('click',function(e){seekFrom(e,bar)});mbar.addEventListener('click',function(e){seekFrom(e,mbar)});
+ bar.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){A.currentTime+=10;e.preventDefault()}else if(e.key==='ArrowRight'){A.currentTime=Math.max(0,A.currentTime-10);e.preventDefault()}else if(e.key===' '){toggle();e.preventDefault()}});
+ function setRate(r){A.playbackRate=r;A.defaultPlaybackRate=r;$$('.asp button').forEach(function(b){b.classList.toggle('on',+b.dataset.r===r)});mr.textContent=fa(String(r).replace('.','٫'))+'×';}
+ $$('.asp button').forEach(function(b){b.addEventListener('click',function(){setRate(+b.dataset.r)})});
+ mr.addEventListener('click',function(){var i=rates.indexOf(A.playbackRate);setRate(rates[(i+1)%rates.length])});
+ $$('.hear').forEach(function(b){b.addEventListener('click',function(){var t=+b.dataset.t;dismissed=false;
+   if(A.readyState<1){A.preload='auto';A.addEventListener('loadedmetadata',function h(){A.removeEventListener('loadedmetadata',h);A.currentTime=t;play();});A.load();}
+   else{A.currentTime=t;play();}})});
+ $('#amX').addEventListener('click',function(){A.pause();dismissed=true;miniVis();});
+ var heroVis=true;
+ if('IntersectionObserver' in window){new IntersectionObserver(function(es){heroVis=es[0].isIntersecting;miniVis();},{threshold:0}).observe($('#aud'));}
+ function miniVis(){var show=!dismissed&&(!A.paused||A.currentTime>0)&&!heroVis;mini.hidden=!show;}
+ window.addEventListener('hashchange',function(){setTimeout(miniVis,50)});
+ ['timeupdate','loadedmetadata','seeked'].forEach(function(ev){A.addEventListener(ev,ui)});
+ ['play','pause','ended'].forEach(function(ev){A.addEventListener(ev,state)});
+ A.addEventListener('ended',function(){A.currentTime=0;ui();});
+})();
 /* ---------- ask your own what-if ---------- */
 var KB=[
  {k:['محتوا','پست','اینستا','شبکه اجتماعی','شبکه‌های اجتماعی','بازاریابی','تبلیغ','برند','دیده شدن','مخاطب'],a:'کوچ‌ها در ساختن برند شخصی و تولید محتوا تنها نمی‌مانند: ابزارهایی برای برند شخصی و خطی برای تولید محتوا، از ایده تا انتشار، در امتداد برنامهٔ خانهٔ کسب‌وکار.',g:'کارخانهٔ محتوا'},
