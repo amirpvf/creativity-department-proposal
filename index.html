@@ -628,6 +628,8 @@ main.view{scroll-margin-top:120px}
 .rmp-back{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;font-weight:600;color:var(--navy)}
 .rmp-back svg{width:16px;height:16px}
 
+.rmp-ex{margin:6px 0 8px;font-size:13.5px;line-height:1.9;color:#3a4552;background:#f3f8fb;border-inline-start:3px solid var(--blue2);border-radius:10px;padding:7px 12px}
+.rmp-ex b{color:var(--navy)}
 /* controls */
 .rmp-ctrl{display:flex;align-items:center;gap:8px;padding:8px 18px 14px;flex-wrap:wrap}
 .rmp-btn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--sky2);background:var(--white);color:var(--navy);cursor:pointer;transition:background .2s}
@@ -742,7 +744,7 @@ main.view{scroll-margin-top:120px}
     {n:'۳',p:.43,lb:'پایلوت',ic:'flask',t:'پایلوت آموزشی در سامانهٔ آکادمی',w:'ماه ۳',
      chips:['ابزارهای بازی‌گونه برای دانشجویان کوچینگ','اولین ابزار برای زندگی خود کوچ‌ها'],d:'چون مخاطب اصلی ما، فعلاً همین شرکت‌کنندگان دوره‌ها هستند.',kpi:['شاخص','میزان استفاده و رضایت شرکت‌کنندگان از ابزارها']},
     {n:'۴',p:.555,lb:'هوشمندسازی',ic:'bolt',t:'هوشمندسازی یک فرایند',w:'ماه ۳ تا ۴',eco:'صرفه‌جویی',
-     d:'همان فرایندی که در نیازسنجی بالاترین اولویت را گرفته است؛ یعنی صرفه‌جویی در وقت و هزینه.',kpi:['شاخص','ساعت‌های کاری آزادشده در ماه']},
+     d:'همان فرایندی که در نیازسنجی بالاترین اولویت را گرفته است؛ یعنی صرفه‌جویی در وقت و هزینه.',ex:'یک سیستم هماهنگی برای تیم خود آکادمی؛ تا کارها، مسئولیت‌ها، پیگیری‌ها و ایده‌های اعضا یک‌جا و شفاف دیده شود و همه هماهنگ‌تر و هم‌مسیرتر کار کنند.',kpi:['شاخص','ساعت‌های کاری آزادشده در ماه']},
     {k:'dec',p:2/3,lb:'مرور دوم',ic:'review',t:'مرور دوم با استاد',w:'پایان ماه چهارم',
      d:'نتایج پایلوت و هوشمندسازی را با استاد می‌سنجیم و دربارهٔ ادامهٔ مسیر تصمیم می‌گیریم.'},
     {n:'۵',p:.77,lb:'زیستن تا دوره',ic:'sprout',t:'از زیستن تا دوره',w:'ماه ۵',eco:'نشانهٔ بازار',
@@ -755,6 +757,7 @@ main.view{scroll-margin-top:120px}
     var h='<div class="rmp-ph">'+svg(s.ic,'ic')+'<h3>'+s.t+'</h3><span class="rmp-when'+(s.amber?' amber':'')+'">'+s.w+'</span>'+(s.eco?'<span class="rmp-eco sp">'+svg('coin')+'ارزش اقتصادی · '+s.eco+'</span>':'')+'</div>';
     if(s.flow) h+='<div class="rmp-flow">'+s.flow.map(function(x,i){return '<span'+(i==s.flow.length-1&&s.eco?' class="fin"':'')+'>'+x+'</span>'}).join('<em>‹</em>')+'</div>';
     if(s.d) h+='<p>'+s.d+'</p>';
+    if(s.ex) h+='<div class="rmp-ex"><b>مثال:</b> '+s.ex+'</div>';
     if(s.chips) h+='<div class="rmp-chips">'+s.chips.map(function(x){return '<span>'+x+'</span>'}).join('')+'</div>';
     if(s.kpi) h+='<div class="rmp-kpi">'+svg('target')+'<span><b>'+s.kpi[0]+':</b> '+s.kpi[1]+'</span></div>';
     if(s.back) h+='<div class="rmp-back">'+svg('back')+'بازگشت به تصویر پایان، و آغاز شش ماه دوم</div>';
